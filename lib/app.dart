@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/kosha_theme.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'features/onboarding/presentation/controllers/onboarding_providers.dart';
 import 'features/tasks/data/task_repository_impl.dart';
 import 'shared/widgets/toast_host.dart';
 
@@ -42,6 +43,35 @@ class _KoshaAppState extends ConsumerState<KoshaApp> {
 
   @override
   Widget build(BuildContext context) {
+    // Waits for the profile's first value before ever building the router:
+    // the router's own redirect only reacts to *changes* after that (see
+    // app_router.dart), so without this gate a returning user could flash the
+    // onboarding screen for one frame while the first database read is still
+    // in flight.
+    final ready = ref.watch(profileReadyProvider);
+    return ready.when(
+      data: (_) => const _RouterApp(),
+      loading: () => const _Splash(),
+      error: (error, stack) => const _Splash(),
+    );
+  }
+}
+
+class _Splash extends StatelessWidget {
+  const _Splash();
+
+  @override
+  Widget build(BuildContext context) => const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+      );
+}
+
+class _RouterApp extends ConsumerWidget {
+  const _RouterApp();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
     final useGoogleFonts = ref.watch(googleFontsEnabledProvider);

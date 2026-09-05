@@ -5,8 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kosha/core/db/app_database.dart';
 import 'package:kosha/core/services/notifications/reminder_scheduler.dart';
+import 'package:kosha/core/services/settings/settings_store.dart';
 import 'package:kosha/core/theme/kosha_theme.dart';
 import 'package:kosha/core/utils/clock.dart';
+import 'package:kosha/features/onboarding/data/profile_repository_impl.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
 import 'package:kosha/shared/state/toast_controller.dart';
 import 'package:kosha/shared/widgets/toast_host.dart';
@@ -19,6 +21,17 @@ final DateTime testToday = DateTime(2026, 9, 4);
 
 /// A database that lives for one test. Close it with `addTearDown(db.close)`.
 AppDatabase testDatabase() => AppDatabase.withExecutor(NativeDatabase.memory());
+
+/// Seeds a completed profile so a full-app test (through [wrapApp]) lands
+/// directly on the screen under test instead of onboarding. Screen-level
+/// tests using [wrapScreen]/[wrapPushedScreen] never build the router at all,
+/// so they are unaffected either way — only a test that pumps the real
+/// `KoshaApp` needs this.
+Future<void> seedCompletedProfile(AppDatabase db, {DateTime? now}) {
+  final clock = FixedClock(now ?? testNow);
+  return DriftProfileRepository(db, clock, SettingsStore(db, clock))
+      .completeOnboarding();
+}
 
 /// A repository on [db] with a fixed clock and, unless one is passed, a
 /// scheduler that does nothing.

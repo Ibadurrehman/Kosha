@@ -19,6 +19,7 @@ void main() {
   tearDown(() => db.close());
 
   testWidgets('boots into Home with the five-tab bar', (tester) async {
+    await seedCompletedProfile(db);
     await tester.pumpWidget(wrapApp(const KoshaApp(), db: db));
     await tester.pumpAndSettle();
 
@@ -30,6 +31,7 @@ void main() {
   });
 
   testWidgets('switches branches from the bottom bar', (tester) async {
+    await seedCompletedProfile(db);
     await tester.pumpWidget(wrapApp(const KoshaApp(), db: db));
     await tester.pumpAndSettle();
 
@@ -45,6 +47,7 @@ void main() {
 
   testWidgets('More links to the States gallery in debug builds',
       (tester) async {
+    await seedCompletedProfile(db);
     await tester.pumpWidget(wrapApp(const KoshaApp(), db: db));
     await tester.pumpAndSettle();
 
@@ -65,6 +68,7 @@ void main() {
   });
 
   testWidgets('theme mode provider drives dark mode', (tester) async {
+    await seedCompletedProfile(db);
     await tester.pumpWidget(wrapApp(const KoshaApp(), db: db));
     await tester.pumpAndSettle();
 
