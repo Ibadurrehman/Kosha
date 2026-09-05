@@ -3,6 +3,8 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../features/home/data/dashboard_section_table.dart';
+import '../../features/onboarding/data/profile_table.dart';
 import '../../features/tasks/data/activity_table.dart';
 import '../../features/tasks/data/task_table.dart';
 // Enum columns: the generated part file resolves these through this library's
@@ -27,7 +29,9 @@ class Settings extends Table {
 /// The single local database. Feature tables are added here as each phase
 /// lands; every table uses a UUID text primary key plus created_at /
 /// updated_at / deleted_at so the Phase 5 sync layer needs no migration.
-@DriftDatabase(tables: [Settings, Tasks, ActivityEntries])
+@DriftDatabase(
+  tables: [Settings, Tasks, ActivityEntries, Profiles, DashboardSections],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -35,7 +39,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -51,6 +55,14 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.createTable(activityEntries);
             await m.createIndex(activityOwner);
+          }
+          // v4 (Phase 1 week 3): the local profile + onboarding.
+          if (from < 4) {
+            await m.createTable(profiles);
+          }
+          // v5 (Phase 1 week 3): Home's Customize dashboard.
+          if (from < 5) {
+            await m.createTable(dashboardSections);
           }
         },
         beforeOpen: (details) async {
