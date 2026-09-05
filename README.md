@@ -59,3 +59,16 @@ tool/gen.sh watch        # keep generated code fresh while developing
 
 Android and iOS are the release targets. The `web/`, `windows/`, `macos/` and
 `linux/` folders are kept for quick local UI iteration only and are not built in CI.
+
+Running on the web needs two files drift cannot get from pub, because sqlite3 has
+to be compiled to wasm for a browser: `web/sqlite3.wasm` and `web/drift_worker.js`.
+Both are committed, and both ship with the drift release pinned in `pubspec.lock`,
+so refresh them after upgrading drift:
+
+```bash
+tool/fetch_web_assets.sh        # or tooletch_web_assets.ps1
+```
+
+Drift stores the database in OPFS and needs a worker to reach it, so the web build
+only runs in a real browser tab — an embedded webview that cannot start a worker
+from inside another worker will hang on the first query.

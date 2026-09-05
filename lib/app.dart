@@ -23,8 +23,21 @@ class _KoshaAppState extends ConsumerState<KoshaApp> {
     // After the first frame so the database is never opened during a build.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      unawaited(ref.read(taskRepositoryProvider).resyncReminders());
+      unawaited(_resyncReminders());
     });
+  }
+
+  /// Re-registers reminders on launch. Best-effort: a device that refuses to
+  /// schedule notifications, or a platform with no notification plugin at all,
+  /// must not stop the app from starting, so the failure is logged rather than
+  /// left to surface as an uncaught async error.
+  Future<void> _resyncReminders() async {
+    try {
+      await ref.read(taskRepositoryProvider).resyncReminders();
+    } on Object catch (error, stack) {
+      debugPrint('Kosha: could not re-register reminders ($error)');
+      debugPrintStack(stackTrace: stack);
+    }
   }
 
   @override

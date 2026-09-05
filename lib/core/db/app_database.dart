@@ -63,6 +63,15 @@ class AppDatabase extends _$AppDatabase {
         native: const DriftNativeOptions(
           databaseDirectory: getApplicationSupportDirectory,
         ),
+        // Web is a local-iteration target only (see the README), but drift
+        // refuses to open at all without these, and sqlite3 has to be compiled
+        // to wasm because there is no pure-Dart sqlite in a browser. Both files
+        // ship with the drift release pinned in pubspec.lock and live in web/;
+        // `tool/fetch_web_assets.ps1` refreshes them after a drift upgrade.
+        web: DriftWebOptions(
+          sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+          driftWorker: Uri.parse('drift_worker.js'),
+        ),
       );
 }
 
