@@ -1,0 +1,5 @@
+{
+  "FLAVOR": "prod",
+  "SEED_DEMO_DATA": false,
+  "SENTRY_DSN": ""
+}
