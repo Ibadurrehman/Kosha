@@ -41,7 +41,7 @@ void main() {
 
     await tester.tap(_tab('Calendar'));
     await tester.pumpAndSettle();
-    expect(find.text('The calendar arrives in Phase 1.'), findsOneWidget);
+    expect(find.text('September 2026'), findsOneWidget);
     await settleAndDispose(tester);
   });
 

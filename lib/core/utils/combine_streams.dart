@@ -43,9 +43,14 @@ Stream<List<T>> combineLatestLists<T>(List<Stream<List<T>>> sources) {
           ),
       ];
     },
-    onCancel: () async {
+    // Fire-and-forget rather than awaiting each cancellation in turn: drift
+    // closes a query stream with its own zero-duration timer, and awaiting
+    // that sequentially per source chains up one such timer after another,
+    // which needs strictly more drain passes than a test's teardown expects.
+    // Each subscription cancels independently instead.
+    onCancel: () {
       for (final subscription in subscriptions) {
-        await subscription.cancel();
+        unawaited(subscription.cancel());
       }
     },
   );
