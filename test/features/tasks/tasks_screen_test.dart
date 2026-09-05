@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kosha/core/db/app_database.dart';
-import 'package:kosha/core/utils/clock.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
 import 'package:kosha/features/tasks/domain/entities/task.dart';
 import 'package:kosha/features/tasks/presentation/tasks_screen.dart';
@@ -15,7 +14,7 @@ void main() {
 
   setUp(() {
     db = testDatabase();
-    repository = DriftTaskRepository(db, FixedClock(testNow));
+    repository = testRepository(db);
   });
 
   tearDown(() => db.close());

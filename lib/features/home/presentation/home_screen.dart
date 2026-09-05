@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/kosha_shapes.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/utils/formatters.dart';
@@ -119,6 +121,9 @@ class _TodaySection extends ConsumerWidget {
                 task: task,
                 today: today,
                 onToggle: () => unawaited(toggleTask(ref, task)),
+                onOpen: () => context.go(Routes.taskDetail(task.id)),
+                onActions: () =>
+                    unawaited(openTaskActions(context, ref, task)),
               ),
             ),
           const SizedBox(height: 2),

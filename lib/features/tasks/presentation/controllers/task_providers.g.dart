@@ -134,6 +134,170 @@ final class TodayTasksProvider
 
 String _$todayTasksHash() => r'47e9260dd38fc5266b260381d7be4afd6b74db7b';
 
+/// One task for the detail screen; emits null once it is deleted.
+
+@ProviderFor(taskById)
+final taskByIdProvider = TaskByIdFamily._();
+
+/// One task for the detail screen; emits null once it is deleted.
+
+final class TaskByIdProvider
+    extends $FunctionalProvider<AsyncValue<Task?>, Task?, Stream<Task?>>
+    with $FutureModifier<Task?>, $StreamProvider<Task?> {
+  /// One task for the detail screen; emits null once it is deleted.
+  TaskByIdProvider._({
+    required TaskByIdFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'taskByIdProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$taskByIdHash();
+
+  @override
+  String toString() {
+    return r'taskByIdProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<Task?> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<Task?> create(Ref ref) {
+    final argument = this.argument as String;
+    return taskById(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TaskByIdProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$taskByIdHash() => r'acc4a463c2ab78de542436e6100e9175dcf1bedb';
+
+/// One task for the detail screen; emits null once it is deleted.
+
+final class TaskByIdFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<Task?>, String> {
+  TaskByIdFamily._()
+    : super(
+        retry: null,
+        name: r'taskByIdProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// One task for the detail screen; emits null once it is deleted.
+
+  TaskByIdProvider call(String id) =>
+      TaskByIdProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'taskByIdProvider';
+}
+
+/// History for the detail screen's activity section, newest first.
+
+@ProviderFor(taskActivity)
+final taskActivityProvider = TaskActivityFamily._();
+
+/// History for the detail screen's activity section, newest first.
+
+final class TaskActivityProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ActivityEntry>>,
+          List<ActivityEntry>,
+          Stream<List<ActivityEntry>>
+        >
+    with
+        $FutureModifier<List<ActivityEntry>>,
+        $StreamProvider<List<ActivityEntry>> {
+  /// History for the detail screen's activity section, newest first.
+  TaskActivityProvider._({
+    required TaskActivityFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'taskActivityProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$taskActivityHash();
+
+  @override
+  String toString() {
+    return r'taskActivityProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<ActivityEntry>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<ActivityEntry>> create(Ref ref) {
+    final argument = this.argument as String;
+    return taskActivity(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TaskActivityProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$taskActivityHash() => r'88c097875ff260d5885ddd3c9bfb633a77306a8b';
+
+/// History for the detail screen's activity section, newest first.
+
+final class TaskActivityFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<ActivityEntry>>, String> {
+  TaskActivityFamily._()
+    : super(
+        retry: null,
+        name: r'taskActivityProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// History for the detail screen's activity section, newest first.
+
+  TaskActivityProvider call(String id) =>
+      TaskActivityProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'taskActivityProvider';
+}
+
 /// The tab the Tasks screen is showing. Kept alive so it survives tab switches
 /// in the shell.
 

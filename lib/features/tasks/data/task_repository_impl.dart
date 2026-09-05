@@ -3,21 +3,33 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/db/app_database.dart';
+import '../../../core/services/notifications/reminder_scheduler.dart';
+import '../../../core/services/notifications/scheduled_reminder.dart';
+import '../../../core/services/recurrence/recurrence.dart';
 import '../../../core/utils/clock.dart';
+import '../../../core/utils/formatters.dart';
+import '../domain/entities/activity_entry.dart';
 import '../domain/entities/task.dart';
+import '../domain/task_reminder.dart';
 import '../domain/task_repository.dart';
 
 part 'task_repository_impl.g.dart';
 
-/// SQLite-backed tasks. Every write stamps `updatedAt` from the injected
-/// [Clock] so tests can assert on timestamps.
+/// SQLite-backed tasks.
+///
+/// Every write goes through here so the three side effects stay together: the
+/// row change, the activity line, and the reminder the operating system holds.
 class DriftTaskRepository implements TaskRepository {
-  DriftTaskRepository(this._db, this._clock);
+  DriftTaskRepository(this._db, this._clock, this._scheduler);
 
   static const Uuid _uuid = Uuid();
 
+  /// The detail screen shows a short history, not an audit trail.
+  static const int _activityLimit = 20;
+
   final AppDatabase _db;
   final Clock _clock;
+  final ReminderScheduler _scheduler;
 
   @override
   Stream<List<Task>> watchBucket(
@@ -49,6 +61,37 @@ class DriftTaskRepository implements TaskRepository {
   }
 
   @override
+  Stream<Task?> watchById(String id) {
+    final query = _db.select(_db.tasks)
+      ..where((t) => t.id.equals(id) & t.deletedAt.isNull());
+    return query.watchSingleOrNull().map((row) => row == null ? null : _toDomain(row));
+  }
+
+  @override
+  Stream<List<ActivityEntry>> watchActivity(String taskId) {
+    final query = _db.select(_db.activityEntries)
+      ..where((a) => a.ownerType.equals(taskOwnerType) & a.ownerId.equals(taskId))
+      // Several entries can share a timestamp — a complete that spawns the next
+      // occurrence writes two — so insertion order breaks the tie.
+      ..orderBy([
+        (a) => OrderingTerm.desc(a.at),
+        (a) => OrderingTerm.desc(a.rowId),
+      ])
+      ..limit(_activityLimit);
+    return query.watch().map(
+          (rows) => [
+            for (final row in rows)
+              ActivityEntry(
+                id: row.id,
+                event: row.event,
+                at: row.at,
+                detail: row.detail,
+              ),
+          ],
+        );
+  }
+
+  @override
   Future<Task?> findById(String id) async {
     final row = await (_db.select(_db.tasks)
           ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))
@@ -75,20 +118,32 @@ class DriftTaskRepository implements TaskRepository {
       spaceId: draft.spaceId,
       source: draft.source,
     );
-    await _db.into(_db.tasks).insert(_toRow(task));
+    await _insert(task);
+    await _log(task.id, ActivityEvent.created);
+    await _syncReminder(task);
     return task;
   }
 
   @override
-  Future<void> save(Task task) async {
-    await _db
-        .update(_db.tasks)
-        .replace(_toRow(task.copyWith(updatedAt: _clock.now())));
+  Future<Task> save(Task task) async {
+    // The stored creation time wins, so an editor holding a stale copy cannot
+    // rewrite when the task came into being.
+    final existing = await _require(task.id);
+    final updated = task.copyWith(
+      createdAt: existing.createdAt,
+      updatedAt: _clock.now(),
+    );
+    await _db.update(_db.tasks).replace(_toRow(updated));
+    await _log(updated.id, ActivityEvent.edited);
+    await _syncReminder(updated);
+    return updated;
   }
 
   @override
-  Future<void> setDone(String id, {required bool done}) async {
+  Future<TaskCompletion> setDone(String id, {required bool done}) async {
+    final existing = await _require(id);
     final now = _clock.now();
+
     await (_db.update(_db.tasks)..where((t) => t.id.equals(id))).write(
       TasksCompanion(
         done: Value(done),
@@ -96,6 +151,72 @@ class DriftTaskRepository implements TaskRepository {
         updatedAt: Value(now),
       ),
     );
+    final updated = existing.copyWith(
+      done: done,
+      completedAt: done ? now : null,
+      updatedAt: now,
+    );
+    await _log(id, done ? ActivityEvent.completed : ActivityEvent.reopened);
+    await _syncReminder(updated);
+
+    return TaskCompletion(
+      task: updated,
+      nextOccurrence: done ? await _spawnNextOccurrence(existing, now) : null,
+    );
+  }
+
+  @override
+  Future<Task> reschedule(
+    String id, {
+    required DateTime? dueDate,
+    int? dueMinutes,
+  }) async {
+    final existing = await _require(id);
+    final now = _clock.now();
+    final date = dueDate == null ? null : dateOnly(dueDate);
+
+    await (_db.update(_db.tasks)..where((t) => t.id.equals(id))).write(
+      TasksCompanion(
+        dueDate: Value(date),
+        dueMinutes: Value(dueMinutes),
+        updatedAt: Value(now),
+      ),
+    );
+    final updated = existing.copyWith(
+      dueDate: date,
+      dueMinutes: dueMinutes,
+      updatedAt: now,
+    );
+    await _log(
+      id,
+      ActivityEvent.rescheduled,
+      detail: date == null ? 'date cleared' : 'to ${Dates.dayMonth(date)}',
+    );
+    await _syncReminder(updated);
+    return updated;
+  }
+
+  @override
+  Future<Task> duplicate(String id) async {
+    final existing = await _require(id);
+    final now = _clock.now();
+    final copy = existing.copyWith(
+      id: _uuid.v4(),
+      title: '${existing.title} (copy)',
+      done: false,
+      completedAt: null,
+      parentTaskId: null,
+      createdAt: now,
+      updatedAt: now,
+    );
+    await _insert(copy);
+    await _log(
+      copy.id,
+      ActivityEvent.created,
+      detail: 'copied from “${existing.title}”',
+    );
+    await _syncReminder(copy);
+    return copy;
   }
 
   @override
@@ -103,6 +224,8 @@ class DriftTaskRepository implements TaskRepository {
     final now = _clock.now();
     await (_db.update(_db.tasks)..where((t) => t.id.equals(id)))
         .write(TasksCompanion(deletedAt: Value(now), updatedAt: Value(now)));
+    await _log(id, ActivityEvent.deleted);
+    await _scheduler.cancel(ReminderKind.task, id);
   }
 
   @override
@@ -113,11 +236,89 @@ class DriftTaskRepository implements TaskRepository {
         updatedAt: Value(_clock.now()),
       ),
     );
+    await _log(id, ActivityEvent.restored);
+    final restored = await findById(id);
+    if (restored != null) await _syncReminder(restored);
   }
 
   @override
   Future<void> purge(String id) async {
     await (_db.delete(_db.tasks)..where((t) => t.id.equals(id))).go();
+    await (_db.delete(_db.activityEntries)
+          ..where((a) => a.ownerType.equals(taskOwnerType) & a.ownerId.equals(id)))
+        .go();
+    await _scheduler.cancel(ReminderKind.task, id);
+  }
+
+  @override
+  Future<void> resyncReminders() async {
+    final rows = await (_db.select(_db.tasks)
+          ..where(
+            (t) =>
+                t.deletedAt.isNull() &
+                t.done.equals(false) &
+                t.dueDate.isNotNull() &
+                t.reminderOffsetMinutes.isNotNull(),
+          ))
+        .get();
+    for (final row in rows) {
+      await _syncReminder(_toDomain(row));
+    }
+  }
+
+  /// Creates the occurrence that replaces a completed repeating task, or null
+  /// when the task does not repeat.
+  Future<Task?> _spawnNextOccurrence(Task completed, DateTime now) async {
+    if (!completed.repeats) return null;
+    final from = completed.dueDate ?? DateTime(now.year, now.month, now.day);
+    final nextDue = Recurrence.nextAfter(completed.recurrenceRule, from);
+    if (nextDue == null) return null;
+
+    final next = completed.copyWith(
+      id: _uuid.v4(),
+      dueDate: nextDue,
+      done: false,
+      completedAt: null,
+      createdAt: now,
+      updatedAt: now,
+      // Every occurrence points at the first task in the series.
+      parentTaskId: completed.parentTaskId ?? completed.id,
+    );
+    await _insert(next);
+    await _log(next.id, ActivityEvent.created, detail: 'next in the series');
+    await _syncReminder(next);
+    return next;
+  }
+
+  Future<Task> _require(String id) async {
+    final task = await findById(id);
+    if (task == null) throw StateError('No task with id $id');
+    return task;
+  }
+
+  Future<void> _insert(Task task) =>
+      _db.into(_db.tasks).insert(_toRow(task));
+
+  Future<void> _log(String taskId, ActivityEvent event, {String? detail}) async {
+    await _db.into(_db.activityEntries).insert(
+          ActivityRow(
+            id: _uuid.v4(),
+            ownerType: taskOwnerType,
+            ownerId: taskId,
+            event: event,
+            detail: detail,
+            at: _clock.now(),
+          ),
+        );
+  }
+
+  Future<void> _syncReminder(Task task) async {
+    final reminder = reminderForTask(task, now: _clock.now());
+    if (reminder == null) {
+      await _scheduler.cancel(ReminderKind.task, task.id);
+    } else {
+      await _scheduler.schedule(reminder);
+    }
   }
 
   Expression<bool> _bucketPredicate(
@@ -201,4 +402,5 @@ class DriftTaskRepository implements TaskRepository {
 TaskRepository taskRepository(Ref ref) => DriftTaskRepository(
       ref.watch(appDatabaseProvider),
       ref.watch(clockProvider),
+      ref.watch(reminderSchedulerProvider),
     );

@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import '../../core/models/priority.dart';
 import '../../core/theme/kosha_colors.dart';
 
-export '../../core/models/priority.dart';
-
 /// 8 px dot; hidden for [Priority.none]. Colour is never the only signal —
 /// callers also show the label in the meta line.
 class PriorityDot extends StatelessWidget {

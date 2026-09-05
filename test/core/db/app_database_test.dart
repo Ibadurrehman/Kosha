@@ -22,9 +22,10 @@ void main() {
     expect(result.read<int>('foreign_keys'), 1);
   });
 
-  test('schema version is 2', () {
-    // v1 settings, v2 tasks. Bump this with every migration so the upgrade
-    // path in AppDatabase.migration is never skipped by accident.
-    expect(db.schemaVersion, 2);
+  test('schema version is 3', () {
+    // v1 settings, v2 tasks, v3 activity history. Bump this with every
+    // migration so the upgrade path in AppDatabase.migration is never skipped
+    // by accident.
+    expect(db.schemaVersion, 3);
   });
 }

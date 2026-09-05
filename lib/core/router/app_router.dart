@@ -7,6 +7,8 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/more/presentation/more_screen.dart';
 import '../../features/spaces/presentation/spaces_screen.dart';
 import '../../features/states_gallery/presentation/states_gallery_screen.dart';
+import '../../features/tasks/presentation/task_detail_screen.dart';
+import '../../features/tasks/presentation/task_edit_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
 import '../config/app_config.dart';
 import 'kosha_shell.dart';
@@ -20,6 +22,12 @@ abstract final class Routes {
   static const calendar = '/calendar';
   static const more = '/more';
   static const statesGallery = '/more/states';
+
+  /// Task detail lives under the Tasks tab, so the bottom bar keeps Tasks lit
+  /// even when the task was opened from Home.
+  static String taskDetail(String id) => '$tasks/$id';
+
+  static String taskEdit(String id) => '$tasks/$id/edit';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -41,7 +49,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: Routes.tasks, builder: (_, _) => const TasksScreen()),
+              GoRoute(
+                path: Routes.tasks,
+                builder: (_, _) => const TasksScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) => TaskDetailScreen(
+                      taskId: state.pathParameters['id']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (_, state) => TaskEditScreen(
+                          taskId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(

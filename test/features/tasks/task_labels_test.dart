@@ -80,13 +80,40 @@ void main() {
     });
   });
 
-  group('recurrenceLabel', () {
-    test('maps the frequencies the app can create', () {
-      expect(recurrenceLabel('FREQ=DAILY'), 'Daily');
-      expect(recurrenceLabel('FREQ=WEEKLY;BYDAY=MO'), 'Weekly');
-      expect(recurrenceLabel('FREQ=MONTHLY'), 'Monthly');
-      expect(recurrenceLabel('FREQ=YEARLY'), 'Yearly');
-      expect(recurrenceLabel('nonsense'), 'Repeats');
+  group('reminderLabel', () {
+    test('names the lead times the editor offers', () {
+      expect(reminderLabel(null), 'None');
+      expect(reminderLabel(0), 'At the time');
+      expect(reminderLabel(60), '1 hour before');
+      expect(reminderLabel(24 * 60), '1 day before');
+      expect(reminderLabel(48 * 60), '2 days before');
+    });
+
+    test('falls back to hours, days or minutes for other values', () {
+      expect(reminderLabel(3 * 60), '3 hours before');
+      expect(reminderLabel(3 * 24 * 60), '3 days before');
+      expect(reminderLabel(15), '15 minutes before');
+    });
+  });
+
+  group('taskBadgeLabel', () {
+    test('reads the way the prototype badge does', () {
+      expect(taskBadgeLabel(task(due: today), today), 'Due today');
+      expect(
+        taskBadgeLabel(task(due: DateTime(2026, 9, 1)), today),
+        'Overdue',
+      );
+      expect(
+        taskBadgeLabel(task(due: DateTime(2026, 9, 12)), today),
+        'Due 12 Sep 2026',
+      );
+      expect(taskBadgeLabel(task(), today), 'No date set');
+      expect(taskBadgeLabel(task(rule: 'FREQ=DAILY'), today), 'Daily');
+    });
+
+    test('a completed task reads as Completed whatever its date', () {
+      final done = task(due: DateTime(2026, 9, 1)).copyWith(done: true);
+      expect(taskBadgeLabel(done, today), 'Completed');
     });
   });
 }

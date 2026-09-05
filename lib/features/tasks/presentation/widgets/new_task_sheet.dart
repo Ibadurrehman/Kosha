@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../../core/models/priority.dart';
+import '../../../../core/services/notifications/reminder_scheduler.dart';
 import '../../../../core/theme/kosha_colors.dart';
 import '../../../../core/utils/clock.dart';
 import '../../../../shared/state/toast_controller.dart';
@@ -60,6 +61,12 @@ class _NewTaskSheetState extends ConsumerState<NewTaskSheet> {
     final repository = ref.read(taskRepositoryProvider);
     final toast = ref.read(toastControllerProvider.notifier);
     final today = ref.read(clockProvider).today();
+
+    // Ask the first time a reminder is actually wanted, rather than at launch.
+    if (_remindMe) {
+      await ref.read(reminderSchedulerProvider).requestPermission();
+      if (!mounted) return;
+    }
 
     final draft = NewTask(
       title: title,

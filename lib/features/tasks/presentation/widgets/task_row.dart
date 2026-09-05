@@ -10,10 +10,11 @@ import '../task_labels.dart';
 /// Identifies the completion checkbox inside a [TaskRow] for widget tests.
 const Key taskCheckboxKey = Key('task-checkbox');
 
-/// One task in a list: checkbox, title, meta line and priority dot.
-///
-/// [onOpen] is left null until the task detail screen lands, so the row has no
-/// dead tap target in the meantime.
+/// Identifies the "•••" actions button inside a [TaskRow] for widget tests.
+const Key taskActionsKey = Key('task-actions');
+
+/// One task in a list: checkbox, title, meta line, priority dot and the "•••"
+/// button that opens the actions sheet.
 class TaskRow extends StatelessWidget {
   const TaskRow({
     super.key,
@@ -21,14 +22,14 @@ class TaskRow extends StatelessWidget {
     required this.today,
     required this.onToggle,
     this.onOpen,
-    this.trailing,
+    this.onActions,
   });
 
   final Task task;
   final DateTime today;
   final VoidCallback onToggle;
   final VoidCallback? onOpen;
-  final Widget? trailing;
+  final VoidCallback? onActions;
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +74,17 @@ class TaskRow extends StatelessWidget {
               ),
             ),
             PriorityDot(task.priority),
-            SizedBox(width: trailing == null ? 14 : 6),
-            ?trailing,
+            if (onActions == null)
+              const SizedBox(width: 14)
+            else
+              IconButton(
+                key: taskActionsKey,
+                onPressed: onActions,
+                iconSize: 20,
+                color: c.text3,
+                tooltip: 'Task actions',
+                icon: const Icon(Symbols.more_horiz_rounded),
+              ),
           ],
         ),
       ),

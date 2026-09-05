@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/kosha_shapes.dart';
 import '../../../core/utils/clock.dart';
 import '../../../shared/widgets/widgets.dart';
@@ -72,6 +74,11 @@ class TasksScreen extends ConsumerWidget {
                         task: list[i],
                         today: today,
                         onToggle: () => unawaited(toggleTask(ref, list[i])),
+                        onOpen: () =>
+                            context.go(Routes.taskDetail(list[i].id)),
+                        onActions: () => unawaited(
+                          openTaskActions(context, ref, list[i]),
+                        ),
                       ),
                     ),
             ),

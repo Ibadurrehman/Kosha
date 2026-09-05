@@ -4,12 +4,15 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kosha/core/db/app_database.dart';
 import 'package:kosha/core/models/priority.dart';
-import 'package:kosha/core/utils/clock.dart';
-import 'package:kosha/features/tasks/data/task_repository_impl.dart';
+import 'package:kosha/core/services/recurrence/recurrence.dart';
+import 'package:kosha/features/tasks/domain/entities/activity_entry.dart';
 import 'package:kosha/features/tasks/domain/entities/task.dart';
 import 'package:kosha/features/tasks/domain/task_repository.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
+
+import '../../helpers/fake_reminder_scheduler.dart';
+import '../../helpers/test_app.dart';
 
 void main() {
   final now = DateTime(2026, 9, 4, 9, 41);
@@ -17,10 +20,12 @@ void main() {
 
   late AppDatabase db;
   late TaskRepository repository;
+  late RecordingReminderScheduler scheduler;
 
   setUp(() {
-    db = AppDatabase.withExecutor(NativeDatabase.memory());
-    repository = DriftTaskRepository(db, FixedClock(now));
+    db = testDatabase();
+    scheduler = RecordingReminderScheduler();
+    repository = testRepository(db, now: now, scheduler: scheduler);
   });
 
   tearDown(() => db.close());
@@ -169,15 +174,236 @@ void main() {
     test('writes the edited task and refreshes updatedAt', () async {
       final task = await add('Call bank');
       final later = DateTime(2026, 9, 4, 12);
-      final editor = DriftTaskRepository(db, FixedClock(later));
+      final editor = testRepository(db, now: later);
 
-      await editor.save(task.copyWith(title: 'Call the bank', priority: Priority.medium));
+      await editor.save(
+        task.copyWith(title: 'Call the bank', priority: Priority.medium),
+      );
 
       final saved = await repository.findById(task.id);
       expect(saved!.title, 'Call the bank');
       expect(saved.priority, Priority.medium);
       expect(saved.updatedAt, later);
       expect(saved.createdAt, now);
+    });
+  });
+
+  group('completing a repeating task', () {
+    test('creates the next occurrence and links it to the series', () async {
+      final task = await repository.create(
+        NewTask(
+          title: 'Exercise',
+          dueDate: today,
+          dueMinutes: 7 * 60,
+          recurrenceRule: Recurrence.ruleFor(RecurrencePreset.daily),
+        ),
+      );
+
+      final result = await repository.setDone(task.id, done: true);
+
+      expect(result.task.done, isTrue);
+      final next = result.nextOccurrence;
+      expect(next, isNotNull);
+      expect(next!.title, 'Exercise');
+      expect(next.done, isFalse);
+      expect(next.dueDate, DateTime(2026, 9, 5));
+      expect(next.dueMinutes, 7 * 60);
+      expect(next.parentTaskId, task.id);
+      expect(await titlesIn(TaskBucket.upcoming), ['Exercise']);
+    });
+
+    test('a monthly task on the last day lands on the next last day', () async {
+      final endOfJanuary = DateTime(2027, 1, 31);
+      final task = await repository.create(
+        NewTask(
+          title: 'Submit rent receipt',
+          dueDate: endOfJanuary,
+          recurrenceRule: Recurrence.ruleFor(
+            RecurrencePreset.monthly,
+            start: endOfJanuary,
+          ),
+        ),
+      );
+
+      final result = await repository.setDone(task.id, done: true);
+
+      expect(result.nextOccurrence!.dueDate, DateTime(2027, 2, 28));
+    });
+
+    test('a one-off task creates nothing', () async {
+      final task = await add('Call bank', due: today);
+      final result = await repository.setDone(task.id, done: true);
+      expect(result.nextOccurrence, isNull);
+    });
+
+    test('reopening never creates an occurrence', () async {
+      final task = await repository.create(
+        NewTask(
+          title: 'Exercise',
+          dueDate: today,
+          recurrenceRule: 'FREQ=DAILY',
+        ),
+      );
+      await repository.setDone(task.id, done: true);
+      final reopened = await repository.setDone(task.id, done: false);
+      expect(reopened.nextOccurrence, isNull);
+    });
+  });
+
+  group('reschedule', () {
+    test('moves the due date and records why', () async {
+      final task = await add('Book dentist appointment', due: today);
+
+      await repository.reschedule(
+        task.id,
+        dueDate: DateTime(2026, 9, 11),
+        dueMinutes: 10 * 60,
+      );
+
+      final moved = await repository.findById(task.id);
+      expect(moved!.dueDate, DateTime(2026, 9, 11));
+      expect(moved.dueMinutes, 10 * 60);
+
+      final history = await repository.watchActivity(task.id).first;
+      expect(history.first.event, ActivityEvent.rescheduled);
+      expect(history.first.detail, 'to 11 Sep');
+    });
+
+    test('clearing the date moves the task to the inbox', () async {
+      final task = await add('Compare broadband plans', due: today);
+      await repository.reschedule(task.id, dueDate: null);
+      expect(await titlesIn(TaskBucket.inbox), ['Compare broadband plans']);
+    });
+  });
+
+  group('duplicate', () {
+    test('copies the task as open and detached from its series', () async {
+      final original = await repository.create(
+        NewTask(
+          title: 'Pay electricity bill',
+          dueDate: today,
+          priority: Priority.high,
+          recurrenceRule: 'FREQ=MONTHLY;BYMONTHDAY=4',
+        ),
+      );
+      await repository.setDone(original.id, done: true);
+
+      final copy = await repository.duplicate(original.id);
+
+      expect(copy.title, 'Pay electricity bill (copy)');
+      expect(copy.id, isNot(original.id));
+      expect(copy.done, isFalse);
+      expect(copy.priority, Priority.high);
+      expect(copy.parentTaskId, isNull);
+    });
+  });
+
+  group('activity history', () {
+    test('records the life of a task, newest first', () async {
+      final task = await add('Call bank', due: today);
+      await repository.setDone(task.id, done: true);
+      await repository.setDone(task.id, done: false);
+      await repository.softDelete(task.id);
+      await repository.restore(task.id);
+
+      final history = await repository.watchActivity(task.id).first;
+      expect(
+        [for (final entry in history) entry.event],
+        [
+          ActivityEvent.restored,
+          ActivityEvent.deleted,
+          ActivityEvent.reopened,
+          ActivityEvent.completed,
+          ActivityEvent.created,
+        ],
+      );
+    });
+
+    test('purging a task takes its history with it', () async {
+      final task = await add('Typo task');
+      await repository.purge(task.id);
+      expect(await repository.watchActivity(task.id).first, isEmpty);
+    });
+  });
+
+  group('reminders', () {
+    test('a task with a lead time schedules one, offset from the due time',
+        () async {
+      final task = await repository.create(
+        NewTask(
+          title: 'Pay electricity bill',
+          dueDate: DateTime(2026, 9, 10),
+          dueMinutes: 9 * 60,
+          reminderOffsetMinutes: 24 * 60,
+        ),
+      );
+
+      final reminder = scheduler.latestFor(task.id);
+      expect(reminder, isNotNull);
+      expect(reminder!.fireAt, DateTime(2026, 9, 9, 9));
+      expect(reminder.title, 'Pay electricity bill');
+      expect(reminder.route, '/tasks/${task.id}');
+    });
+
+    test('a task without a lead time schedules nothing', () async {
+      final task = await add('Call bank', due: today);
+      expect(scheduler.latestFor(task.id), isNull);
+      expect(scheduler.cancelled, contains(task.id));
+    });
+
+    test('completing and deleting both cancel the reminder', () async {
+      final task = await repository.create(
+        NewTask(
+          title: 'Pay electricity bill',
+          dueDate: DateTime(2026, 9, 10),
+          reminderOffsetMinutes: 0,
+        ),
+      );
+      scheduler.clear();
+
+      await repository.setDone(task.id, done: true);
+      expect(scheduler.cancelled, contains(task.id));
+
+      scheduler.clear();
+      await repository.softDelete(task.id);
+      expect(scheduler.cancelled, contains(task.id));
+    });
+
+    test('resyncReminders re-states only the open, dated, reminded tasks',
+        () async {
+      final wanted = await repository.create(
+        NewTask(
+          title: 'Pay electricity bill',
+          dueDate: DateTime(2026, 9, 10),
+          dueMinutes: 9 * 60,
+          reminderOffsetMinutes: 24 * 60,
+        ),
+      );
+      final finished = await repository.create(
+        NewTask(
+          title: 'Renew insurance',
+          dueDate: DateTime(2026, 9, 12),
+          reminderOffsetMinutes: 0,
+        ),
+      );
+      await repository.setDone(finished.id, done: true);
+      final undated = await repository.create(
+        const NewTask(title: 'Read the manual', reminderOffsetMinutes: 0),
+      );
+      final unreminded = await add('Call bank', due: DateTime(2026, 9, 11));
+      scheduler.clear();
+
+      await repository.resyncReminders();
+
+      expect(
+        scheduler.scheduled.map((r) => r.ownerId),
+        [wanted.id],
+        reason: 'only the task that still wants a reminder is re-stated',
+      );
+      expect(scheduler.scheduled.single.fireAt, DateTime(2026, 9, 9, 9));
+      expect(scheduler.cancelled, isNot(contains(finished.id)));
+      expect(scheduler.cancelled, isNot(contains(undated.id)));
+      expect(scheduler.cancelled, isNot(contains(unreminded.id)));
     });
   });
 
@@ -202,7 +428,7 @@ void main() {
 
       final upgraded = AppDatabase.withExecutor(NativeDatabase(file));
       addTearDown(upgraded.close);
-      final tasks = DriftTaskRepository(upgraded, FixedClock(now));
+      final tasks = testRepository(upgraded, now: now);
 
       await tasks.create(const NewTask(title: 'Survives the upgrade'));
 

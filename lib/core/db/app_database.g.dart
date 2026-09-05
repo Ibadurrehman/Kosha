@@ -1262,11 +1262,424 @@ class TasksCompanion extends UpdateCompanion<TaskRow> {
   }
 }
 
+class $ActivityEntriesTable extends ActivityEntries
+    with TableInfo<$ActivityEntriesTable, ActivityRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ActivityEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ownerTypeMeta = const VerificationMeta(
+    'ownerType',
+  );
+  @override
+  late final GeneratedColumn<String> ownerType = GeneratedColumn<String>(
+    'owner_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
+    'ownerId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
+    'owner_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ActivityEvent, int> event =
+      GeneratedColumn<int>(
+        'event',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<ActivityEvent>($ActivityEntriesTable.$converterevent);
+  static const VerificationMeta _detailMeta = const VerificationMeta('detail');
+  @override
+  late final GeneratedColumn<String> detail = GeneratedColumn<String>(
+    'detail',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _atMeta = const VerificationMeta('at');
+  @override
+  late final GeneratedColumn<DateTime> at = GeneratedColumn<DateTime>(
+    'at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    ownerType,
+    ownerId,
+    event,
+    detail,
+    at,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'activity_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ActivityRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('owner_type')) {
+      context.handle(
+        _ownerTypeMeta,
+        ownerType.isAcceptableOrUnknown(data['owner_type']!, _ownerTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ownerTypeMeta);
+    }
+    if (data.containsKey('owner_id')) {
+      context.handle(
+        _ownerIdMeta,
+        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ownerIdMeta);
+    }
+    if (data.containsKey('detail')) {
+      context.handle(
+        _detailMeta,
+        detail.isAcceptableOrUnknown(data['detail']!, _detailMeta),
+      );
+    }
+    if (data.containsKey('at')) {
+      context.handle(_atMeta, at.isAcceptableOrUnknown(data['at']!, _atMeta));
+    } else if (isInserting) {
+      context.missing(_atMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ActivityRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ActivityRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      ownerType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_type'],
+      )!,
+      ownerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_id'],
+      )!,
+      event: $ActivityEntriesTable.$converterevent.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}event'],
+        )!,
+      ),
+      detail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}detail'],
+      ),
+      at: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}at'],
+      )!,
+    );
+  }
+
+  @override
+  $ActivityEntriesTable createAlias(String alias) {
+    return $ActivityEntriesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<ActivityEvent, int, int> $converterevent =
+      const EnumIndexConverter<ActivityEvent>(ActivityEvent.values);
+}
+
+class ActivityRow extends DataClass implements Insertable<ActivityRow> {
+  final String id;
+  final String ownerType;
+  final String ownerId;
+  final ActivityEvent event;
+
+  /// Short human context, e.g. the date a task was moved to.
+  final String? detail;
+  final DateTime at;
+  const ActivityRow({
+    required this.id,
+    required this.ownerType,
+    required this.ownerId,
+    required this.event,
+    this.detail,
+    required this.at,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['owner_type'] = Variable<String>(ownerType);
+    map['owner_id'] = Variable<String>(ownerId);
+    {
+      map['event'] = Variable<int>(
+        $ActivityEntriesTable.$converterevent.toSql(event),
+      );
+    }
+    if (!nullToAbsent || detail != null) {
+      map['detail'] = Variable<String>(detail);
+    }
+    map['at'] = Variable<DateTime>(at);
+    return map;
+  }
+
+  ActivityEntriesCompanion toCompanion(bool nullToAbsent) {
+    return ActivityEntriesCompanion(
+      id: Value(id),
+      ownerType: Value(ownerType),
+      ownerId: Value(ownerId),
+      event: Value(event),
+      detail: detail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(detail),
+      at: Value(at),
+    );
+  }
+
+  factory ActivityRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ActivityRow(
+      id: serializer.fromJson<String>(json['id']),
+      ownerType: serializer.fromJson<String>(json['ownerType']),
+      ownerId: serializer.fromJson<String>(json['ownerId']),
+      event: $ActivityEntriesTable.$converterevent.fromJson(
+        serializer.fromJson<int>(json['event']),
+      ),
+      detail: serializer.fromJson<String?>(json['detail']),
+      at: serializer.fromJson<DateTime>(json['at']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'ownerType': serializer.toJson<String>(ownerType),
+      'ownerId': serializer.toJson<String>(ownerId),
+      'event': serializer.toJson<int>(
+        $ActivityEntriesTable.$converterevent.toJson(event),
+      ),
+      'detail': serializer.toJson<String?>(detail),
+      'at': serializer.toJson<DateTime>(at),
+    };
+  }
+
+  ActivityRow copyWith({
+    String? id,
+    String? ownerType,
+    String? ownerId,
+    ActivityEvent? event,
+    Value<String?> detail = const Value.absent(),
+    DateTime? at,
+  }) => ActivityRow(
+    id: id ?? this.id,
+    ownerType: ownerType ?? this.ownerType,
+    ownerId: ownerId ?? this.ownerId,
+    event: event ?? this.event,
+    detail: detail.present ? detail.value : this.detail,
+    at: at ?? this.at,
+  );
+  ActivityRow copyWithCompanion(ActivityEntriesCompanion data) {
+    return ActivityRow(
+      id: data.id.present ? data.id.value : this.id,
+      ownerType: data.ownerType.present ? data.ownerType.value : this.ownerType,
+      ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
+      event: data.event.present ? data.event.value : this.event,
+      detail: data.detail.present ? data.detail.value : this.detail,
+      at: data.at.present ? data.at.value : this.at,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActivityRow(')
+          ..write('id: $id, ')
+          ..write('ownerType: $ownerType, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('event: $event, ')
+          ..write('detail: $detail, ')
+          ..write('at: $at')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, ownerType, ownerId, event, detail, at);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ActivityRow &&
+          other.id == this.id &&
+          other.ownerType == this.ownerType &&
+          other.ownerId == this.ownerId &&
+          other.event == this.event &&
+          other.detail == this.detail &&
+          other.at == this.at);
+}
+
+class ActivityEntriesCompanion extends UpdateCompanion<ActivityRow> {
+  final Value<String> id;
+  final Value<String> ownerType;
+  final Value<String> ownerId;
+  final Value<ActivityEvent> event;
+  final Value<String?> detail;
+  final Value<DateTime> at;
+  final Value<int> rowid;
+  const ActivityEntriesCompanion({
+    this.id = const Value.absent(),
+    this.ownerType = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.event = const Value.absent(),
+    this.detail = const Value.absent(),
+    this.at = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ActivityEntriesCompanion.insert({
+    required String id,
+    required String ownerType,
+    required String ownerId,
+    required ActivityEvent event,
+    this.detail = const Value.absent(),
+    required DateTime at,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       ownerType = Value(ownerType),
+       ownerId = Value(ownerId),
+       event = Value(event),
+       at = Value(at);
+  static Insertable<ActivityRow> custom({
+    Expression<String>? id,
+    Expression<String>? ownerType,
+    Expression<String>? ownerId,
+    Expression<int>? event,
+    Expression<String>? detail,
+    Expression<DateTime>? at,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ownerType != null) 'owner_type': ownerType,
+      if (ownerId != null) 'owner_id': ownerId,
+      if (event != null) 'event': event,
+      if (detail != null) 'detail': detail,
+      if (at != null) 'at': at,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ActivityEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? ownerType,
+    Value<String>? ownerId,
+    Value<ActivityEvent>? event,
+    Value<String?>? detail,
+    Value<DateTime>? at,
+    Value<int>? rowid,
+  }) {
+    return ActivityEntriesCompanion(
+      id: id ?? this.id,
+      ownerType: ownerType ?? this.ownerType,
+      ownerId: ownerId ?? this.ownerId,
+      event: event ?? this.event,
+      detail: detail ?? this.detail,
+      at: at ?? this.at,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ownerType.present) {
+      map['owner_type'] = Variable<String>(ownerType.value);
+    }
+    if (ownerId.present) {
+      map['owner_id'] = Variable<String>(ownerId.value);
+    }
+    if (event.present) {
+      map['event'] = Variable<int>(
+        $ActivityEntriesTable.$converterevent.toSql(event.value),
+      );
+    }
+    if (detail.present) {
+      map['detail'] = Variable<String>(detail.value);
+    }
+    if (at.present) {
+      map['at'] = Variable<DateTime>(at.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActivityEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('ownerType: $ownerType, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('event: $event, ')
+          ..write('detail: $detail, ')
+          ..write('at: $at, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $SettingsTable settings = $SettingsTable(this);
   late final $TasksTable tasks = $TasksTable(this);
+  late final $ActivityEntriesTable activityEntries = $ActivityEntriesTable(
+    this,
+  );
   late final Index tasksBucket = Index(
     'tasks_bucket',
     'CREATE INDEX tasks_bucket ON tasks (done, due_date)',
@@ -1275,6 +1688,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'tasks_space',
     'CREATE INDEX tasks_space ON tasks (space_id)',
   );
+  late final Index activityOwner = Index(
+    'activity_owner',
+    'CREATE INDEX activity_owner ON activity_entries (owner_type, owner_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1282,8 +1699,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     settings,
     tasks,
+    activityEntries,
     tasksBucket,
     tasksSpace,
+    activityOwner,
   ];
 }
 
@@ -1896,6 +2315,237 @@ typedef $$TasksTableProcessedTableManager =
       TaskRow,
       PrefetchHooks Function()
     >;
+typedef $$ActivityEntriesTableCreateCompanionBuilder =
+    ActivityEntriesCompanion Function({
+      required String id,
+      required String ownerType,
+      required String ownerId,
+      required ActivityEvent event,
+      Value<String?> detail,
+      required DateTime at,
+      Value<int> rowid,
+    });
+typedef $$ActivityEntriesTableUpdateCompanionBuilder =
+    ActivityEntriesCompanion Function({
+      Value<String> id,
+      Value<String> ownerType,
+      Value<String> ownerId,
+      Value<ActivityEvent> event,
+      Value<String?> detail,
+      Value<DateTime> at,
+      Value<int> rowid,
+    });
+
+class $$ActivityEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $ActivityEntriesTable> {
+  $$ActivityEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerType => $composableBuilder(
+    column: $table.ownerType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ActivityEvent, ActivityEvent, int> get event =>
+      $composableBuilder(
+        column: $table.event,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get detail => $composableBuilder(
+    column: $table.detail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ActivityEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ActivityEntriesTable> {
+  $$ActivityEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerType => $composableBuilder(
+    column: $table.ownerType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get event => $composableBuilder(
+    column: $table.event,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get detail => $composableBuilder(
+    column: $table.detail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ActivityEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ActivityEntriesTable> {
+  $$ActivityEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerType =>
+      $composableBuilder(column: $table.ownerType, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerId =>
+      $composableBuilder(column: $table.ownerId, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ActivityEvent, int> get event =>
+      $composableBuilder(column: $table.event, builder: (column) => column);
+
+  GeneratedColumn<String> get detail =>
+      $composableBuilder(column: $table.detail, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get at =>
+      $composableBuilder(column: $table.at, builder: (column) => column);
+}
+
+class $$ActivityEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ActivityEntriesTable,
+          ActivityRow,
+          $$ActivityEntriesTableFilterComposer,
+          $$ActivityEntriesTableOrderingComposer,
+          $$ActivityEntriesTableAnnotationComposer,
+          $$ActivityEntriesTableCreateCompanionBuilder,
+          $$ActivityEntriesTableUpdateCompanionBuilder,
+          (
+            ActivityRow,
+            BaseReferences<_$AppDatabase, $ActivityEntriesTable, ActivityRow>,
+          ),
+          ActivityRow,
+          PrefetchHooks Function()
+        > {
+  $$ActivityEntriesTableTableManager(
+    _$AppDatabase db,
+    $ActivityEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ActivityEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ActivityEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ActivityEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> ownerType = const Value.absent(),
+                Value<String> ownerId = const Value.absent(),
+                Value<ActivityEvent> event = const Value.absent(),
+                Value<String?> detail = const Value.absent(),
+                Value<DateTime> at = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ActivityEntriesCompanion(
+                id: id,
+                ownerType: ownerType,
+                ownerId: ownerId,
+                event: event,
+                detail: detail,
+                at: at,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String ownerType,
+                required String ownerId,
+                required ActivityEvent event,
+                Value<String?> detail = const Value.absent(),
+                required DateTime at,
+                Value<int> rowid = const Value.absent(),
+              }) => ActivityEntriesCompanion.insert(
+                id: id,
+                ownerType: ownerType,
+                ownerId: ownerId,
+                event: event,
+                detail: detail,
+                at: at,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ActivityEntriesTable, ActivityRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ActivityEntriesTable,
+                    ActivityRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ActivityEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ActivityEntriesTable,
+      ActivityRow,
+      $$ActivityEntriesTableFilterComposer,
+      $$ActivityEntriesTableOrderingComposer,
+      $$ActivityEntriesTableAnnotationComposer,
+      $$ActivityEntriesTableCreateCompanionBuilder,
+      $$ActivityEntriesTableUpdateCompanionBuilder,
+      (
+        ActivityRow,
+        BaseReferences<_$AppDatabase, $ActivityEntriesTable, ActivityRow>,
+      ),
+      ActivityRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1904,4 +2554,6 @@ class $AppDatabaseManager {
       $$SettingsTableTableManager(_db, _db.settings);
   $$TasksTableTableManager get tasks =>
       $$TasksTableTableManager(_db, _db.tasks);
+  $$ActivityEntriesTableTableManager get activityEntries =>
+      $$ActivityEntriesTableTableManager(_db, _db.activityEntries);
 }
