@@ -826,12 +826,22 @@ Assumes one full-time Flutter developer from Phase 0 and a second part-time deve
 
 ### 12.1 Phase-1 detailed breakdown (first sprint plan)
 
+**Status (5 Sep 2026): week 1 complete.** Tasks are stored, listed, created, completed and
+undone end to end, with 63 tests passing and a clean analyze.
+
 | Week | Deliverables |
 |---|---|
-| 1 | Task tables/DAO/repository; Tasks screen with tabs and TaskRow; New task sheet; toast+undo; Home "Today" section |
+| 1 ✅ | Task tables/DAO/repository; Tasks screen with tabs and TaskRow; New task sheet; toast+undo; Home "Today" section |
 | 2 | Task detail (fields, expand section, bottom bar); actions sheet; reschedule; delete + confirm; recurrence + next occurrence; ReminderScheduler v1 |
 | 3 | Onboarding 4 steps; Home remaining sections with aggregators; Quick-add sheet; Calendar month/week/agenda + Event entity |
 | 4 | Search FTS; Notifications inbox + deep links; Settings, Appearance, Customize dashboard, Profile; integration test: add → complete → undo → delete |
+
+### 12.1.1 Notes carried out of week 1
+
+- **Empty titles are rejected.** The prototype turns an empty quick-add into a task called "New task"; the app disables Create until the title has text, matching how the expense sheet gates on an amount.
+- **No dead controls.** The row "•••" button, row taps and the Tasks search icon are left out until the screens they open exist (week 2 and week 4).
+- **Widget tests need an explicit unmount.** Drift schedules a zero-duration timer when it closes a query stream, and `flutter_test` fails a test that ends with a timer pending. `settleAndDispose` in `test/helpers/test_app.dart` unmounts the tree and elapses real time; a zero-duration pump does not drain it.
+- **Generated files are excluded from the analyzer**, so a missing import in a Drift part file only surfaces at compile time. Run `flutter test` (or a build), not just `flutter analyze`, after changing table definitions.
 
 ### 12.2 Definition of done (every feature)
 
