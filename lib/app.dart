@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/kosha_theme.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'shared/widgets/toast_host.dart';
 
 class KoshaApp extends ConsumerWidget {
   const KoshaApp({super.key});
@@ -20,6 +21,9 @@ class KoshaApp extends ConsumerWidget {
       darkTheme: buildKoshaTheme(Brightness.dark, useGoogleFonts: useGoogleFonts),
       themeMode: themeMode,
       routerConfig: router,
+      // Above the navigator so a toast survives route changes and covers sheets.
+      builder: (context, child) =>
+          ToastHost(child: child ?? const SizedBox.shrink()),
     );
   }
 }
