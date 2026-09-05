@@ -150,7 +150,7 @@ Nothing here conflicts with the plan; the only urgent item is initialising git b
 | Framework | Flutter 3.44 / Dart 3.12 (existing) | — | Already set up; use Dart 3 records, patterns, dot shorthands |
 | State management | `flutter_riverpod` 3 + `riverpod_annotation` / `riverpod_generator` | Bloc, Provider | Async/stream providers map directly onto Drift watch queries; `keepAlive` and family providers cover per-space and per-item screens; easy override in tests |
 | Immutable models | `freezed` + `json_serializable` | Built value, hand-written | Union types for statuses/recurrence, `copyWith`, JSON for export/import and later sync |
-| Database | `drift` + `drift_flutter` + `sqlite3_flutter_libs` (SQLCipher variant in Phase 6) | Isar, Hive, ObjectBox, sqflite | Typed SQL, migrations, reactive streams, FTS5 virtual tables for search, joins for space aggregation |
+| Database | `drift` + `drift_flutter` (sqlite3 3.x builds natively via Dart build hooks; SQLCipher build option in Phase 6) | Isar, Hive, ObjectBox, sqflite | Typed SQL, migrations, reactive streams, FTS5 virtual tables for search, joins for space aggregation |
 | Navigation | `go_router` with `StatefulShellRoute.indexedStack` | auto_route, Navigator 2 by hand | Tab state preservation, deep links from notifications, typed route data |
 | Reminders | `flutter_local_notifications`, `timezone`, `flutter_timezone`, `rrule` | awesome_notifications, WorkManager | Pure local scheduling; `rrule` gives RFC 5545 recurrence for daily/weekly/monthly/quarterly/yearly/custom |
 | Fonts and icons | `google_fonts` (Plus Jakarta Sans, bundled offline) and `material_symbols_icons` | Bundle TTFs manually | Matches the prototype one-to-one, including icon fill variation for the active tab |
@@ -160,7 +160,7 @@ Nothing here conflicts with the plan; the only urgent item is initialising git b
 | Backend (Phase 5) | Supabase (Postgres, Auth, Storage, Realtime) | Firebase, custom API | Relational model already exists in Drift; row-level security fits per-group sharing; magic-link/OTP auth is enough |
 | Crash/analytics | `sentry_flutter` (opt-in) | Firebase Crashlytics | Lightweight, no Google dependency; analytics stays off by default for a privacy-sensitive app |
 | Testing | `flutter_test`, `mocktail`, `integration_test`, `golden_toolkit` or `alchemist` | — | Unit + widget + golden + a handful of end-to-end flows |
-| Lints | `flutter_lints` + `riverpod_lint` + `custom_lint` | very_good_analysis | Catch provider misuse early |
+| Lints | `flutter_lints` with a stricter rule set; `riverpod_lint` + `custom_lint` deferred (ADR 0004: analyzer-version conflict with drift_dev/freezed on Dart 3.12) | very_good_analysis | Catch provider misuse early once the plugins resolve |
 
 ### 4.2 Layering
 
@@ -644,7 +644,7 @@ Export = JSON per table (schema version stamped) + attachments in a zip, encrypt
 
 ## 9. Dependencies
 
-Versions are indicative; pin to the latest stable on pub.dev at the time each is added and record the exact version in `pubspec.lock`.
+Versions below were indicative when the plan was written. The resolved set as of Phase 0 (5 Sep 2026) is recorded in `pubspec.yaml`; notable differences: riverpod_annotation 4.x, go_router 17.x, flutter_local_notifications 22.x, google_fonts 8.x, freezed 4.0.0-dev (the 4.0 stable line needs Dart 3.13), sentry_flutter 8.x.
 
 ```yaml
 environment:
@@ -660,7 +660,6 @@ dependencies:
   # persistence
   drift: ^2.28.0
   drift_flutter: ^0.2.0
-  sqlite3_flutter_libs: ^0.5.0      # swap for sqlcipher_flutter_libs in Phase 6
   path_provider: ^2.1.0
   path: ^1.9.0
   # navigation
@@ -705,8 +704,7 @@ dev_dependencies:
   integration_test: { sdk: flutter }
   build_runner: ^2.4.0
   riverpod_generator: ^3.0.0
-  riverpod_lint: ^3.0.0
-  custom_lint: ^0.7.0
+  # riverpod_lint / custom_lint: deferred, see ADR 0004
   freezed: ^3.0.0
   json_serializable: ^6.9.0
   drift_dev: ^2.28.0
@@ -743,7 +741,7 @@ Dependency risks are listed in section 14 (scanner plugin maintenance, notificat
 
 ## 10. Changes required to the existing project structure
 
-Ordered checklist for Phase 0; each item is a small, reviewable commit.
+Ordered checklist for Phase 0; each item is a small, reviewable commit. **Status (5 Sep 2026): all twelve items done** — see the commit history from `Baseline: flutter create template` onward. Exceptions noted inline.
 
 1. **Initialise git** at the repository root; commit the template as the baseline; add `key.properties`, `*.jks`, `.env*` to `.gitignore`. Consider `git lfs` for `project-doc/*.html` (≈1 MB) or exclude it.
 2. **Rewrite `pubspec.yaml`**: real description, `version: 0.1.0+1`, dependencies from section 9, `assets/` and `fonts/` sections.
@@ -755,7 +753,7 @@ Ordered checklist for Phase 0; each item is a small, reviewable commit.
 8. **Remove desktop/web from CI scope** (keep folders; add a note to README). Do not delete them, the cost of keeping is zero and Windows dev builds are useful for fast UI iteration.
 9. **README** rewrite: prerequisites, `flutter pub get`, `dart run build_runner watch -d`, flavors, how to run tests, where the prototype lives.
 10. **`.idea/` and `kosha.iml`**: leave untracked (already ignored); add `.vscode/launch.json` with dev/prod configurations.
-11. **Add `tool/` scripts**: `gen.sh`/`gen.ps1` for build_runner, `seed.dart` to load Appendix B demo data in debug builds.
+11. **Add `tool/` scripts**: `gen.sh`/`gen.ps1` for build_runner. (`seed.dart` deferred to Phase 1, when the tables it loads into exist.)
 12. **Add `project-doc/decisions/`** for lightweight ADRs (one per decision in section 17 once made).
 
 ---
@@ -937,14 +935,14 @@ Coverage goal: 80 % on `domain/` and `data/`, no target on `presentation/` beyon
 
 | # | Decision | Options | Recommendation | Needed by |
 |---|---|---|---|---|
-| D1 | Application id / bundle id | `com.taritas.kosha` vs another domain | `com.taritas.kosha` (matches the team's domain) | Phase 0 |
+| D1 | Application id / bundle id | `com.taritas.kosha` vs another domain | **Decided: `com.taritas.kosha`** (ADR 0001) | Done |
 | D2 | Ship order: local-only v1.0 first, or wait for sharing | Ship after Phase 4 + security; sharing as v1.1 | Ship local-only first; validates 90 % of the product sooner | Phase 2 |
 | D3 | Backend for sharing | Supabase vs Firebase vs custom | Supabase | Before Phase 5 |
 | D4 | How "Income" on Finance is captured | Income transactions vs monthly budget setting vs both | Both: income transactions when entered, else fall back to a "monthly budget" setting | Phase 2 |
-| D5 | Encryption at rest in v1.0 | SQLCipher from Phase 0 vs Phase 6 | From Phase 0 if the extra build complexity is acceptable; otherwise Phase 6 before store release | Phase 0 |
+| D5 | Encryption at rest in v1.0 | SQLCipher from Phase 0 vs Phase 6 | **Decided: Phase 6**, before any external distribution (ADR 0002) | Done |
 | D6 | Analytics | None vs opt-in Sentry only vs product analytics | Opt-in Sentry only | Phase 6 |
 | D7 | Tablet support in v1 | Breakpoint rules only vs dedicated layouts | Breakpoint rules only | Phase 6 |
-| D8 | Bundling fonts vs runtime google_fonts | Bundle | Bundle | Phase 0 |
+| D8 | Bundling fonts vs runtime google_fonts | Bundle | **Decided: bundle**; runtime fetch in Phase 0, TTFs added in Phase 1 (ADR 0003) | Done |
 | D9 | Exact alarms on Android | Opt-in setting vs never | Opt-in setting | Phase 1 |
 | D10 | Multiple vehicles / multiple profiles | Model supports; UI single in v1 | Keep model multi, UI single | Phase 3 |
 
