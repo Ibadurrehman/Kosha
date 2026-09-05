@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router/app_router.dart';
+import 'core/services/notifications/reminder_scheduler.dart';
 import 'core/theme/kosha_theme.dart';
 import 'core/theme/theme_mode_controller.dart';
+import 'core/utils/clock.dart';
+import 'features/calendar/data/event_repository_impl.dart';
+import 'features/notifications/data/notification_repository_impl.dart';
 import 'features/onboarding/presentation/controllers/onboarding_providers.dart';
 import 'features/tasks/data/task_repository_impl.dart';
 import 'shared/widgets/toast_host.dart';
@@ -18,6 +22,8 @@ class KoshaApp extends ConsumerStatefulWidget {
 }
 
 class _KoshaAppState extends ConsumerState<KoshaApp> {
+  StreamSubscription<String>? _notificationTaps;
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +31,18 @@ class _KoshaAppState extends ConsumerState<KoshaApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       unawaited(_resyncReminders());
+      unawaited(_reconcileNotifications());
     });
+    _notificationTaps = ref
+        .read(reminderSchedulerProvider)
+        .notificationTaps
+        .listen((route) => ref.read(appRouterProvider).go(route));
+  }
+
+  @override
+  void dispose() {
+    unawaited(_notificationTaps?.cancel());
+    super.dispose();
   }
 
   /// Re-registers reminders on launch. Best-effort: a device that refuses to
@@ -35,8 +52,22 @@ class _KoshaAppState extends ConsumerState<KoshaApp> {
   Future<void> _resyncReminders() async {
     try {
       await ref.read(taskRepositoryProvider).resyncReminders();
+      await ref.read(eventRepositoryProvider).resyncReminders();
     } on Object catch (error, stack) {
       debugPrint('Kosha: could not re-register reminders ($error)');
+      debugPrintStack(stackTrace: stack);
+    }
+  }
+
+  /// Reconciles the notification inbox: a reminder can fire while the app is
+  /// killed, so this is how the inbox learns about it, on every launch.
+  /// Best-effort for the same reason as [_resyncReminders].
+  Future<void> _reconcileNotifications() async {
+    try {
+      final now = ref.read(clockProvider).now();
+      await ref.read(notificationRepositoryProvider).reconcile(now: now);
+    } on Object catch (error, stack) {
+      debugPrint('Kosha: could not reconcile notifications ($error)');
       debugPrintStack(stackTrace: stack);
     }
   }

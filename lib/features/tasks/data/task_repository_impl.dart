@@ -278,6 +278,13 @@ class DriftTaskRepository implements TaskRepository {
 
   @override
   Future<void> resyncReminders() async {
+    for (final task in await remindable()) {
+      await _syncReminder(task);
+    }
+  }
+
+  @override
+  Future<List<Task>> remindable() async {
     final rows = await (_db.select(_db.tasks)
           ..where(
             (t) =>
@@ -287,9 +294,7 @@ class DriftTaskRepository implements TaskRepository {
                 t.reminderOffsetMinutes.isNotNull(),
           ))
         .get();
-    for (final row in rows) {
-      await _syncReminder(_toDomain(row));
-    }
+    return rows.map(_toDomain).toList();
   }
 
   /// Creates the occurrence that replaces a completed repeating task, or null

@@ -28,4 +28,8 @@ abstract interface class EventRepository {
   /// notifications do not survive a reinstall, so the app re-states what it
   /// expects on launch — same contract as `TaskRepository.resyncReminders`.
   Future<void> resyncReminders();
+
+  /// Every open event with a reminder lead time set — the candidates
+  /// notification-inbox reconciliation checks for a fire moment in the past.
+  Future<List<Event>> remindable();
 }

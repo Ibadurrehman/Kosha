@@ -111,14 +111,19 @@ class DriftEventRepository implements EventRepository {
 
   @override
   Future<void> resyncReminders() async {
+    for (final event in await remindable()) {
+      await _syncReminder(event);
+    }
+  }
+
+  @override
+  Future<List<Event>> remindable() async {
     final rows = await (_db.select(_db.events)
           ..where(
             (e) => e.deletedAt.isNull() & e.reminderOffsetMinutes.isNotNull(),
           ))
         .get();
-    for (final row in rows) {
-      await _syncReminder(_toDomain(row));
-    }
+    return rows.map(_toDomain).toList();
   }
 
   Future<Event> _require(String id) async {

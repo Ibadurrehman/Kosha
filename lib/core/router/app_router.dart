@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/calendar/presentation/calendar_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/more/presentation/more_screen.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/onboarding/data/profile_repository_impl.dart';
 import '../../features/onboarding/presentation/controllers/onboarding_providers.dart';
 import '../../features/onboarding/presentation/onboarding_dashboard_screen.dart';
@@ -35,6 +36,7 @@ abstract final class Routes {
   static const onboarding3 = '/onboarding/3';
   static const onboarding4 = '/onboarding/4';
   static const search = '/home/search';
+  static const notifications = '/home/notifications';
 
   /// Task detail lives under the Tasks tab, so the bottom bar keeps Tasks lit
   /// even when the task was opened from Home.
@@ -101,6 +103,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const HomeScreen(),
                 routes: [
                   GoRoute(path: 'search', builder: (_, _) => const SearchScreen()),
+                  GoRoute(
+                    path: 'notifications',
+                    builder: (_, _) => const NotificationsScreen(),
+                  ),
                 ],
               ),
             ],

@@ -31,4 +31,7 @@ class RecordingReminderScheduler implements ReminderScheduler {
 
   @override
   Future<bool> requestPermission() async => true;
+
+  @override
+  Stream<String> get notificationTaps => const Stream.empty();
 }

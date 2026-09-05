@@ -39,13 +39,16 @@ ScheduledReminder? reminderForTask(Task task, {required DateTime now}) {
     kind: ReminderKind.task,
     ownerId: task.id,
     title: task.title,
-    body: _body(task, task.reminderOffsetMinutes!),
+    body: taskReminderBody(task, task.reminderOffsetMinutes!),
     fireAt: fireAt,
     route: '/tasks/${task.id}',
   );
 }
 
-String _body(Task task, int offsetMinutes) {
+/// "Due in a day · Home" — the same body text whether the reminder is being
+/// scheduled ahead of time or reconciled into the notification inbox after
+/// the fact, so the two never say different things about the same moment.
+String taskReminderBody(Task task, int offsetMinutes) {
   final category = task.category;
   final when = offsetMinutes == 0
       ? 'Due now'

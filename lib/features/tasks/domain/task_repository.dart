@@ -72,4 +72,8 @@ abstract interface class TaskRepository {
   /// Scheduled notifications do not survive a reinstall, and platforms drop
   /// them on some upgrades, so the app re-states what it expects on launch.
   Future<void> resyncReminders();
+
+  /// Every open, dated task with a reminder lead time set — the candidates
+  /// notification-inbox reconciliation checks for a fire moment in the past.
+  Future<List<Task>> remindable();
 }

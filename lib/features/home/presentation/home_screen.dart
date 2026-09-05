@@ -11,6 +11,7 @@ import '../../../core/theme/kosha_shapes.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/widgets.dart';
+import '../../notifications/presentation/controllers/notification_providers.dart';
 import '../../quick_add/presentation/quick_add_sheet.dart';
 import '../../settings/presentation/customize_dashboard_screen.dart';
 import '../../tasks/domain/entities/task.dart';
@@ -58,6 +59,7 @@ class HomeScreen extends ConsumerWidget {
                   icon: const Icon(Symbols.search_rounded),
                   onPressed: () => context.go(Routes.search),
                 ),
+                const _NotificationBell(),
               ],
             ),
             const SizedBox(height: 12),
@@ -116,6 +118,26 @@ class _Greeting extends StatelessWidget {
         const SizedBox(height: 4),
         Text(Dates.long(now), style: t.bodySmall),
       ],
+    );
+  }
+}
+
+class _NotificationBell extends ConsumerWidget {
+  const _NotificationBell();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.kosha;
+    final unread = ref.watch(unreadNotificationCountProvider).value ?? 0;
+    return IconButton(
+      tooltip: 'Notifications',
+      onPressed: () => context.go(Routes.notifications),
+      icon: Badge(
+        isLabelVisible: unread > 0,
+        label: Text('$unread'),
+        backgroundColor: c.error,
+        child: const Icon(Symbols.notifications_rounded),
+      ),
     );
   }
 }

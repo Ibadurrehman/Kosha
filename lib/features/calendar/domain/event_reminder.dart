@@ -21,13 +21,17 @@ ScheduledReminder? reminderForEvent(Event event, {required DateTime now}) {
     kind: ReminderKind.event,
     ownerId: event.id,
     title: event.title,
-    body: event.allDay ? 'All day' : _startsIn(event, event.reminderOffsetMinutes!),
+    body: eventReminderBody(event, event.reminderOffsetMinutes!),
     fireAt: fireAt,
     route: '/calendar',
   );
 }
 
-String _startsIn(Event event, int offsetMinutes) {
+/// "Starts in a day" — the same body text whether the reminder is being
+/// scheduled ahead of time or reconciled into the notification inbox after
+/// the fact.
+String eventReminderBody(Event event, int offsetMinutes) {
+  if (event.allDay) return 'All day';
   if (offsetMinutes == 0) return 'Starting now';
   return 'Starts in ${_humanOffset(offsetMinutes)}';
 }
