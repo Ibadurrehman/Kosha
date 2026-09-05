@@ -644,6 +644,8 @@ Export = JSON per table (schema version stamped) + attachments in a zip, encrypt
 
 ## 9. Dependencies
 
+**Three packages were deferred after the first Android build (5 Sep 2026):** `sentry_flutter` (its Gradle build pins Kotlin language version 1.6, which the bundled Kotlin compiler rejects) and `flutter_secure_storage` + `permission_handler` (both require `compileSdk 37`, which Android Gradle Plugin 9.0.1 does not support and whose SDK platform installs as `android-37.0`, so AGP cannot resolve the `android-37` target). None were used yet; add them back in the phase that needs them (Phase 3 permissions, Phase 6 app lock and crash reporting) once the toolchain moves on.
+
 Versions below were indicative when the plan was written. The resolved set as of Phase 0 (5 Sep 2026) is recorded in `pubspec.yaml`; notable differences: riverpod_annotation 4.x, go_router 17.x, flutter_local_notifications 22.x, google_fonts 8.x, freezed 4.0.0-dev (the 4.0 stable line needs Dart 3.13), sentry_flutter 8.x.
 
 ```yaml
@@ -734,6 +736,8 @@ Dependency risks are listed in section 14 (scanner plugin maintenance, notificat
 - `UIBackgroundModes` not required for local notifications.
 - URL scheme `kosha`; Associated Domains later for universal links (Phase 5).
 - Minimum iOS 13; enable Push capability only in Phase 5.
+
+**Build settings pinned in Phase 1 (5 Sep 2026):** `compileSdk`/`targetSdk` are pinned to 36 instead of `flutter.compileSdkVersion` (37) for the AGP/platform reason above, and `kotlin.incremental=false` is set in `android/gradle.properties` because the incremental Kotlin compiler cannot close its caches under this project path, which failed every plugin's `compileDebugKotlin` task. Revisit both after a Flutter or Kotlin upgrade.
 
 **Both:** app icon and splash via `flutter_launcher_icons` / `flutter_native_splash` using the accent colour `#415DB7` on light and `#0D0E12` on dark.
 

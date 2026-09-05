@@ -19,7 +19,11 @@ val keystoreProperties = Properties().apply {
 
 android {
     namespace = "com.taritas.kosha"
-    compileSdk = flutter.compileSdkVersion
+    // Pinned to 36 rather than flutter.compileSdkVersion (37): the SDK manager
+    // installs platform 37 as "android-37.0", and AGP then fails to resolve the
+    // "android-37" target. Move back to flutter.compileSdkVersion once the
+    // installed platform directory matches the target hash again.
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -33,7 +37,8 @@ android {
         applicationId = "com.taritas.kosha"
         // local_auth and the document scanner need API 24+.
         minSdk = maxOf(24, flutter.minSdkVersion)
-        targetSdk = flutter.targetSdkVersion
+        // targetSdk may not exceed compileSdk; see the note above.
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
