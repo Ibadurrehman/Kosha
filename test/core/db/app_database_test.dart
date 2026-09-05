@@ -26,11 +26,12 @@ void main() {
     expect(result.read<int>('foreign_keys'), 1);
   });
 
-  test('schema version is 6', () {
+  test('schema version is 8', () {
     // v1 settings, v2 tasks, v3 activity history, v4 profiles, v5 dashboard
-    // sections, v6 events. Bump this with every migration so the upgrade path
-    // in AppDatabase.migration is never skipped by accident.
-    expect(db.schemaVersion, 6);
+    // sections, v6 events, v7 notifications, v8 task search. Bump this with
+    // every migration so the upgrade path in AppDatabase.migration is never
+    // skipped by accident.
+    expect(db.schemaVersion, 8);
   });
 
   test('a fresh install can insert a profile and a dashboard section',
@@ -55,12 +56,14 @@ void main() {
     expect(await db.select(db.dashboardSections).getSingle(), isNotNull);
   });
 
-  test('an upgrade from v3 adds profiles and dashboard sections', () async {
+  test('an upgrade from v1 adds every table through v8', () async {
     // Mirrors the "v1 database gains the tasks table" migration test in
     // task_repository_test.dart: a real file so the upgrade runs against a
     // database that was actually closed and reopened, not a fresh in-memory
-    // one that never had a chance to be behind.
-    final dir = Directory.systemTemp.createTempSync('kosha_migration_v3');
+    // one that never had a chance to be behind. Starting from a genuine v1
+    // (only `settings` exists) exercises every "if (from < N)" block in
+    // order, the same as a real long-lived install would.
+    final dir = Directory.systemTemp.createTempSync('kosha_migration_v1');
     addTearDown(() => dir.deleteSync(recursive: true));
     final file = File(p.join(dir.path, 'kosha.sqlite'));
 
@@ -69,7 +72,7 @@ void main() {
       'CREATE TABLE settings (key TEXT NOT NULL, value TEXT NOT NULL, '
       'updated_at INTEGER NOT NULL, PRIMARY KEY (key));',
     );
-    legacy.execute('PRAGMA user_version = 3;');
+    legacy.execute('PRAGMA user_version = 1;');
     legacy.close();
 
     final upgraded = AppDatabase.withExecutor(NativeDatabase(file));

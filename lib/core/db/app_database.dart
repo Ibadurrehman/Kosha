@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../features/calendar/data/event_table.dart';
 import '../../features/home/data/dashboard_section_table.dart';
+import '../../features/notifications/data/notification_table.dart';
 import '../../features/onboarding/data/profile_table.dart';
 import '../../features/tasks/data/activity_table.dart';
 import '../../features/tasks/data/task_table.dart';
@@ -13,6 +14,7 @@ import '../../features/tasks/data/task_table.dart';
 import '../../features/tasks/domain/entities/activity_entry.dart';
 import '../../features/tasks/domain/entities/task.dart';
 import '../models/priority.dart';
+import '../services/notifications/scheduled_reminder.dart';
 
 part 'app_database.g.dart';
 
@@ -31,7 +33,15 @@ class Settings extends Table {
 /// lands; every table uses a UUID text primary key plus created_at /
 /// updated_at / deleted_at so the Phase 5 sync layer needs no migration.
 @DriftDatabase(
-  tables: [Settings, Tasks, ActivityEntries, Profiles, DashboardSections, Events],
+  tables: [
+    Settings,
+    Tasks,
+    ActivityEntries,
+    Profiles,
+    DashboardSections,
+    Events,
+    Notifications,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -40,11 +50,14 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) => m.createAll(),
+        onCreate: (m) async {
+          await m.createAll();
+          await _createTasksFts();
+        },
         onUpgrade: (m, from, to) async {
           // v2 (Phase 1 week 1): tasks.
           if (from < 2) {
@@ -70,11 +83,66 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(events);
             await m.createIndex(eventsStart);
           }
+          // v7 (Phase 1 week 4): the notifications inbox.
+          if (from < 7) {
+            await m.createTable(notifications);
+            await m.createIndex(notificationsDedupe);
+            await m.createIndex(notificationsCreated);
+          }
+          // v8 (Phase 1 week 4): task search. A fresh install gets the FTS
+          // table via onCreate with zero rows to backfill; an upgrading
+          // install has existing tasks the index has never seen, so it needs
+          // the one-time backfill below or search returns nothing until each
+          // task happens to be re-saved.
+          if (from < 8) {
+            await _createTasksFts();
+            await customStatement(
+              'INSERT INTO tasks_fts(rowid, title, description, category) '
+              'SELECT rowid, title, description, category FROM tasks;',
+            );
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },
       );
+
+  /// Raw SQL: drift 2.34 has no Dart-level FTS5 table API. An external-content
+  /// table over `tasks` (non-integer primary key `id`, so `content_rowid`
+  /// points at SQLite's own implicit `rowid` instead) plus the 3 triggers
+  /// that keep it in sync. The delete/update triggers must use FTS5's
+  /// `'delete'` special-command form for the old row — a plain single
+  /// statement against an external-content shadow table is invalid and would
+  /// silently corrupt the index.
+  Future<void> _createTasksFts() async {
+    await customStatement(
+      'CREATE VIRTUAL TABLE IF NOT EXISTS tasks_fts USING fts5('
+      'title, description, category, '
+      "content='tasks', content_rowid='rowid', "
+      "tokenize='unicode61 remove_diacritics 2'"
+      ');',
+    );
+    await customStatement(
+      'CREATE TRIGGER IF NOT EXISTS tasks_fts_insert AFTER INSERT ON tasks BEGIN '
+      'INSERT INTO tasks_fts(rowid, title, description, category) '
+      'VALUES (new.rowid, new.title, new.description, new.category); '
+      'END;',
+    );
+    await customStatement(
+      'CREATE TRIGGER IF NOT EXISTS tasks_fts_delete AFTER DELETE ON tasks BEGIN '
+      'INSERT INTO tasks_fts(tasks_fts, rowid, title, description, category) VALUES'
+      "('delete', old.rowid, old.title, old.description, old.category); "
+      'END;',
+    );
+    await customStatement(
+      'CREATE TRIGGER IF NOT EXISTS tasks_fts_update AFTER UPDATE ON tasks BEGIN '
+      'INSERT INTO tasks_fts(tasks_fts, rowid, title, description, category) VALUES'
+      "('delete', old.rowid, old.title, old.description, old.category); "
+      'INSERT INTO tasks_fts(rowid, title, description, category) '
+      'VALUES (new.rowid, new.title, new.description, new.category); '
+      'END;',
+    );
+  }
 
   static QueryExecutor _openConnection() => driftDatabase(
         name: 'kosha',
