@@ -66,5 +66,26 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Kosha uses the camera to scan documents and receipts.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kosha needs photo access to attach images to documents, tasks and expenses.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Kosha saves exported files and scans to your photo library when you ask it to.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Kosha uses Face ID to unlock the app when app lock is on.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.taritas.kosha</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kosha</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
