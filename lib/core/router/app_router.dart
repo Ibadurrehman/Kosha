@@ -13,6 +13,8 @@ import '../../features/onboarding/presentation/onboarding_first_item_screen.dart
 import '../../features/onboarding/presentation/onboarding_pick_areas_screen.dart';
 import '../../features/onboarding/presentation/onboarding_welcome_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
+import '../../features/settings/presentation/profile_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/spaces/presentation/spaces_screen.dart';
 import '../../features/states_gallery/presentation/states_gallery_screen.dart';
 import '../../features/tasks/presentation/task_detail_screen.dart';
@@ -37,6 +39,8 @@ abstract final class Routes {
   static const onboarding4 = '/onboarding/4';
   static const search = '/home/search';
   static const notifications = '/home/notifications';
+  static const profile = '/more/profile';
+  static const settings = '/more/settings';
 
   /// Task detail lives under the Tasks tab, so the bottom bar keeps Tasks lit
   /// even when the task was opened from Home.
@@ -151,6 +155,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: Routes.more,
                 builder: (_, _) => const MoreScreen(),
                 routes: [
+                  GoRoute(path: 'profile', builder: (_, _) => const ProfileScreen()),
+                  GoRoute(path: 'settings', builder: (_, _) => const SettingsScreen()),
                   if (AppConfig.showDebugTools)
                     GoRoute(
                       path: 'states',

@@ -5,12 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router/app_router.dart';
 import 'core/services/notifications/reminder_scheduler.dart';
+import 'core/services/settings/settings_store.dart';
 import 'core/theme/kosha_theme.dart';
 import 'core/theme/theme_mode_controller.dart';
 import 'core/utils/clock.dart';
 import 'features/calendar/data/event_repository_impl.dart';
 import 'features/notifications/data/notification_repository_impl.dart';
 import 'features/onboarding/presentation/controllers/onboarding_providers.dart';
+import 'features/settings/domain/notification_settings.dart';
 import 'features/tasks/data/task_repository_impl.dart';
 import 'shared/widgets/toast_host.dart';
 
@@ -51,7 +53,12 @@ class _KoshaAppState extends ConsumerState<KoshaApp> {
   /// left to surface as an uncaught async error.
   Future<void> _resyncReminders() async {
     try {
-      await ref.read(taskRepositoryProvider).resyncReminders();
+      final tasksEnabled = await readTaskRemindersEnabled(
+        ref.read(settingsStoreProvider),
+      );
+      if (tasksEnabled) {
+        await ref.read(taskRepositoryProvider).resyncReminders();
+      }
       await ref.read(eventRepositoryProvider).resyncReminders();
     } on Object catch (error, stack) {
       debugPrint('Kosha: could not re-register reminders ($error)');

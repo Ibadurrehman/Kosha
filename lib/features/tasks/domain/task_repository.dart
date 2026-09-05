@@ -76,4 +76,12 @@ abstract interface class TaskRepository {
   /// Every open, dated task with a reminder lead time set — the candidates
   /// notification-inbox reconciliation checks for a fire moment in the past.
   Future<List<Task>> remindable();
+
+  /// How many tasks were completed in `[from, to)` — Profile's "this month"
+  /// stat.
+  Future<int> countCompleted({required DateTime from, required DateTime to});
+
+  /// How many tasks were created in `[from, to)` — Profile's "this month"
+  /// stat.
+  Future<int> countCreated({required DateTime from, required DateTime to});
 }

@@ -297,6 +297,29 @@ class DriftTaskRepository implements TaskRepository {
     return rows.map(_toDomain).toList();
   }
 
+  @override
+  Future<int> countCompleted({required DateTime from, required DateTime to}) =>
+      (_db.select(_db.tasks)
+            ..where(
+              (t) =>
+                  t.completedAt.isBiggerOrEqualValue(from) &
+                  t.completedAt.isSmallerThanValue(to),
+            ))
+          .get()
+          .then((rows) => rows.length);
+
+  @override
+  Future<int> countCreated({required DateTime from, required DateTime to}) =>
+      (_db.select(_db.tasks)
+            ..where(
+              (t) =>
+                  t.deletedAt.isNull() &
+                  t.createdAt.isBiggerOrEqualValue(from) &
+                  t.createdAt.isSmallerThanValue(to),
+            ))
+          .get()
+          .then((rows) => rows.length);
+
   /// Creates the occurrence that replaces a completed repeating task, or null
   /// when the task does not repeat.
   Future<Task?> _spawnNextOccurrence(Task completed, DateTime now) async {
