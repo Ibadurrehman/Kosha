@@ -49,8 +49,18 @@ class HomeScreen extends ConsumerWidget {
             120,
           ),
           children: [
-            _Greeting(now: now),
-            const SizedBox(height: 26),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _Greeting(now: now)),
+                IconButton(
+                  tooltip: 'Search',
+                  icon: const Icon(Symbols.search_rounded),
+                  onPressed: () => context.go(Routes.search),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             sections.when(
               loading: () => const SkeletonList(),
               error: (error, _) => EmptyState(

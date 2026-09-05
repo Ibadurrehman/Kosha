@@ -11,6 +11,7 @@ import '../../features/onboarding/presentation/onboarding_dashboard_screen.dart'
 import '../../features/onboarding/presentation/onboarding_first_item_screen.dart';
 import '../../features/onboarding/presentation/onboarding_pick_areas_screen.dart';
 import '../../features/onboarding/presentation/onboarding_welcome_screen.dart';
+import '../../features/search/presentation/search_screen.dart';
 import '../../features/spaces/presentation/spaces_screen.dart';
 import '../../features/states_gallery/presentation/states_gallery_screen.dart';
 import '../../features/tasks/presentation/task_detail_screen.dart';
@@ -33,6 +34,7 @@ abstract final class Routes {
   static const onboarding2 = '/onboarding/2';
   static const onboarding3 = '/onboarding/3';
   static const onboarding4 = '/onboarding/4';
+  static const search = '/home/search';
 
   /// Task detail lives under the Tasks tab, so the bottom bar keeps Tasks lit
   /// even when the task was opened from Home.
@@ -94,7 +96,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         branches: [
           StatefulShellBranch(
             routes: [
-              GoRoute(path: Routes.home, builder: (_, _) => const HomeScreen()),
+              GoRoute(
+                path: Routes.home,
+                builder: (_, _) => const HomeScreen(),
+                routes: [
+                  GoRoute(path: 'search', builder: (_, _) => const SearchScreen()),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(
