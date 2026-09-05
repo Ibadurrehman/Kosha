@@ -25,6 +25,14 @@ abstract interface class TaskRepository {
   /// shows completed tasks struck through, so it cannot use [watchBucket].
   Stream<List<Task>> watchDueOn(DateTime day);
 
+  /// Open tasks due in `[from, to)` — end exclusive. Home's "Upcoming"
+  /// section.
+  Stream<List<Task>> watchDueBetween(DateTime from, DateTime to);
+
+  /// The [limit] most recently created or updated tasks, any status, newest
+  /// first. Home's "Recent" section.
+  Stream<List<Task>> watchRecent({required int limit});
+
   /// Emits null once the task is deleted.
   Stream<Task?> watchById(String id);
 

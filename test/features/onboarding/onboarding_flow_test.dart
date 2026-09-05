@@ -39,7 +39,7 @@ void main() {
 
     expect(find.text('Good morning'), findsOneWidget);
 
-    final profile = await (db.select(db.profiles)).getSingle();
+    final profile = await db.select(db.profiles).getSingle();
     expect(profile.onboardingCompleted, isTrue);
     await settleAndDispose(tester);
   });
@@ -68,7 +68,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Good morning'), findsOneWidget);
 
-    final profile = await (db.select(db.profiles)).getSingle();
+    final profile = await db.select(db.profiles).getSingle();
     expect(profile.onboardingCompleted, isTrue);
     await settleAndDispose(tester);
   });

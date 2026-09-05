@@ -2738,6 +2738,684 @@ class DashboardSectionsCompanion extends UpdateCompanion<DashboardSectionRow> {
   }
 }
 
+class $EventsTable extends Events with TableInfo<$EventsTable, EventRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 500,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startAtMeta = const VerificationMeta(
+    'startAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startAt = GeneratedColumn<DateTime>(
+    'start_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endAtMeta = const VerificationMeta('endAt');
+  @override
+  late final GeneratedColumn<DateTime> endAt = GeneratedColumn<DateTime>(
+    'end_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _allDayMeta = const VerificationMeta('allDay');
+  @override
+  late final GeneratedColumn<bool> allDay = GeneratedColumn<bool>(
+    'all_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("all_day" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _reminderOffsetMinutesMeta =
+      const VerificationMeta('reminderOffsetMinutes');
+  @override
+  late final GeneratedColumn<int> reminderOffsetMinutes = GeneratedColumn<int>(
+    'reminder_offset_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _spaceIdMeta = const VerificationMeta(
+    'spaceId',
+  );
+  @override
+  late final GeneratedColumn<String> spaceId = GeneratedColumn<String>(
+    'space_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    description,
+    startAt,
+    endAt,
+    allDay,
+    reminderOffsetMinutes,
+    spaceId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<EventRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('start_at')) {
+      context.handle(
+        _startAtMeta,
+        startAt.isAcceptableOrUnknown(data['start_at']!, _startAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startAtMeta);
+    }
+    if (data.containsKey('end_at')) {
+      context.handle(
+        _endAtMeta,
+        endAt.isAcceptableOrUnknown(data['end_at']!, _endAtMeta),
+      );
+    }
+    if (data.containsKey('all_day')) {
+      context.handle(
+        _allDayMeta,
+        allDay.isAcceptableOrUnknown(data['all_day']!, _allDayMeta),
+      );
+    }
+    if (data.containsKey('reminder_offset_minutes')) {
+      context.handle(
+        _reminderOffsetMinutesMeta,
+        reminderOffsetMinutes.isAcceptableOrUnknown(
+          data['reminder_offset_minutes']!,
+          _reminderOffsetMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('space_id')) {
+      context.handle(
+        _spaceIdMeta,
+        spaceId.isAcceptableOrUnknown(data['space_id']!, _spaceIdMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  EventRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EventRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      startAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_at'],
+      )!,
+      endAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end_at'],
+      ),
+      allDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}all_day'],
+      )!,
+      reminderOffsetMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_offset_minutes'],
+      ),
+      spaceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}space_id'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $EventsTable createAlias(String alias) {
+    return $EventsTable(attachedDatabase, alias);
+  }
+}
+
+class EventRow extends DataClass implements Insertable<EventRow> {
+  final String id;
+  final String title;
+  final String? description;
+  final DateTime startAt;
+  final DateTime? endAt;
+  final bool allDay;
+  final int? reminderOffsetMinutes;
+  final String? spaceId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Set instead of removing the row, so a delete can be undone.
+  final DateTime? deletedAt;
+  const EventRow({
+    required this.id,
+    required this.title,
+    this.description,
+    required this.startAt,
+    this.endAt,
+    required this.allDay,
+    this.reminderOffsetMinutes,
+    this.spaceId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['start_at'] = Variable<DateTime>(startAt);
+    if (!nullToAbsent || endAt != null) {
+      map['end_at'] = Variable<DateTime>(endAt);
+    }
+    map['all_day'] = Variable<bool>(allDay);
+    if (!nullToAbsent || reminderOffsetMinutes != null) {
+      map['reminder_offset_minutes'] = Variable<int>(reminderOffsetMinutes);
+    }
+    if (!nullToAbsent || spaceId != null) {
+      map['space_id'] = Variable<String>(spaceId);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  EventsCompanion toCompanion(bool nullToAbsent) {
+    return EventsCompanion(
+      id: Value(id),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      startAt: Value(startAt),
+      endAt: endAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endAt),
+      allDay: Value(allDay),
+      reminderOffsetMinutes: reminderOffsetMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderOffsetMinutes),
+      spaceId: spaceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(spaceId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory EventRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EventRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      startAt: serializer.fromJson<DateTime>(json['startAt']),
+      endAt: serializer.fromJson<DateTime?>(json['endAt']),
+      allDay: serializer.fromJson<bool>(json['allDay']),
+      reminderOffsetMinutes: serializer.fromJson<int?>(
+        json['reminderOffsetMinutes'],
+      ),
+      spaceId: serializer.fromJson<String?>(json['spaceId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'startAt': serializer.toJson<DateTime>(startAt),
+      'endAt': serializer.toJson<DateTime?>(endAt),
+      'allDay': serializer.toJson<bool>(allDay),
+      'reminderOffsetMinutes': serializer.toJson<int?>(reminderOffsetMinutes),
+      'spaceId': serializer.toJson<String?>(spaceId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  EventRow copyWith({
+    String? id,
+    String? title,
+    Value<String?> description = const Value.absent(),
+    DateTime? startAt,
+    Value<DateTime?> endAt = const Value.absent(),
+    bool? allDay,
+    Value<int?> reminderOffsetMinutes = const Value.absent(),
+    Value<String?> spaceId = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => EventRow(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    description: description.present ? description.value : this.description,
+    startAt: startAt ?? this.startAt,
+    endAt: endAt.present ? endAt.value : this.endAt,
+    allDay: allDay ?? this.allDay,
+    reminderOffsetMinutes: reminderOffsetMinutes.present
+        ? reminderOffsetMinutes.value
+        : this.reminderOffsetMinutes,
+    spaceId: spaceId.present ? spaceId.value : this.spaceId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  EventRow copyWithCompanion(EventsCompanion data) {
+    return EventRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      startAt: data.startAt.present ? data.startAt.value : this.startAt,
+      endAt: data.endAt.present ? data.endAt.value : this.endAt,
+      allDay: data.allDay.present ? data.allDay.value : this.allDay,
+      reminderOffsetMinutes: data.reminderOffsetMinutes.present
+          ? data.reminderOffsetMinutes.value
+          : this.reminderOffsetMinutes,
+      spaceId: data.spaceId.present ? data.spaceId.value : this.spaceId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EventRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('startAt: $startAt, ')
+          ..write('endAt: $endAt, ')
+          ..write('allDay: $allDay, ')
+          ..write('reminderOffsetMinutes: $reminderOffsetMinutes, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    description,
+    startAt,
+    endAt,
+    allDay,
+    reminderOffsetMinutes,
+    spaceId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EventRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.startAt == this.startAt &&
+          other.endAt == this.endAt &&
+          other.allDay == this.allDay &&
+          other.reminderOffsetMinutes == this.reminderOffsetMinutes &&
+          other.spaceId == this.spaceId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class EventsCompanion extends UpdateCompanion<EventRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<DateTime> startAt;
+  final Value<DateTime?> endAt;
+  final Value<bool> allDay;
+  final Value<int?> reminderOffsetMinutes;
+  final Value<String?> spaceId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const EventsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.startAt = const Value.absent(),
+    this.endAt = const Value.absent(),
+    this.allDay = const Value.absent(),
+    this.reminderOffsetMinutes = const Value.absent(),
+    this.spaceId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EventsCompanion.insert({
+    required String id,
+    required String title,
+    this.description = const Value.absent(),
+    required DateTime startAt,
+    this.endAt = const Value.absent(),
+    this.allDay = const Value.absent(),
+    this.reminderOffsetMinutes = const Value.absent(),
+    this.spaceId = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       startAt = Value(startAt),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<EventRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<DateTime>? startAt,
+    Expression<DateTime>? endAt,
+    Expression<bool>? allDay,
+    Expression<int>? reminderOffsetMinutes,
+    Expression<String>? spaceId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (startAt != null) 'start_at': startAt,
+      if (endAt != null) 'end_at': endAt,
+      if (allDay != null) 'all_day': allDay,
+      if (reminderOffsetMinutes != null)
+        'reminder_offset_minutes': reminderOffsetMinutes,
+      if (spaceId != null) 'space_id': spaceId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EventsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? title,
+    Value<String?>? description,
+    Value<DateTime>? startAt,
+    Value<DateTime?>? endAt,
+    Value<bool>? allDay,
+    Value<int?>? reminderOffsetMinutes,
+    Value<String?>? spaceId,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return EventsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      startAt: startAt ?? this.startAt,
+      endAt: endAt ?? this.endAt,
+      allDay: allDay ?? this.allDay,
+      reminderOffsetMinutes:
+          reminderOffsetMinutes ?? this.reminderOffsetMinutes,
+      spaceId: spaceId ?? this.spaceId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (startAt.present) {
+      map['start_at'] = Variable<DateTime>(startAt.value);
+    }
+    if (endAt.present) {
+      map['end_at'] = Variable<DateTime>(endAt.value);
+    }
+    if (allDay.present) {
+      map['all_day'] = Variable<bool>(allDay.value);
+    }
+    if (reminderOffsetMinutes.present) {
+      map['reminder_offset_minutes'] = Variable<int>(
+        reminderOffsetMinutes.value,
+      );
+    }
+    if (spaceId.present) {
+      map['space_id'] = Variable<String>(spaceId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EventsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('startAt: $startAt, ')
+          ..write('endAt: $endAt, ')
+          ..write('allDay: $allDay, ')
+          ..write('reminderOffsetMinutes: $reminderOffsetMinutes, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2749,6 +3427,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ProfilesTable profiles = $ProfilesTable(this);
   late final $DashboardSectionsTable dashboardSections =
       $DashboardSectionsTable(this);
+  late final $EventsTable events = $EventsTable(this);
   late final Index tasksBucket = Index(
     'tasks_bucket',
     'CREATE INDEX tasks_bucket ON tasks (done, due_date)',
@@ -2761,6 +3440,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'activity_owner',
     'CREATE INDEX activity_owner ON activity_entries (owner_type, owner_id)',
   );
+  late final Index eventsStart = Index(
+    'events_start',
+    'CREATE INDEX events_start ON events (start_at)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2771,9 +3454,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     activityEntries,
     profiles,
     dashboardSections,
+    events,
     tasksBucket,
     tasksSpace,
     activityOwner,
+    eventsStart,
   ];
 }
 
@@ -4186,6 +4871,327 @@ typedef $$DashboardSectionsTableProcessedTableManager =
       DashboardSectionRow,
       PrefetchHooks Function()
     >;
+typedef $$EventsTableCreateCompanionBuilder =
+    EventsCompanion Function({
+      required String id,
+      required String title,
+      Value<String?> description,
+      required DateTime startAt,
+      Value<DateTime?> endAt,
+      Value<bool> allDay,
+      Value<int?> reminderOffsetMinutes,
+      Value<String?> spaceId,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$EventsTableUpdateCompanionBuilder =
+    EventsCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<String?> description,
+      Value<DateTime> startAt,
+      Value<DateTime?> endAt,
+      Value<bool> allDay,
+      Value<int?> reminderOffsetMinutes,
+      Value<String?> spaceId,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+class $$EventsTableFilterComposer
+    extends Composer<_$AppDatabase, $EventsTable> {
+  $$EventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startAt => $composableBuilder(
+    column: $table.startAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endAt => $composableBuilder(
+    column: $table.endAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get allDay => $composableBuilder(
+    column: $table.allDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderOffsetMinutes => $composableBuilder(
+    column: $table.reminderOffsetMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$EventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $EventsTable> {
+  $$EventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startAt => $composableBuilder(
+    column: $table.startAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endAt => $composableBuilder(
+    column: $table.endAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get allDay => $composableBuilder(
+    column: $table.allDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderOffsetMinutes => $composableBuilder(
+    column: $table.reminderOffsetMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$EventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EventsTable> {
+  $$EventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get startAt =>
+      $composableBuilder(column: $table.startAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endAt =>
+      $composableBuilder(column: $table.endAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get allDay =>
+      $composableBuilder(column: $table.allDay, builder: (column) => column);
+
+  GeneratedColumn<int> get reminderOffsetMinutes => $composableBuilder(
+    column: $table.reminderOffsetMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get spaceId =>
+      $composableBuilder(column: $table.spaceId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$EventsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $EventsTable,
+          EventRow,
+          $$EventsTableFilterComposer,
+          $$EventsTableOrderingComposer,
+          $$EventsTableAnnotationComposer,
+          $$EventsTableCreateCompanionBuilder,
+          $$EventsTableUpdateCompanionBuilder,
+          (EventRow, BaseReferences<_$AppDatabase, $EventsTable, EventRow>),
+          EventRow,
+          PrefetchHooks Function()
+        > {
+  $$EventsTableTableManager(_$AppDatabase db, $EventsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<DateTime> startAt = const Value.absent(),
+                Value<DateTime?> endAt = const Value.absent(),
+                Value<bool> allDay = const Value.absent(),
+                Value<int?> reminderOffsetMinutes = const Value.absent(),
+                Value<String?> spaceId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => EventsCompanion(
+                id: id,
+                title: title,
+                description: description,
+                startAt: startAt,
+                endAt: endAt,
+                allDay: allDay,
+                reminderOffsetMinutes: reminderOffsetMinutes,
+                spaceId: spaceId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String title,
+                Value<String?> description = const Value.absent(),
+                required DateTime startAt,
+                Value<DateTime?> endAt = const Value.absent(),
+                Value<bool> allDay = const Value.absent(),
+                Value<int?> reminderOffsetMinutes = const Value.absent(),
+                Value<String?> spaceId = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => EventsCompanion.insert(
+                id: id,
+                title: title,
+                description: description,
+                startAt: startAt,
+                endAt: endAt,
+                allDay: allDay,
+                reminderOffsetMinutes: reminderOffsetMinutes,
+                spaceId: spaceId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$EventsTable, EventRow>(table),
+                  BaseReferences<_$AppDatabase, $EventsTable, EventRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$EventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $EventsTable,
+      EventRow,
+      $$EventsTableFilterComposer,
+      $$EventsTableOrderingComposer,
+      $$EventsTableAnnotationComposer,
+      $$EventsTableCreateCompanionBuilder,
+      $$EventsTableUpdateCompanionBuilder,
+      (EventRow, BaseReferences<_$AppDatabase, $EventsTable, EventRow>),
+      EventRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4200,4 +5206,6 @@ class $AppDatabaseManager {
       $$ProfilesTableTableManager(_db, _db.profiles);
   $$DashboardSectionsTableTableManager get dashboardSections =>
       $$DashboardSectionsTableTableManager(_db, _db.dashboardSections);
+  $$EventsTableTableManager get events =>
+      $$EventsTableTableManager(_db, _db.events);
 }

@@ -61,6 +61,32 @@ class DriftTaskRepository implements TaskRepository {
   }
 
   @override
+  Stream<List<Task>> watchDueBetween(DateTime from, DateTime to) {
+    final query = _db.select(_db.tasks)
+      ..where(
+        (t) =>
+            t.deletedAt.isNull() &
+            t.done.equals(false) &
+            t.dueDate.isBiggerOrEqualValue(from) &
+            t.dueDate.isSmallerThanValue(to),
+      )
+      ..orderBy([
+        (t) => OrderingTerm.asc(t.dueDate),
+        (t) => OrderingTerm(expression: t.dueMinutes, nulls: NullsOrder.last),
+      ]);
+    return query.watch().map((rows) => rows.map(_toDomain).toList());
+  }
+
+  @override
+  Stream<List<Task>> watchRecent({required int limit}) {
+    final query = _db.select(_db.tasks)
+      ..where((t) => t.deletedAt.isNull())
+      ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])
+      ..limit(limit);
+    return query.watch().map((rows) => rows.map(_toDomain).toList());
+  }
+
+  @override
   Stream<Task?> watchById(String id) {
     final query = _db.select(_db.tasks)
       ..where((t) => t.id.equals(id) & t.deletedAt.isNull());

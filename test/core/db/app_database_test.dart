@@ -26,11 +26,11 @@ void main() {
     expect(result.read<int>('foreign_keys'), 1);
   });
 
-  test('schema version is 5', () {
+  test('schema version is 6', () {
     // v1 settings, v2 tasks, v3 activity history, v4 profiles, v5 dashboard
-    // sections. Bump this with every migration so the upgrade path in
-    // AppDatabase.migration is never skipped by accident.
-    expect(db.schemaVersion, 5);
+    // sections, v6 events. Bump this with every migration so the upgrade path
+    // in AppDatabase.migration is never skipped by accident.
+    expect(db.schemaVersion, 6);
   });
 
   test('a fresh install can insert a profile and a dashboard section',
