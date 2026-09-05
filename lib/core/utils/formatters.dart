@@ -38,4 +38,8 @@ abstract final class Dates {
 
   /// `9:00 AM`
   static String time(DateTime d) => _time.format(d);
+
+  /// `9:00 AM` from minutes since midnight, the way task due times are stored.
+  static String minuteOfDay(int minutes) =>
+      _time.format(DateTime(2000, 1, 1, minutes ~/ 60, minutes % 60));
 }
