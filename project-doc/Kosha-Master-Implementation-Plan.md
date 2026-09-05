@@ -830,22 +830,54 @@ Assumes one full-time Flutter developer from Phase 0 and a second part-time deve
 
 ### 12.1 Phase-1 detailed breakdown (first sprint plan)
 
-**Status (5 Sep 2026): week 1 complete.** Tasks are stored, listed, created, completed and
-undone end to end, with 63 tests passing and a clean analyze.
+**Status (5 Sep 2026): weeks 1–2 complete.** A task can now be created, listed, opened,
+edited, rescheduled, duplicated, completed, repeated and deleted end to end, and a dated
+task holds a real local notification. 117 tests pass and analyze is clean.
 
 | Week | Deliverables |
 |---|---|
 | 1 ✅ | Task tables/DAO/repository; Tasks screen with tabs and TaskRow; New task sheet; toast+undo; Home "Today" section |
-| 2 | Task detail (fields, expand section, bottom bar); actions sheet; reschedule; delete + confirm; recurrence + next occurrence; ReminderScheduler v1 |
+| 2 ✅ | Task detail (fields, expand section, bottom bar); actions sheet; reschedule; delete + confirm; recurrence + next occurrence; ReminderScheduler v1; task editor |
 | 3 | Onboarding 4 steps; Home remaining sections with aggregators; Quick-add sheet; Calendar month/week/agenda + Event entity |
 | 4 | Search FTS; Notifications inbox + deep links; Settings, Appearance, Customize dashboard, Profile; integration test: add → complete → undo → delete |
 
 ### 12.1.1 Notes carried out of week 1
 
 - **Empty titles are rejected.** The prototype turns an empty quick-add into a task called "New task"; the app disables Create until the title has text, matching how the expense sheet gates on an amount.
-- **No dead controls.** The row "•••" button, row taps and the Tasks search icon are left out until the screens they open exist (week 2 and week 4).
+- **No dead controls.** The row "•••" button and row taps landed in week 2; the Tasks search icon is still left out until Search exists (week 4).
 - **Widget tests need an explicit unmount.** Drift schedules a zero-duration timer when it closes a query stream, and `flutter_test` fails a test that ends with a timer pending. `settleAndDispose` in `test/helpers/test_app.dart` unmounts the tree and elapses real time; a zero-duration pump does not drain it.
 - **Generated files are excluded from the analyzer**, so a missing import in a Drift part file only surfaces at compile time. Run `flutter test` (or a build), not just `flutter analyze`, after changing table definitions.
+
+### 12.1.2 Notes carried out of week 2
+
+- **Every write goes through the repository**, which owns three side effects together: the
+  row change, the activity line and the reminder the operating system holds. Nothing in the
+  presentation layer talks to `ReminderScheduler` except to ask for permission, so a task
+  edited from the detail screen, the editor or the "•••" sheet ends up in the same state.
+- **Recurrence is calendar arithmetic, not an RFC 5545 engine.** Rules are stored as RFC
+  strings so a custom-rule editor can widen them later without a migration, but monthly and
+  quarterly presets carry `BYMONTHDAY` and clamp into short months (a task on the 30th lands
+  on 28 February and returns to the 30th in March). A last-day task uses `BYMONTHDAY=-1`.
+  RFC 5545 would skip those months entirely, which is wrong for a personal task app.
+- **The next occurrence is created on completion, not ahead of time**, so the lists never
+  show a repeat the user has not reached yet. Completing a repeating task returns both rows
+  in a `TaskCompletion` because the undo has to purge the occurrence it spawned.
+- **Notification ids must survive a restart.** `String.hashCode` is not stable across runs,
+  so `reminderNotificationId` uses FNV-1a masked to a positive 31-bit int; a reminder
+  scheduled in one session can be cancelled in the next. `resyncReminders()` re-states every
+  open, dated, reminded task on launch, because scheduled notifications do not survive a
+  reinstall and some OS upgrades drop them.
+- **Scheduling is inexact by default** (`inexactAllowWhileIdle`), so the app does not need
+  Android's `SCHEDULE_EXACT_ALARM` at runtime. An "Exact reminders" setting can opt in later.
+- **Permission is asked for at the moment a reminder is first set**, not on launch — the
+  New task sheet and the editor both call `requestPermission()` only when a lead time was
+  newly chosen.
+- **A screen that ends in `context.pop()` needs a router in its test.** `wrapPushedScreen` in
+  `test/helpers/test_app.dart` hosts a screen one level deep in a real `GoRouter` so the pop
+  has somewhere to go; `wrapScreen` alone throws.
+- **Tall screens need a tall test window.** The detail and edit screens are longer than the
+  600 px default viewport and their lists are lazy, so widget tests set
+  `tester.view.physicalSize` before pumping or the fields below the fold are never built.
 
 ### 12.2 Definition of done (every feature)
 
