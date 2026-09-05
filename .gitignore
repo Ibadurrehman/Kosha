@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Kosha: secrets and signing
+/android/key.properties
+*.jks
+*.keystore
+.env
+.env.*
+/config/*.local.json
+
+# Kosha: golden test failures
+**/failures/
