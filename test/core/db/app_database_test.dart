@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kosha/core/db/app_database.dart';
+import 'package:kosha/features/finance/domain/entities/transaction.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 
@@ -26,12 +27,12 @@ void main() {
     expect(result.read<int>('foreign_keys'), 1);
   });
 
-  test('schema version is 8', () {
+  test('schema version is 9', () {
     // v1 settings, v2 tasks, v3 activity history, v4 profiles, v5 dashboard
-    // sections, v6 events, v7 notifications, v8 task search. Bump this with
-    // every migration so the upgrade path in AppDatabase.migration is never
-    // skipped by accident.
-    expect(db.schemaVersion, 8);
+    // sections, v6 events, v7 notifications, v8 task search, v9 transactions.
+    // Bump this with every migration so the upgrade path in
+    // AppDatabase.migration is never skipped by accident.
+    expect(db.schemaVersion, 9);
   });
 
   test('a fresh install can insert a profile and a dashboard section',
@@ -56,7 +57,7 @@ void main() {
     expect(await db.select(db.dashboardSections).getSingle(), isNotNull);
   });
 
-  test('an upgrade from v1 adds every table through v8', () async {
+  test('an upgrade from v1 adds every table through v9', () async {
     // Mirrors the "v1 database gains the tasks table" migration test in
     // task_repository_test.dart: a real file so the upgrade runs against a
     // database that was actually closed and reopened, not a fresh in-memory
@@ -94,11 +95,22 @@ void main() {
             updatedAt: now,
           ),
         );
+    await upgraded.into(upgraded.transactions).insert(
+          TransactionsCompanion.insert(
+            id: 'txn-1',
+            amountMinor: 5000,
+            type: TransactionType.expense,
+            date: now,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
 
     expect((await upgraded.select(upgraded.profiles).get()).single.id, 'local');
     expect(
       (await upgraded.select(upgraded.dashboardSections).get()).single.key,
       'today',
     );
+    expect((await upgraded.select(upgraded.transactions).get()).single.id, 'txn-1');
   });
 }

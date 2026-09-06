@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/calendar/presentation/calendar_screen.dart';
+import '../../features/finance/presentation/finance_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/more/presentation/more_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
@@ -39,6 +40,7 @@ abstract final class Routes {
   static const onboarding4 = '/onboarding/4';
   static const search = '/home/search';
   static const notifications = '/home/notifications';
+  static const finance = '/home/finance';
   static const profile = '/more/profile';
   static const settings = '/more/settings';
 
@@ -110,6 +112,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'notifications',
                     builder: (_, _) => const NotificationsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'finance',
+                    builder: (_, _) => const FinanceScreen(),
                   ),
                 ],
               ),

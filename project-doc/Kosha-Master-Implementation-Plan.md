@@ -965,6 +965,37 @@ D9 (exact reminders, opt-in, off by default) shipped as a small carry-over — s
 - Added to Space detail aggregation and Recent if the entity has a `space_id`
 - Accessibility labels on icon buttons; dark mode checked
 
+### 12.3 Phase-2 progress
+
+**Status (6 Sep 2026): first slice landed.** Schema is at v9 (adds `Transactions`
+— amount in paise, `type` expense/income, category, method, label, note, and the
+same soft-delete/UUID/timestamp shape as `Tasks`). Built: `TransactionRepository`
+(CRUD, month/date-range queries, `sumByType`, `categoryTotals`, `lastMethod`); the
+shared `AmountKeypad` widget (12-key grid, pure `pressKey` reducer, added to the
+States gallery); the New expense sheet (amount, expense/income toggle, category
+chips, method chips defaulting to last used, note); the Finance dashboard (This
+month card with Income/Expenses/Remaining/% spent/day-of-month progress, By
+category bars, Recent transactions) reachable from Home's Quick access and
+Quick add's Expense tile. D4 and D9 (§17) are resolved — see ADR 0005 and ADR
+0006. 250 unit/widget tests pass, `flutter analyze` is clean.
+
+Deliberately deferred to the next Phase 2 slice, the same way Phase 1 named its
+own gaps rather than faking them (§12.1.3): Transaction detail/edit, All
+transactions (filter by month/category/method), a Category manager (categories
+are a fixed curated list for now, not user-editable), and all of Bills &
+subscriptions. Every control that would lead there today (the Bills icon,
+"See all", tapping a transaction row) toasts "Arriving in a later phase" —
+the same idiom Settings and Quick add already use for their own unbuilt rows.
+
+**Live UI verification not done this session.** The widget tests pump the real
+screens, tap real buttons, and assert on rendered text/toasts against a real
+in-memory Drift database, but nobody has run the app on a device or emulator
+for this slice: Claude in Chrome wasn't connected, and the sandboxed Browser
+pane cannot load Kosha's web build (see `browser-pane-no-nested-workers` in
+memory — drift's web worker hangs there, unrelated to this change). Verify on
+a real device/emulator or in an actual Chrome window before treating this as
+done end-to-end.
+
 ---
 
 ## 13. Gaps in the prototype and proposed resolutions

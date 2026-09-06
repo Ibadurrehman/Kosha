@@ -3977,6 +3977,823 @@ class NotificationsCompanion extends UpdateCompanion<NotificationRow> {
   }
 }
 
+class $TransactionsTable extends Transactions
+    with TableInfo<$TransactionsTable, TransactionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TransactionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMinorMeta = const VerificationMeta(
+    'amountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> amountMinor = GeneratedColumn<int>(
+    'amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<TransactionType, int> type =
+      GeneratedColumn<int>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<TransactionType>($TransactionsTable.$convertertype);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<TransactionMethod?, int> method =
+      GeneratedColumn<int>(
+        'method',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<TransactionMethod?>($TransactionsTable.$convertermethodn);
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _spaceIdMeta = const VerificationMeta(
+    'spaceId',
+  );
+  @override
+  late final GeneratedColumn<String> spaceId = GeneratedColumn<String>(
+    'space_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _billIdMeta = const VerificationMeta('billId');
+  @override
+  late final GeneratedColumn<String> billId = GeneratedColumn<String>(
+    'bill_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _vehicleIdMeta = const VerificationMeta(
+    'vehicleId',
+  );
+  @override
+  late final GeneratedColumn<String> vehicleId = GeneratedColumn<String>(
+    'vehicle_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    amountMinor,
+    type,
+    date,
+    category,
+    method,
+    label,
+    note,
+    spaceId,
+    billId,
+    vehicleId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'transactions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TransactionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('amount_minor')) {
+      context.handle(
+        _amountMinorMeta,
+        amountMinor.isAcceptableOrUnknown(
+          data['amount_minor']!,
+          _amountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMinorMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('space_id')) {
+      context.handle(
+        _spaceIdMeta,
+        spaceId.isAcceptableOrUnknown(data['space_id']!, _spaceIdMeta),
+      );
+    }
+    if (data.containsKey('bill_id')) {
+      context.handle(
+        _billIdMeta,
+        billId.isAcceptableOrUnknown(data['bill_id']!, _billIdMeta),
+      );
+    }
+    if (data.containsKey('vehicle_id')) {
+      context.handle(
+        _vehicleIdMeta,
+        vehicleId.isAcceptableOrUnknown(data['vehicle_id']!, _vehicleIdMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TransactionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TransactionRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      amountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount_minor'],
+      )!,
+      type: $TransactionsTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      ),
+      method: $TransactionsTable.$convertermethodn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}method'],
+        ),
+      ),
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      spaceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}space_id'],
+      ),
+      billId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bill_id'],
+      ),
+      vehicleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vehicle_id'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $TransactionsTable createAlias(String alias) {
+    return $TransactionsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<TransactionType, int, int> $convertertype =
+      const EnumIndexConverter<TransactionType>(TransactionType.values);
+  static JsonTypeConverter2<TransactionMethod, int, int> $convertermethod =
+      const EnumIndexConverter<TransactionMethod>(TransactionMethod.values);
+  static JsonTypeConverter2<TransactionMethod?, int?, int?> $convertermethodn =
+      JsonTypeConverter2.asNullable($convertermethod);
+}
+
+class TransactionRow extends DataClass implements Insertable<TransactionRow> {
+  final String id;
+  final int amountMinor;
+  final TransactionType type;
+  final DateTime date;
+  final String? category;
+  final TransactionMethod? method;
+  final String? label;
+  final String? note;
+  final String? spaceId;
+  final String? billId;
+  final String? vehicleId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Set instead of removing the row, so a delete can be undone and the
+  /// Phase 5 sync layer can propagate the deletion — same pattern as `Tasks`.
+  final DateTime? deletedAt;
+  const TransactionRow({
+    required this.id,
+    required this.amountMinor,
+    required this.type,
+    required this.date,
+    this.category,
+    this.method,
+    this.label,
+    this.note,
+    this.spaceId,
+    this.billId,
+    this.vehicleId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['amount_minor'] = Variable<int>(amountMinor);
+    {
+      map['type'] = Variable<int>(
+        $TransactionsTable.$convertertype.toSql(type),
+      );
+    }
+    map['date'] = Variable<DateTime>(date);
+    if (!nullToAbsent || category != null) {
+      map['category'] = Variable<String>(category);
+    }
+    if (!nullToAbsent || method != null) {
+      map['method'] = Variable<int>(
+        $TransactionsTable.$convertermethodn.toSql(method),
+      );
+    }
+    if (!nullToAbsent || label != null) {
+      map['label'] = Variable<String>(label);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || spaceId != null) {
+      map['space_id'] = Variable<String>(spaceId);
+    }
+    if (!nullToAbsent || billId != null) {
+      map['bill_id'] = Variable<String>(billId);
+    }
+    if (!nullToAbsent || vehicleId != null) {
+      map['vehicle_id'] = Variable<String>(vehicleId);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  TransactionsCompanion toCompanion(bool nullToAbsent) {
+    return TransactionsCompanion(
+      id: Value(id),
+      amountMinor: Value(amountMinor),
+      type: Value(type),
+      date: Value(date),
+      category: category == null && nullToAbsent
+          ? const Value.absent()
+          : Value(category),
+      method: method == null && nullToAbsent
+          ? const Value.absent()
+          : Value(method),
+      label: label == null && nullToAbsent
+          ? const Value.absent()
+          : Value(label),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      spaceId: spaceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(spaceId),
+      billId: billId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billId),
+      vehicleId: vehicleId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vehicleId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory TransactionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TransactionRow(
+      id: serializer.fromJson<String>(json['id']),
+      amountMinor: serializer.fromJson<int>(json['amountMinor']),
+      type: $TransactionsTable.$convertertype.fromJson(
+        serializer.fromJson<int>(json['type']),
+      ),
+      date: serializer.fromJson<DateTime>(json['date']),
+      category: serializer.fromJson<String?>(json['category']),
+      method: $TransactionsTable.$convertermethodn.fromJson(
+        serializer.fromJson<int?>(json['method']),
+      ),
+      label: serializer.fromJson<String?>(json['label']),
+      note: serializer.fromJson<String?>(json['note']),
+      spaceId: serializer.fromJson<String?>(json['spaceId']),
+      billId: serializer.fromJson<String?>(json['billId']),
+      vehicleId: serializer.fromJson<String?>(json['vehicleId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'amountMinor': serializer.toJson<int>(amountMinor),
+      'type': serializer.toJson<int>(
+        $TransactionsTable.$convertertype.toJson(type),
+      ),
+      'date': serializer.toJson<DateTime>(date),
+      'category': serializer.toJson<String?>(category),
+      'method': serializer.toJson<int?>(
+        $TransactionsTable.$convertermethodn.toJson(method),
+      ),
+      'label': serializer.toJson<String?>(label),
+      'note': serializer.toJson<String?>(note),
+      'spaceId': serializer.toJson<String?>(spaceId),
+      'billId': serializer.toJson<String?>(billId),
+      'vehicleId': serializer.toJson<String?>(vehicleId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  TransactionRow copyWith({
+    String? id,
+    int? amountMinor,
+    TransactionType? type,
+    DateTime? date,
+    Value<String?> category = const Value.absent(),
+    Value<TransactionMethod?> method = const Value.absent(),
+    Value<String?> label = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    Value<String?> spaceId = const Value.absent(),
+    Value<String?> billId = const Value.absent(),
+    Value<String?> vehicleId = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => TransactionRow(
+    id: id ?? this.id,
+    amountMinor: amountMinor ?? this.amountMinor,
+    type: type ?? this.type,
+    date: date ?? this.date,
+    category: category.present ? category.value : this.category,
+    method: method.present ? method.value : this.method,
+    label: label.present ? label.value : this.label,
+    note: note.present ? note.value : this.note,
+    spaceId: spaceId.present ? spaceId.value : this.spaceId,
+    billId: billId.present ? billId.value : this.billId,
+    vehicleId: vehicleId.present ? vehicleId.value : this.vehicleId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  TransactionRow copyWithCompanion(TransactionsCompanion data) {
+    return TransactionRow(
+      id: data.id.present ? data.id.value : this.id,
+      amountMinor: data.amountMinor.present
+          ? data.amountMinor.value
+          : this.amountMinor,
+      type: data.type.present ? data.type.value : this.type,
+      date: data.date.present ? data.date.value : this.date,
+      category: data.category.present ? data.category.value : this.category,
+      method: data.method.present ? data.method.value : this.method,
+      label: data.label.present ? data.label.value : this.label,
+      note: data.note.present ? data.note.value : this.note,
+      spaceId: data.spaceId.present ? data.spaceId.value : this.spaceId,
+      billId: data.billId.present ? data.billId.value : this.billId,
+      vehicleId: data.vehicleId.present ? data.vehicleId.value : this.vehicleId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TransactionRow(')
+          ..write('id: $id, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('type: $type, ')
+          ..write('date: $date, ')
+          ..write('category: $category, ')
+          ..write('method: $method, ')
+          ..write('label: $label, ')
+          ..write('note: $note, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('billId: $billId, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    amountMinor,
+    type,
+    date,
+    category,
+    method,
+    label,
+    note,
+    spaceId,
+    billId,
+    vehicleId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TransactionRow &&
+          other.id == this.id &&
+          other.amountMinor == this.amountMinor &&
+          other.type == this.type &&
+          other.date == this.date &&
+          other.category == this.category &&
+          other.method == this.method &&
+          other.label == this.label &&
+          other.note == this.note &&
+          other.spaceId == this.spaceId &&
+          other.billId == this.billId &&
+          other.vehicleId == this.vehicleId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
+  final Value<String> id;
+  final Value<int> amountMinor;
+  final Value<TransactionType> type;
+  final Value<DateTime> date;
+  final Value<String?> category;
+  final Value<TransactionMethod?> method;
+  final Value<String?> label;
+  final Value<String?> note;
+  final Value<String?> spaceId;
+  final Value<String?> billId;
+  final Value<String?> vehicleId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const TransactionsCompanion({
+    this.id = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.type = const Value.absent(),
+    this.date = const Value.absent(),
+    this.category = const Value.absent(),
+    this.method = const Value.absent(),
+    this.label = const Value.absent(),
+    this.note = const Value.absent(),
+    this.spaceId = const Value.absent(),
+    this.billId = const Value.absent(),
+    this.vehicleId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TransactionsCompanion.insert({
+    required String id,
+    required int amountMinor,
+    required TransactionType type,
+    required DateTime date,
+    this.category = const Value.absent(),
+    this.method = const Value.absent(),
+    this.label = const Value.absent(),
+    this.note = const Value.absent(),
+    this.spaceId = const Value.absent(),
+    this.billId = const Value.absent(),
+    this.vehicleId = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       amountMinor = Value(amountMinor),
+       type = Value(type),
+       date = Value(date),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<TransactionRow> custom({
+    Expression<String>? id,
+    Expression<int>? amountMinor,
+    Expression<int>? type,
+    Expression<DateTime>? date,
+    Expression<String>? category,
+    Expression<int>? method,
+    Expression<String>? label,
+    Expression<String>? note,
+    Expression<String>? spaceId,
+    Expression<String>? billId,
+    Expression<String>? vehicleId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (amountMinor != null) 'amount_minor': amountMinor,
+      if (type != null) 'type': type,
+      if (date != null) 'date': date,
+      if (category != null) 'category': category,
+      if (method != null) 'method': method,
+      if (label != null) 'label': label,
+      if (note != null) 'note': note,
+      if (spaceId != null) 'space_id': spaceId,
+      if (billId != null) 'bill_id': billId,
+      if (vehicleId != null) 'vehicle_id': vehicleId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TransactionsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? amountMinor,
+    Value<TransactionType>? type,
+    Value<DateTime>? date,
+    Value<String?>? category,
+    Value<TransactionMethod?>? method,
+    Value<String?>? label,
+    Value<String?>? note,
+    Value<String?>? spaceId,
+    Value<String?>? billId,
+    Value<String?>? vehicleId,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return TransactionsCompanion(
+      id: id ?? this.id,
+      amountMinor: amountMinor ?? this.amountMinor,
+      type: type ?? this.type,
+      date: date ?? this.date,
+      category: category ?? this.category,
+      method: method ?? this.method,
+      label: label ?? this.label,
+      note: note ?? this.note,
+      spaceId: spaceId ?? this.spaceId,
+      billId: billId ?? this.billId,
+      vehicleId: vehicleId ?? this.vehicleId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (amountMinor.present) {
+      map['amount_minor'] = Variable<int>(amountMinor.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<int>(
+        $TransactionsTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (method.present) {
+      map['method'] = Variable<int>(
+        $TransactionsTable.$convertermethodn.toSql(method.value),
+      );
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (spaceId.present) {
+      map['space_id'] = Variable<String>(spaceId.value);
+    }
+    if (billId.present) {
+      map['bill_id'] = Variable<String>(billId.value);
+    }
+    if (vehicleId.present) {
+      map['vehicle_id'] = Variable<String>(vehicleId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TransactionsCompanion(')
+          ..write('id: $id, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('type: $type, ')
+          ..write('date: $date, ')
+          ..write('category: $category, ')
+          ..write('method: $method, ')
+          ..write('label: $label, ')
+          ..write('note: $note, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('billId: $billId, ')
+          ..write('vehicleId: $vehicleId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3990,6 +4807,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $DashboardSectionsTable(this);
   late final $EventsTable events = $EventsTable(this);
   late final $NotificationsTable notifications = $NotificationsTable(this);
+  late final $TransactionsTable transactions = $TransactionsTable(this);
   late final Index tasksBucket = Index(
     'tasks_bucket',
     'CREATE INDEX tasks_bucket ON tasks (done, due_date)',
@@ -4014,6 +4832,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'notifications_created',
     'CREATE INDEX notifications_created ON notifications (created_at)',
   );
+  late final Index transactionsDate = Index(
+    'transactions_date',
+    'CREATE INDEX transactions_date ON transactions (date)',
+  );
+  late final Index transactionsSpace = Index(
+    'transactions_space',
+    'CREATE INDEX transactions_space ON transactions (space_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4026,12 +4852,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     dashboardSections,
     events,
     notifications,
+    transactions,
     tasksBucket,
     tasksSpace,
     activityOwner,
     eventsStart,
     notificationsDedupe,
     notificationsCreated,
+    transactionsDate,
+    transactionsSpace,
   ];
 }
 
@@ -6051,6 +6880,390 @@ typedef $$NotificationsTableProcessedTableManager =
       NotificationRow,
       PrefetchHooks Function()
     >;
+typedef $$TransactionsTableCreateCompanionBuilder =
+    TransactionsCompanion Function({
+      required String id,
+      required int amountMinor,
+      required TransactionType type,
+      required DateTime date,
+      Value<String?> category,
+      Value<TransactionMethod?> method,
+      Value<String?> label,
+      Value<String?> note,
+      Value<String?> spaceId,
+      Value<String?> billId,
+      Value<String?> vehicleId,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$TransactionsTableUpdateCompanionBuilder =
+    TransactionsCompanion Function({
+      Value<String> id,
+      Value<int> amountMinor,
+      Value<TransactionType> type,
+      Value<DateTime> date,
+      Value<String?> category,
+      Value<TransactionMethod?> method,
+      Value<String?> label,
+      Value<String?> note,
+      Value<String?> spaceId,
+      Value<String?> billId,
+      Value<String?> vehicleId,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+class $$TransactionsTableFilterComposer
+    extends Composer<_$AppDatabase, $TransactionsTable> {
+  $$TransactionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amountMinor => $composableBuilder(
+    column: $table.amountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TransactionType, TransactionType, int>
+  get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TransactionMethod?, TransactionMethod, int>
+  get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get billId => $composableBuilder(
+    column: $table.billId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vehicleId => $composableBuilder(
+    column: $table.vehicleId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TransactionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TransactionsTable> {
+  $$TransactionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amountMinor => $composableBuilder(
+    column: $table.amountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get billId => $composableBuilder(
+    column: $table.billId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vehicleId => $composableBuilder(
+    column: $table.vehicleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TransactionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TransactionsTable> {
+  $$TransactionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get amountMinor => $composableBuilder(
+    column: $table.amountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<TransactionType, int> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<TransactionMethod?, int> get method =>
+      $composableBuilder(column: $table.method, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get spaceId =>
+      $composableBuilder(column: $table.spaceId, builder: (column) => column);
+
+  GeneratedColumn<String> get billId =>
+      $composableBuilder(column: $table.billId, builder: (column) => column);
+
+  GeneratedColumn<String> get vehicleId =>
+      $composableBuilder(column: $table.vehicleId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$TransactionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TransactionsTable,
+          TransactionRow,
+          $$TransactionsTableFilterComposer,
+          $$TransactionsTableOrderingComposer,
+          $$TransactionsTableAnnotationComposer,
+          $$TransactionsTableCreateCompanionBuilder,
+          $$TransactionsTableUpdateCompanionBuilder,
+          (
+            TransactionRow,
+            BaseReferences<_$AppDatabase, $TransactionsTable, TransactionRow>,
+          ),
+          TransactionRow,
+          PrefetchHooks Function()
+        > {
+  $$TransactionsTableTableManager(_$AppDatabase db, $TransactionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TransactionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TransactionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TransactionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> amountMinor = const Value.absent(),
+                Value<TransactionType> type = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<String?> category = const Value.absent(),
+                Value<TransactionMethod?> method = const Value.absent(),
+                Value<String?> label = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<String?> spaceId = const Value.absent(),
+                Value<String?> billId = const Value.absent(),
+                Value<String?> vehicleId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TransactionsCompanion(
+                id: id,
+                amountMinor: amountMinor,
+                type: type,
+                date: date,
+                category: category,
+                method: method,
+                label: label,
+                note: note,
+                spaceId: spaceId,
+                billId: billId,
+                vehicleId: vehicleId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int amountMinor,
+                required TransactionType type,
+                required DateTime date,
+                Value<String?> category = const Value.absent(),
+                Value<TransactionMethod?> method = const Value.absent(),
+                Value<String?> label = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<String?> spaceId = const Value.absent(),
+                Value<String?> billId = const Value.absent(),
+                Value<String?> vehicleId = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TransactionsCompanion.insert(
+                id: id,
+                amountMinor: amountMinor,
+                type: type,
+                date: date,
+                category: category,
+                method: method,
+                label: label,
+                note: note,
+                spaceId: spaceId,
+                billId: billId,
+                vehicleId: vehicleId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TransactionsTable, TransactionRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $TransactionsTable,
+                    TransactionRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TransactionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TransactionsTable,
+      TransactionRow,
+      $$TransactionsTableFilterComposer,
+      $$TransactionsTableOrderingComposer,
+      $$TransactionsTableAnnotationComposer,
+      $$TransactionsTableCreateCompanionBuilder,
+      $$TransactionsTableUpdateCompanionBuilder,
+      (
+        TransactionRow,
+        BaseReferences<_$AppDatabase, $TransactionsTable, TransactionRow>,
+      ),
+      TransactionRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6069,4 +7282,6 @@ class $AppDatabaseManager {
       $$EventsTableTableManager(_db, _db.events);
   $$NotificationsTableTableManager get notifications =>
       $$NotificationsTableTableManager(_db, _db.notifications);
+  $$TransactionsTableTableManager get transactions =>
+      $$TransactionsTableTableManager(_db, _db.transactions);
 }

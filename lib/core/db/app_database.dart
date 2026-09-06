@@ -4,13 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../features/calendar/data/event_table.dart';
+import '../../features/finance/data/transaction_table.dart';
+// Enum columns: the generated part file resolves these through this library's
+// imports, so they must be imported here even though this file never names them.
+import '../../features/finance/domain/entities/transaction.dart';
 import '../../features/home/data/dashboard_section_table.dart';
 import '../../features/notifications/data/notification_table.dart';
 import '../../features/onboarding/data/profile_table.dart';
 import '../../features/tasks/data/activity_table.dart';
 import '../../features/tasks/data/task_table.dart';
-// Enum columns: the generated part file resolves these through this library's
-// imports, so they must be imported here even though this file never names them.
 import '../../features/tasks/domain/entities/activity_entry.dart';
 import '../../features/tasks/domain/entities/task.dart';
 import '../models/priority.dart';
@@ -41,6 +43,7 @@ class Settings extends Table {
     DashboardSections,
     Events,
     Notifications,
+    Transactions,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -50,7 +53,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -100,6 +103,12 @@ class AppDatabase extends _$AppDatabase {
               'INSERT INTO tasks_fts(rowid, title, description, category) '
               'SELECT rowid, title, description, category FROM tasks;',
             );
+          }
+          // v9 (Phase 2): transactions.
+          if (from < 9) {
+            await m.createTable(transactions);
+            await m.createIndex(transactionsDate);
+            await m.createIndex(transactionsSpace);
           }
         },
         beforeOpen: (details) async {

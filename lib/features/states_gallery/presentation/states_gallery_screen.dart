@@ -20,6 +20,7 @@ class _StatesGalleryScreenState extends ConsumerState<StatesGalleryScreen> {
   int _tab = 1;
   int _chip = 0;
   bool _toggle = true;
+  String _amount = '150.5';
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +100,14 @@ class _StatesGalleryScreenState extends ConsumerState<StatesGalleryScreen> {
               const SizedBox(width: 12),
               Expanded(child: ProgressBar(value: 0.3, color: c.warning)),
             ],
+          ),
+          const SizedBox(height: 24),
+          const SectionLabel('Amount keypad'),
+          Text('₹$_amount', style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 10),
+          AmountKeypad(
+            value: _amount,
+            onChanged: (v) => setState(() => _amount = v),
           ),
           const SizedBox(height: 24),
           const SectionLabel('Buttons'),
