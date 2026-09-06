@@ -6,6 +6,7 @@ enum ReminderKind {
   task('kosha_tasks', 'Tasks', 'Task and reminder due times'),
   bill('kosha_bills', 'Bills', 'Bills and subscriptions falling due'),
   document('kosha_documents', 'Documents', 'Documents nearing expiry'),
+  event('kosha_events', 'Events', 'Calendar events and appointments'),
   general('kosha_general', 'General', 'Everything else Kosha reminds you of');
 
   const ReminderKind(this.channelId, this.channelName, this.channelDescription);

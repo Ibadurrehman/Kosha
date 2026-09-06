@@ -22,6 +22,10 @@ abstract interface class ReminderScheduler {
   /// Asks the platform for notification permission. Safe to call more than
   /// once; returns false when the user has declined.
   Future<bool> requestPermission();
+
+  /// The route payload of every OS notification the user taps, including one
+  /// that launched the app cold. `app.dart` listens once and deep-links.
+  Stream<String> get notificationTaps;
 }
 
 /// Used in tests and on platforms where notifications are not wired up.
@@ -36,6 +40,9 @@ class NoopReminderScheduler implements ReminderScheduler {
 
   @override
   Future<bool> requestPermission() async => false;
+
+  @override
+  Stream<String> get notificationTaps => const Stream.empty();
 }
 
 /// Backed by `flutter_local_notifications`.
@@ -50,6 +57,10 @@ class LocalNotificationsReminderScheduler implements ReminderScheduler {
 
   final FlutterLocalNotificationsPlugin _plugin;
   Future<void>? _ready;
+  final StreamController<String> _taps = StreamController<String>.broadcast();
+
+  @override
+  Stream<String> get notificationTaps => _taps.stream;
 
   Future<void> _ensureReady() => _ready ??= _initialize();
 
@@ -73,7 +84,18 @@ class LocalNotificationsReminderScheduler implements ReminderScheduler {
           requestSoundPermission: false,
         ),
       ),
+      onDidReceiveNotificationResponse: (response) {
+        final payload = response.payload;
+        if (payload != null && payload.isNotEmpty) _taps.add(payload);
+      },
     );
+    // A tap that launched the app cold arrives here instead of the callback
+    // above, which only fires for a running process.
+    final launchDetails = await _plugin.getNotificationAppLaunchDetails();
+    final payload = launchDetails?.notificationResponse?.payload;
+    if (launchDetails?.didNotificationLaunchApp ?? false) {
+      if (payload != null && payload.isNotEmpty) _taps.add(payload);
+    }
   }
 
   @override

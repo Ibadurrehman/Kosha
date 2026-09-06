@@ -830,16 +830,21 @@ Assumes one full-time Flutter developer from Phase 0 and a second part-time deve
 
 ### 12.1 Phase-1 detailed breakdown (first sprint plan)
 
-**Status (5 Sep 2026): weeks 1–2 complete.** A task can now be created, listed, opened,
-edited, rescheduled, duplicated, completed, repeated and deleted end to end, and a dated
-task holds a real local notification. 117 tests pass and analyze is clean.
+**Status (6 Sep 2026): Phase 1 · Core is complete — all 4 weeks.** Onboarding, Home's 5
+sections, Quick add, Calendar (Month/Week/Agenda) with a new Event entity, Search (FTS5),
+the Notifications inbox, Settings/Appearance/Customize dashboard/Profile, and the tasks
+feature from weeks 1–2 are all built and wired end to end. Schema is at v8 (Settings → Tasks
+→ ActivityEntries → Profiles → DashboardSections → Events → Notifications → `tasks_fts`).
+220 unit/widget tests pass, `flutter analyze` is clean, and the repo's first integration
+test (`integration_test/add_complete_undo_delete_test.dart`) passed live on a real Android
+emulator (API 36) — see 12.1.4.
 
 | Week | Deliverables |
 |---|---|
 | 1 ✅ | Task tables/DAO/repository; Tasks screen with tabs and TaskRow; New task sheet; toast+undo; Home "Today" section |
 | 2 ✅ | Task detail (fields, expand section, bottom bar); actions sheet; reschedule; delete + confirm; recurrence + next occurrence; ReminderScheduler v1; task editor |
-| 3 | Onboarding 4 steps; Home remaining sections with aggregators; Quick-add sheet; Calendar month/week/agenda + Event entity |
-| 4 | Search FTS; Notifications inbox + deep links; Settings, Appearance, Customize dashboard, Profile; integration test: add → complete → undo → delete |
+| 3 ✅ | Onboarding 4 steps; Home remaining sections with aggregators; Quick-add sheet; Calendar month/week/agenda + Event entity |
+| 4 ✅ | Search FTS; Notifications inbox + deep links; Settings, Appearance, Customize dashboard, Profile; integration test: add → complete → undo → delete |
 
 ### 12.1.1 Notes carried out of week 1
 
@@ -878,6 +883,76 @@ task holds a real local notification. 117 tests pass and analyze is clean.
 - **Tall screens need a tall test window.** The detail and edit screens are longer than the
   600 px default viewport and their lists are lazy, so widget tests set
   `tester.view.physicalSize` before pumping or the fields below the fold are never built.
+
+### 12.1.3 Notes carried out of week 3
+
+- **Nothing this phase builds gets ahead of the phase that actually owns it.** Onboarding's
+  "Pick areas" stores the picked keys as a JSON setting rather than creating `Space` rows
+  (Phase 3 owns those); Home's Quick access shows shortcuts to screens that exist (Tasks,
+  Calendar, Search, Customize) instead of "5 most-used spaces"; Quick add renders all 10
+  prototype tiles but only Task and Reminder do anything, the rest toast "Arriving in a
+  later phase" like every other still-missing screen. None of this is a placeholder to
+  revisit — it's the honest shape of what Phase 1 alone can support.
+- **Needs attention / Upcoming / Recent are built as real merge points, not hard-coded to
+  Tasks.** Each is a small adapter interface (`NeedsAttentionSource`, `UpcomingSource`,
+  `RecentSource` in `features/home/domain`) merged with `combineLatestLists`
+  (`core/utils/combine_streams.dart`); Tasks is the only adapter today, and Bills/Documents
+  add their own in later phases as a pure addition, never a rewrite of Home's providers.
+  Calendar's `calendarItemsByDayProvider` is the same shape, merging Tasks and the new Event
+  entity.
+- **`combineLatestLists`'s cancellation must not await each source in turn.** Cancelling two-
+  or-more real drift-backed source streams by `await`-ing each `StreamSubscription.cancel()`
+  sequentially chains one of drift's own zero-duration close timers after another — invisible
+  with a single source (which takes a passthrough shortcut and never touches the custom
+  controller) but a real widget-test hang once a second real source exists. Fixed by firing
+  every cancellation independently (`unawaited(subscription.cancel())`) instead. Recorded in
+  memory as gotcha #4 (see `flutter-test-gotchas-kosha`).
+- **The onboarding redirect is seeded synchronously, not raced.** `app.dart` gates the whole
+  `MaterialApp.router` build on `profileReadyProvider` (the profile stream's first value), so
+  by the time `appRouterProvider` builds, `GoRouterRefreshStream` can read the already-cached
+  profile via `ref.read` instead of waiting on a fresh subscription — closing the one-frame
+  gap where a returning user could otherwise flash the onboarding screen.
+- **Migration-time seeding was rejected in favour of lazy, repository-side seeding.**
+  `MigrationStrategy` callbacks have no `Clock`, so seeding `Profiles`/`DashboardSections`
+  there would mean reading `DateTime.now()` directly. Both repositories instead
+  `insertOrIgnore` their default row(s) on first read, using the same injected `Clock` every
+  other write already goes through.
+
+### 12.1.4 Notes carried out of week 4
+
+- **FTS5 needs raw SQL, and the delete/update triggers have exactly one valid shape.**
+  Drift 2.34 has no Dart-level FTS5 table API, so `tasks_fts` and its 3 sync triggers are
+  added via `customStatement` in a migration. The `AFTER DELETE`/`AFTER UPDATE` triggers must
+  emit FTS5's `'delete'` special-command row for the old value before any insert — a plain
+  single-statement trigger against an external-content shadow table is invalid and silently
+  corrupts the index. Upgrading installs get a one-time backfill (`INSERT INTO tasks_fts
+  SELECT …`); fresh installs get the table via `onCreate` with nothing to backfill.
+- **User-typed search text is never passed to `MATCH` unescaped.** Each whitespace-separated
+  token is individually double-quoted (embedded quotes doubled) and given a trailing `*` —
+  raw text containing FTS5 operators, parentheses or an unbalanced quote is a SQL syntax
+  error otherwise, not just a bad match (`sanitizeSearchQuery` in
+  `features/search/domain/search_query.dart`).
+- **Notification reconciliation needed a second, non-filtering reminder calculation.**
+  `reminderForTask`/`reminderForEvent` deliberately return null once the fire moment is in
+  the past (right for OS scheduling). `intendedFireAt`/`intendedEventFireAt` expose that same
+  moment unconditionally, and `taskReminderBody`/`eventReminderBody` are now public, so the
+  inbox row reconciled after the fact says exactly what the OS notification would have said.
+  `dedupeKey` (`'<kind>:<ownerId>:<fireAt ISO>'`, unique-indexed) is what makes running
+  `reconcile()` on every launch safe — rescheduling produces a new key rather than
+  overwriting the old row's history.
+- **Real-device integration tests need `pump()` where fake-clock tests get away without
+  one.** The first (and only) integration test caught two things the 220-test fake-clock
+  suite never surfaces: `tester.tap(someFinder.first)` crashes inside `flutter_test`'s own
+  View-ancestor resolution on this Flutter version (fixed by tapping the bare finder — safe
+  here since exactly one row ever exists), and a tap on "Create task" right after
+  `enterText()` can land before the title listener's `setState` enables the button, unless a
+  `pump()` sits between them (already the pattern in `tasks_screen_test.dart`, just not one
+  this new test copied at first). Verified live on a real Android emulator (API 36).
+- **Settings' one real toggle (Task reminders) acts immediately, not just on the next
+  resync.** Turning it off loops `TaskRepository.remindable()` and cancels each one right
+  away; turning it back on calls `resyncReminders()`. `app.dart`'s launch-time resync reads
+  the same persisted flag, so a device that had reminders off keeps them off across a
+  restart.
 
 ### 12.2 Definition of done (every feature)
 

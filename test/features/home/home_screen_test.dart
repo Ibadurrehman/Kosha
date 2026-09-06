@@ -3,6 +3,8 @@ import 'package:kosha/core/db/app_database.dart';
 import 'package:kosha/features/home/presentation/home_screen.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
 import 'package:kosha/features/tasks/domain/entities/task.dart';
+import 'package:kosha/features/tasks/presentation/widgets/task_row.dart'
+    as widgets;
 
 import '../../helpers/test_app.dart';
 
@@ -46,7 +48,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Nothing planned for today'), findsOneWidget);
-    expect(find.text('Review documents'), findsNothing);
+    // The task still shows up in Recent — Today specifically has no rows.
+    expect(find.byType(widgets.TaskRow), findsNothing);
     await settleAndDispose(tester);
   });
 
@@ -64,8 +67,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('1 of 2 left'), findsOneWidget);
-    expect(find.text('Buy groceries'), findsOneWidget);
-    expect(find.text('Exercise'), findsOneWidget);
+    // Scoped to Today's rows specifically — Recent also shows both titles.
+    expect(
+      find.descendant(of: find.byType(widgets.TaskRow), matching: find.text('Buy groceries')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: find.byType(widgets.TaskRow), matching: find.text('Exercise')),
+      findsOneWidget,
+    );
     expect(find.text('Add a task'), findsOneWidget);
     await settleAndDispose(tester);
   });

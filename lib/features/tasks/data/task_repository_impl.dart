@@ -61,6 +61,32 @@ class DriftTaskRepository implements TaskRepository {
   }
 
   @override
+  Stream<List<Task>> watchDueBetween(DateTime from, DateTime to) {
+    final query = _db.select(_db.tasks)
+      ..where(
+        (t) =>
+            t.deletedAt.isNull() &
+            t.done.equals(false) &
+            t.dueDate.isBiggerOrEqualValue(from) &
+            t.dueDate.isSmallerThanValue(to),
+      )
+      ..orderBy([
+        (t) => OrderingTerm.asc(t.dueDate),
+        (t) => OrderingTerm(expression: t.dueMinutes, nulls: NullsOrder.last),
+      ]);
+    return query.watch().map((rows) => rows.map(_toDomain).toList());
+  }
+
+  @override
+  Stream<List<Task>> watchRecent({required int limit}) {
+    final query = _db.select(_db.tasks)
+      ..where((t) => t.deletedAt.isNull())
+      ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])
+      ..limit(limit);
+    return query.watch().map((rows) => rows.map(_toDomain).toList());
+  }
+
+  @override
   Stream<Task?> watchById(String id) {
     final query = _db.select(_db.tasks)
       ..where((t) => t.id.equals(id) & t.deletedAt.isNull());
@@ -252,6 +278,13 @@ class DriftTaskRepository implements TaskRepository {
 
   @override
   Future<void> resyncReminders() async {
+    for (final task in await remindable()) {
+      await _syncReminder(task);
+    }
+  }
+
+  @override
+  Future<List<Task>> remindable() async {
     final rows = await (_db.select(_db.tasks)
           ..where(
             (t) =>
@@ -261,10 +294,31 @@ class DriftTaskRepository implements TaskRepository {
                 t.reminderOffsetMinutes.isNotNull(),
           ))
         .get();
-    for (final row in rows) {
-      await _syncReminder(_toDomain(row));
-    }
+    return rows.map(_toDomain).toList();
   }
+
+  @override
+  Future<int> countCompleted({required DateTime from, required DateTime to}) =>
+      (_db.select(_db.tasks)
+            ..where(
+              (t) =>
+                  t.completedAt.isBiggerOrEqualValue(from) &
+                  t.completedAt.isSmallerThanValue(to),
+            ))
+          .get()
+          .then((rows) => rows.length);
+
+  @override
+  Future<int> countCreated({required DateTime from, required DateTime to}) =>
+      (_db.select(_db.tasks)
+            ..where(
+              (t) =>
+                  t.deletedAt.isNull() &
+                  t.createdAt.isBiggerOrEqualValue(from) &
+                  t.createdAt.isSmallerThanValue(to),
+            ))
+          .get()
+          .then((rows) => rows.length);
 
   /// Creates the occurrence that replaces a completed repeating task, or null
   /// when the task does not repeat.

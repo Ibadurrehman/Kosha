@@ -25,6 +25,14 @@ abstract interface class TaskRepository {
   /// shows completed tasks struck through, so it cannot use [watchBucket].
   Stream<List<Task>> watchDueOn(DateTime day);
 
+  /// Open tasks due in `[from, to)` — end exclusive. Home's "Upcoming"
+  /// section.
+  Stream<List<Task>> watchDueBetween(DateTime from, DateTime to);
+
+  /// The [limit] most recently created or updated tasks, any status, newest
+  /// first. Home's "Recent" section.
+  Stream<List<Task>> watchRecent({required int limit});
+
   /// Emits null once the task is deleted.
   Stream<Task?> watchById(String id);
 
@@ -64,4 +72,16 @@ abstract interface class TaskRepository {
   /// Scheduled notifications do not survive a reinstall, and platforms drop
   /// them on some upgrades, so the app re-states what it expects on launch.
   Future<void> resyncReminders();
+
+  /// Every open, dated task with a reminder lead time set — the candidates
+  /// notification-inbox reconciliation checks for a fire moment in the past.
+  Future<List<Task>> remindable();
+
+  /// How many tasks were completed in `[from, to)` — Profile's "this month"
+  /// stat.
+  Future<int> countCompleted({required DateTime from, required DateTime to});
+
+  /// How many tasks were created in `[from, to)` — Profile's "this month"
+  /// stat.
+  Future<int> countCreated({required DateTime from, required DateTime to});
 }
