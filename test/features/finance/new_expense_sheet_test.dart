@@ -84,6 +84,41 @@ void main() {
     await settleAndDispose(tester);
   });
 
+  testWidgets(
+      'fits on a small phone screen without overflowing (regression: caught live on a real device)',
+      (tester) async {
+    // A real Android emulator at its native size (~393x852 logical) overflowed
+    // by 33px before SheetScaffold became scrollable — no widget test caught
+    // it because they all forced a tall fake viewport instead. This one uses
+    // a realistically small phone size on purpose.
+    tester.view.physicalSize = const Size(393, 852);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      wrapScreen(
+        Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () => showNewExpenseSheet(context),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+        db: db,
+        now: testNow,
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
+    await settleAndDispose(tester);
+  });
+
   testWidgets('backspace removes the last digit', (tester) async {
     await openSheet(tester);
 

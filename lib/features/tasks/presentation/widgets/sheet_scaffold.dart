@@ -21,7 +21,11 @@ class SheetScaffold extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: Padding(
+      child: SingleChildScrollView(
+        // A sheet with a lot of content (e.g. New expense's keypad plus two
+        // rows of chips) can be taller than the viewport on a real phone —
+        // caught live on a device, not by widget tests that just make the
+        // test window tall enough to fit everything.
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,

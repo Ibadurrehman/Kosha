@@ -987,14 +987,25 @@ subscriptions. Every control that would lead there today (the Bills icon,
 "See all", tapping a transaction row) toasts "Arriving in a later phase" —
 the same idiom Settings and Quick add already use for their own unbuilt rows.
 
-**Live UI verification not done this session.** The widget tests pump the real
-screens, tap real buttons, and assert on rendered text/toasts against a real
-in-memory Drift database, but nobody has run the app on a device or emulator
-for this slice: Claude in Chrome wasn't connected, and the sandboxed Browser
-pane cannot load Kosha's web build (see `browser-pane-no-nested-workers` in
-memory — drift's web worker hangs there, unrelated to this change). Verify on
-a real device/emulator or in an actual Chrome window before treating this as
-done end-to-end.
+**Live UI verification done (6 Sep 2026), on a real Android emulator (API 36).**
+Claude in Chrome wasn't connected and the sandboxed Browser pane can't load
+Kosha's web build (drift's worker hangs there — unrelated to this change), and
+this emulator has no Visual Studio toolchain for a Windows-desktop run either,
+so verification used a throwaway `integration_test` script driving the real
+Finance screen and New expense sheet end to end (typed an amount on the real
+keypad, picked a category, saved, added an income transaction too) and saving
+on-device screenshots pulled via `adb`. It found a real bug no widget test
+caught: `SheetScaffold`'s content (New expense's keypad + two rows of chips)
+overflowed by 33px on the emulator's actual screen size, because every widget
+test that exercises a tall sheet fakes a tall test viewport to fit it — which
+also hides genuine overflow instead of catching it. Fixed by making
+`SheetScaffold` wrap its content in a `SingleChildScrollView`
+(`lib/features/tasks/presentation/widgets/sheet_scaffold.dart`, shared by
+every sheet in the app, not just New expense). A regression test now pumps
+the New expense sheet at a realistic small-phone size (393×852) and asserts
+no overflow exception — see `new_expense_sheet_test.dart`. The dashboard's
+stats, category bar, recent-transactions list, and the overspent-month minus
+sign all rendered correctly on-device. 251 tests pass.
 
 ---
 
