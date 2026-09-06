@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/bills/presentation/bill_detail_screen.dart';
+import '../../features/bills/presentation/bill_edit_screen.dart';
+import '../../features/bills/presentation/bills_screen.dart';
 import '../../features/calendar/presentation/calendar_screen.dart';
+import '../../features/finance/presentation/all_transactions_screen.dart';
+import '../../features/finance/presentation/category_manager_screen.dart';
 import '../../features/finance/presentation/finance_screen.dart';
+import '../../features/finance/presentation/transaction_detail_screen.dart';
+import '../../features/finance/presentation/transaction_edit_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/more/presentation/more_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
@@ -41,6 +48,9 @@ abstract final class Routes {
   static const search = '/home/search';
   static const notifications = '/home/notifications';
   static const finance = '/home/finance';
+  static const transactions = '$finance/transactions';
+  static const categories = '$finance/categories';
+  static const bills = '$finance/bills';
   static const profile = '/more/profile';
   static const settings = '/more/settings';
 
@@ -49,6 +59,16 @@ abstract final class Routes {
   static String taskDetail(String id) => '$tasks/$id';
 
   static String taskEdit(String id) => '$tasks/$id/edit';
+
+  /// Finance's own sub-screens live under the Home tab, the tab Finance
+  /// itself hangs off, so the bottom bar keeps Home lit throughout.
+  static String transactionDetail(String id) => '$finance/tx/$id';
+
+  static String transactionEdit(String id) => '$finance/tx/$id/edit';
+
+  static String billDetail(String id) => '$bills/$id';
+
+  static String billEdit(String id) => '$bills/$id/edit';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -116,6 +136,50 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'finance',
                     builder: (_, _) => const FinanceScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'transactions',
+                        builder: (_, _) => const AllTransactionsScreen(),
+                      ),
+                      GoRoute(
+                        path: 'categories',
+                        builder: (_, _) => const CategoryManagerScreen(),
+                      ),
+                      GoRoute(
+                        path: 'tx/:id',
+                        builder: (_, state) => TransactionDetailScreen(
+                          transactionId: state.pathParameters['id']!,
+                        ),
+                        routes: [
+                          GoRoute(
+                            path: 'edit',
+                            builder: (_, state) => TransactionEditScreen(
+                              transactionId: state.pathParameters['id']!,
+                            ),
+                          ),
+                        ],
+                      ),
+                      GoRoute(
+                        path: 'bills',
+                        builder: (_, _) => const BillsScreen(),
+                        routes: [
+                          GoRoute(
+                            path: ':id',
+                            builder: (_, state) => BillDetailScreen(
+                              billId: state.pathParameters['id']!,
+                            ),
+                            routes: [
+                              GoRoute(
+                                path: 'edit',
+                                builder: (_, state) => BillEditScreen(
+                                  billId: state.pathParameters['id']!,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kosha/core/db/app_database.dart';
+import 'package:kosha/features/bills/domain/entities/bill.dart';
 import 'package:kosha/features/finance/domain/entities/transaction.dart';
+import 'package:kosha/features/finance/domain/entities/transaction_category.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 
@@ -27,12 +29,12 @@ void main() {
     expect(result.read<int>('foreign_keys'), 1);
   });
 
-  test('schema version is 9', () {
+  test('schema version is 11', () {
     // v1 settings, v2 tasks, v3 activity history, v4 profiles, v5 dashboard
-    // sections, v6 events, v7 notifications, v8 task search, v9 transactions.
-    // Bump this with every migration so the upgrade path in
-    // AppDatabase.migration is never skipped by accident.
-    expect(db.schemaVersion, 9);
+    // sections, v6 events, v7 notifications, v8 task search, v9 transactions,
+    // v10 categories, v11 bills + payments. Bump this with every migration so
+    // the upgrade path in AppDatabase.migration is never skipped by accident.
+    expect(db.schemaVersion, 11);
   });
 
   test('a fresh install can insert a profile and a dashboard section',
@@ -57,7 +59,7 @@ void main() {
     expect(await db.select(db.dashboardSections).getSingle(), isNotNull);
   });
 
-  test('an upgrade from v1 adds every table through v9', () async {
+  test('an upgrade from v1 adds every table through v11', () async {
     // Mirrors the "v1 database gains the tasks table" migration test in
     // task_repository_test.dart: a real file so the upgrade runs against a
     // database that was actually closed and reopened, not a fresh in-memory
@@ -111,6 +113,42 @@ void main() {
       (await upgraded.select(upgraded.dashboardSections).get()).single.key,
       'today',
     );
+    await upgraded.into(upgraded.transactionCategories).insert(
+          TransactionCategoriesCompanion.insert(
+            id: 'cat-1',
+            name: 'Groceries',
+            kind: CategoryKind.expense,
+            sortOrder: 0,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+    await upgraded.into(upgraded.bills).insert(
+          BillsCompanion.insert(
+            id: 'bill-1',
+            name: 'Electricity',
+            amountMinor: 185000,
+            kind: BillKind.bill,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+    await upgraded.into(upgraded.payments).insert(
+          PaymentsCompanion.insert(
+            id: 'pay-1',
+            billId: 'bill-1',
+            paidOn: now,
+            amountMinor: 185000,
+            createdAt: now,
+          ),
+        );
+
     expect((await upgraded.select(upgraded.transactions).get()).single.id, 'txn-1');
+    expect(
+      (await upgraded.select(upgraded.transactionCategories).get()).single.name,
+      'Groceries',
+    );
+    expect((await upgraded.select(upgraded.bills).get()).single.id, 'bill-1');
+    expect((await upgraded.select(upgraded.payments).get()).single.billId, 'bill-1');
   });
 }

@@ -388,8 +388,8 @@ class _DateTile extends StatelessWidget {
 }
 
 /// Shortcuts to the screens that exist. Spaces don't (Phase 3), so this shows
-/// Tasks/Calendar/Finance/Customize dashboard rather than "5 most-used
-/// spaces" — Search and Notifications join once week 4 builds them.
+/// Tasks/Calendar/Finance/Bills/Customize dashboard rather than "5 most-used
+/// spaces".
 class _QuickAccessSection extends StatelessWidget {
   const _QuickAccessSection();
 
@@ -422,6 +422,14 @@ class _QuickAccessSection extends StatelessWidget {
                 icon: Symbols.account_balance_wallet_rounded,
                 label: 'Finance',
                 onTap: () => context.go(Routes.finance),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _QuickAccessTile(
+                icon: Symbols.receipt_long_rounded,
+                label: 'Bills',
+                onTap: () => context.go(Routes.bills),
               ),
             ),
             const SizedBox(width: 10),

@@ -39,8 +39,13 @@ void main() {
       FixedClock(testNow),
       const NoopReminderScheduler(),
     );
-    await DriftNotificationRepository(db, FixedClock(testNow), tasks, events)
-        .reconcile(now: testNow);
+    await DriftNotificationRepository(
+      db,
+      FixedClock(testNow),
+      tasks,
+      events,
+      testBillRepository(db),
+    ).reconcile(now: testNow);
 
     await tester.pumpWidget(wrapScreen(const NotificationsScreen(), db: db));
     await tester.pumpAndSettle();

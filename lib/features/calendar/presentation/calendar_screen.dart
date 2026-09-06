@@ -114,6 +114,15 @@ class CalendarScreen extends ConsumerWidget {
   }
 }
 
+/// Section 5.2's day-dot tones: task → accent, event → info, bill → warning.
+/// One place, so the month dots, the agenda dots and the legend can never
+/// disagree about what a colour means.
+Color calendarItemColor(CalendarItemKind kind, KoshaColors c) => switch (kind) {
+      CalendarItemKind.task => c.accent,
+      CalendarItemKind.event => c.info,
+      CalendarItemKind.bill => c.warning,
+    };
+
 class _Legend extends StatelessWidget {
   const _Legend();
 
@@ -141,6 +150,8 @@ class _Legend extends StatelessWidget {
           dot(c.accent, 'Task'),
           const SizedBox(width: 16),
           dot(c.info, 'Event'),
+          const SizedBox(width: 16),
+          dot(c.warning, 'Bill'),
         ],
       ),
     );
@@ -258,7 +269,7 @@ class _DayCell extends StatelessWidget {
                       width: 4,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: item.kind == CalendarItemKind.task ? c.accent : c.info,
+                        color: calendarItemColor(item.kind, c),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -376,9 +387,13 @@ class _AgendaRow extends StatelessWidget {
         side: BorderSide(color: c.border),
       ),
       child: InkWell(
-        onTap: item.kind == CalendarItemKind.task
-            ? () => context.go(Routes.taskDetail(item.id))
-            : null,
+        onTap: switch (item.kind) {
+          CalendarItemKind.task => () => context.go(Routes.taskDetail(item.id)),
+          CalendarItemKind.bill => () => context.go(Routes.billDetail(item.id)),
+          // Events have no detail screen of their own yet — the Calendar is
+          // where an event lives.
+          CalendarItemKind.event => null,
+        },
         borderRadius: BorderRadius.circular(KoshaRadius.row),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
@@ -393,7 +408,7 @@ class _AgendaRow extends StatelessWidget {
                 height: 8,
                 margin: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
-                  color: item.kind == CalendarItemKind.task ? c.accent : c.info,
+                  color: calendarItemColor(item.kind, c),
                   shape: BoxShape.circle,
                 ),
               ),

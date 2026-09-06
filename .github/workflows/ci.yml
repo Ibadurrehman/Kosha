@@ -84,7 +84,12 @@ jobs:
           target: google_apis
           profile: pixel_6
           disable-animations: true
-          script: flutter test integration_test/add_complete_undo_delete_test.dart --dart-define-from-file=config/dev.json
+          # Named one by one rather than running the whole directory: a
+          # throwaway live-UI screenshot script (plan §15) sometimes sits in
+          # integration_test/ during a slice, and CI should never pick one up.
+          script: |
+            flutter test integration_test/add_complete_undo_delete_test.dart --dart-define-from-file=config/dev.json
+            flutter test integration_test/overdue_bill_pay_clears_test.dart --dart-define-from-file=config/dev.json
 
   ios-nightly:
     name: iOS build (nightly)

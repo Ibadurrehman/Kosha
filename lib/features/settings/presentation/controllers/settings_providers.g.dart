@@ -43,6 +43,40 @@ final class TaskRemindersEnabledProvider
 String _$taskRemindersEnabledHash() =>
     r'705a4b9a19c8d0dd7723b40ec6ae7acab8baf666';
 
+@ProviderFor(billRemindersEnabled)
+final billRemindersEnabledProvider = BillRemindersEnabledProvider._();
+
+final class BillRemindersEnabledProvider
+    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
+    with $FutureModifier<bool>, $FutureProvider<bool> {
+  BillRemindersEnabledProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'billRemindersEnabledProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$billRemindersEnabledHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<bool> create(Ref ref) {
+    return billRemindersEnabled(ref);
+  }
+}
+
+String _$billRemindersEnabledHash() =>
+    r'572eea209524068c0c483de3c44856952d4749b6';
+
 @ProviderFor(exactRemindersEnabled)
 final exactRemindersEnabledProvider = ExactRemindersEnabledProvider._();
 

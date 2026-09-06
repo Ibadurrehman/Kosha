@@ -41,6 +41,15 @@ class DriftTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Stream<Transaction?> watchById(String id) {
+    final query = _db.select(_db.transactions)
+      ..where((t) => t.id.equals(id) & t.deletedAt.isNull());
+    return query
+        .watchSingleOrNull()
+        .map((row) => row == null ? null : _toDomain(row));
+  }
+
+  @override
   Future<Transaction?> findById(String id) async {
     final row = await (_db.select(_db.transactions)
           ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))

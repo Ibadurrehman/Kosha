@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/utils/clock.dart';
 import '../../../../core/utils/combine_streams.dart';
+import '../../../bills/data/bill_repository_impl.dart';
 import '../../../tasks/data/task_repository_impl.dart';
 import '../../data/event_repository_impl.dart';
 import '../../domain/entities/calendar_item.dart';
@@ -36,8 +37,8 @@ class SelectedCalendarDate extends _$SelectedCalendarDate {
   void select(DateTime date) => state = date;
 }
 
-/// Every task with a due date and every event starting in `[from, to)`,
-/// merged, sorted, and pre-grouped by day — grouping happens here rather
+/// Every task with a due date, every event starting, and every bill falling
+/// due in `[from, to)`, merged, sorted, and pre-grouped by day — grouping happens here rather
 /// than in the widget so a 500-item month renders without re-scanning the
 /// full list per cell (section 6.4's stated performance target).
 ///
@@ -58,8 +59,12 @@ Stream<Map<DateTime, List<CalendarItem>>> calendarItemsByDay(
       .watch(eventRepositoryProvider)
       .watchInRange(from, to)
       .map((events) => [for (final event in events) calendarItemFromEvent(event)]);
+  final billItems = ref
+      .watch(billRepositoryProvider)
+      .watchDueBetween(from, to)
+      .map((bills) => [for (final bill in bills) calendarItemFromBill(bill)]);
 
-  return combineLatestLists([taskItems, eventItems]).map((items) {
+  return combineLatestLists([taskItems, eventItems, billItems]).map((items) {
     final byDay = <DateTime, List<CalendarItem>>{};
     for (final item in items) {
       (byDay[item.date] ??= []).add(item);

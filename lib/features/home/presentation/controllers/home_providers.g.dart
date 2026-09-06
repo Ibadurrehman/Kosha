@@ -54,14 +54,14 @@ final class DashboardSectionsProvider
 
 String _$dashboardSectionsHash() => r'87e841f48f831e4a149019846df07f5b9584d699';
 
-/// Every feature's contribution to "Needs attention", merged. Only Tasks
-/// exists today; Bills/Documents add their own [NeedsAttentionSource] later.
+/// Every feature's contribution to "Needs attention", merged. Tasks and Bills
+/// today; Documents adds its own [NeedsAttentionSource] in Phase 3.
 
 @ProviderFor(needsAttention)
 final needsAttentionProvider = NeedsAttentionProvider._();
 
-/// Every feature's contribution to "Needs attention", merged. Only Tasks
-/// exists today; Bills/Documents add their own [NeedsAttentionSource] later.
+/// Every feature's contribution to "Needs attention", merged. Tasks and Bills
+/// today; Documents adds its own [NeedsAttentionSource] in Phase 3.
 
 final class NeedsAttentionProvider
     extends
@@ -73,8 +73,8 @@ final class NeedsAttentionProvider
     with
         $FutureModifier<List<NeedsAttentionItem>>,
         $StreamProvider<List<NeedsAttentionItem>> {
-  /// Every feature's contribution to "Needs attention", merged. Only Tasks
-  /// exists today; Bills/Documents add their own [NeedsAttentionSource] later.
+  /// Every feature's contribution to "Needs attention", merged. Tasks and Bills
+  /// today; Documents adds its own [NeedsAttentionSource] in Phase 3.
   NeedsAttentionProvider._()
     : super(
         from: null,
@@ -101,7 +101,7 @@ final class NeedsAttentionProvider
   }
 }
 
-String _$needsAttentionHash() => r'f2e83a7c4473f2f2149e0393668d50d78bf7eeae';
+String _$needsAttentionHash() => r'a6f68d790e9fc24b81f1e1e4928bc337e38878dd';
 
 /// Every feature's contribution to "Upcoming", merged and sorted by date.
 
@@ -147,7 +147,7 @@ final class UpcomingProvider
   }
 }
 
-String _$upcomingHash() => r'6a62f6319ff5a2b69a807bfb62a70a2bdd347274';
+String _$upcomingHash() => r'63e3f49b6860fb5970e230df12a53309eb1e49c4';
 
 /// The 10 most recently created/updated items across every source, newest
 /// first.
@@ -194,4 +194,4 @@ final class RecentItemsProvider
   }
 }
 
-String _$recentItemsHash() => r'9d8809c27b88da6e41b097e891974058073b9099';
+String _$recentItemsHash() => r'45e3b3447282a85bd878c3243b0a534b80f13bef';

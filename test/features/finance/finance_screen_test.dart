@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kosha/core/db/app_database.dart';
 import 'package:kosha/core/utils/clock.dart';
+import 'package:kosha/features/bills/domain/entities/bill.dart';
 import 'package:kosha/features/finance/data/transaction_repository_impl.dart';
 import 'package:kosha/features/finance/domain/entities/transaction.dart';
 import 'package:kosha/features/finance/presentation/finance_screen.dart';
@@ -99,13 +100,14 @@ void main() {
     await settleAndDispose(tester);
   });
 
-  testWidgets('the Bills action toasts that it is arriving later', (tester) async {
+  testWidgets('the Bills action is a real control now', (tester) async {
     await tester.pumpWidget(wrapScreen(const FinanceScreen(), db: db, now: testNow));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Bills'));
-    await tester.pump();
-    expect(find.text('Arriving in a later phase'), findsOneWidget);
+    // Where the route it navigates to leads is `app_shell_test.dart`'s job;
+    // what matters here is that the icon is no longer a dead placeholder.
+    expect(find.byTooltip('Bills'), findsOneWidget);
+    expect(find.text('Arriving in a later phase'), findsNothing);
     await settleAndDispose(tester);
   });
 
@@ -124,5 +126,77 @@ void main() {
 
     expect(find.text('New expense'), findsOneWidget);
     await settleAndDispose(tester);
+  });
+
+  group('upcoming bills card', () {
+    testWidgets('says nothing is due when there are no bills', (tester) async {
+      await tester.pumpWidget(wrapScreen(const FinanceScreen(), db: db, now: testNow));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nothing due in the next 14 days.'), findsOneWidget);
+      await settleAndDispose(tester);
+    });
+
+    testWidgets('counts and totals what falls due, overdue first',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final bills = testBillRepository(db, now: testNow);
+      await bills.create(
+        NewBill(
+          name: 'Electricity',
+          amountMinor: 185000,
+          nextDue: DateTime(2026, 9, 10),
+          frequencyRule: 'FREQ=MONTHLY',
+        ),
+      );
+      await bills.create(
+        NewBill(
+          name: 'Society maintenance',
+          amountMinor: 240000,
+          nextDue: DateTime(2026, 9, 1),
+          frequencyRule: 'FREQ=MONTHLY',
+        ),
+      );
+      // Beyond the 14-day window: excluded from both the count and the total.
+      await bills.create(
+        NewBill(
+          name: 'Far off',
+          amountMinor: 500000,
+          nextDue: DateTime(2026, 11, 1),
+          frequencyRule: 'FREQ=MONTHLY',
+        ),
+      );
+
+      await tester.pumpWidget(wrapScreen(const FinanceScreen(), db: db, now: testNow));
+      await tester.pumpAndSettle();
+
+      expect(find.text('2 bills in the next 14 days'), findsOneWidget);
+      expect(find.text('₹4,250'), findsOneWidget);
+      expect(find.text('Overdue by 3 days'), findsOneWidget);
+      expect(find.text('Far off'), findsNothing);
+      await settleAndDispose(tester);
+    });
+
+    testWidgets('a paid bill drops off the card', (tester) async {
+      final bills = testBillRepository(db, now: testNow);
+      final bill = await bills.create(
+        NewBill(
+          name: 'Electricity',
+          amountMinor: 185000,
+          nextDue: DateTime(2026, 9, 10),
+          frequencyRule: 'FREQ=MONTHLY',
+        ),
+      );
+      await bills.markPaid(bill.id);
+
+      await tester.pumpWidget(wrapScreen(const FinanceScreen(), db: db, now: testNow));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nothing due in the next 14 days.'), findsOneWidget);
+      await settleAndDispose(tester);
+    });
   });
 }

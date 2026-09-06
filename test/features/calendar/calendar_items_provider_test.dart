@@ -3,7 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kosha/core/db/app_database.dart';
 import 'package:kosha/core/services/notifications/reminder_scheduler.dart';
 import 'package:kosha/core/utils/clock.dart';
+import 'package:kosha/features/bills/data/bill_repository_impl.dart';
+import 'package:kosha/features/bills/domain/entities/bill.dart';
 import 'package:kosha/features/calendar/data/event_repository_impl.dart';
+import 'package:kosha/features/calendar/domain/entities/calendar_item.dart';
 import 'package:kosha/features/calendar/domain/entities/event.dart';
 import 'package:kosha/features/calendar/presentation/controllers/calendar_providers.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
@@ -59,6 +62,59 @@ void main() {
     // Doctor (10am) sorts before Submit report (2pm).
     expect(byDay[day]?.map((i) => i.title).toList(), ['Doctor', 'Submit report']);
     expect(byDay.containsKey(DateTime(2026, 10, 1)), isFalse);
+  });
+
+  test('a bill joins the same day, after the timed items', () async {
+    final tasks = container.read(taskRepositoryProvider);
+    final bills = container.read(billRepositoryProvider);
+
+    await tasks.create(
+      NewTask(
+        title: 'Submit report',
+        dueDate: DateTime(2026, 9, 10),
+        dueMinutes: 14 * 60,
+      ),
+    );
+    await bills.create(
+      NewBill(
+        name: 'Electricity',
+        amountMinor: 185000,
+        nextDue: DateTime(2026, 9, 10),
+        frequencyRule: 'FREQ=MONTHLY',
+      ),
+    );
+
+    final range = calendarItemsByDayProvider(DateTime(2026, 9, 1), DateTime(2026, 9, 30));
+    final subscription = container.listen(range, (_, _) {});
+    final byDay = await container.read(range.future);
+    subscription.close();
+
+    final day = byDay[DateTime(2026, 9, 10)]!;
+    // Money is owed on the day, not at an hour, so the bill sorts with the
+    // all-day items — after the 2 pm task.
+    expect(day.map((i) => i.title).toList(), ['Submit report', 'Electricity']);
+    expect(day.last.kind, CalendarItemKind.bill);
+    expect(day.last.minutes, isNull);
+  });
+
+  test('a paid bill moves to the cycle it advanced to', () async {
+    final bills = container.read(billRepositoryProvider);
+    final bill = await bills.create(
+      NewBill(
+        name: 'Electricity',
+        amountMinor: 185000,
+        nextDue: DateTime(2026, 9, 10),
+        frequencyRule: 'FREQ=MONTHLY;BYMONTHDAY=10',
+      ),
+    );
+    await bills.markPaid(bill.id);
+
+    final range = calendarItemsByDayProvider(DateTime(2026, 9, 1), DateTime(2026, 9, 30));
+    final subscription = container.listen(range, (_, _) {});
+    final byDay = await container.read(range.future);
+    subscription.close();
+
+    expect(byDay[DateTime(2026, 9, 10)], isNull);
   });
 
   test('a completed task drops off, matching every other list', () async {

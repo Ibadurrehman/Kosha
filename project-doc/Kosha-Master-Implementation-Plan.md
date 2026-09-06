@@ -395,13 +395,13 @@ Each module lists: screens it owns, behaviours (from the prototype plus resoluti
 
 ### 6.6 Finance
 
-- **Screens:** Finance dashboard, New expense sheet (custom keypad), **Added:** Transaction detail/edit, All transactions (filter by month/category/method), Category manager, Monthly budget/income setting.
+- **Screens:** Finance dashboard, New expense sheet (custom keypad), Transaction detail/edit, All transactions (filter by month/category/method), Category manager, Monthly budget/income setting. *(All built — Phase 2, §12.3.)*
 - **Behaviour:** This-month card (Income, Expenses, Remaining, % spent, day-of-month progress). By category bars relative to the top category. Recent transactions (last 6, "See all"). Upcoming bills summary card → Bills. Keypad: digits, ".", backspace, max 2 decimals, 9 chars; category chips; date defaults to today; method defaults to last used; Save disabled until amount > 0; validation copy "Enter an amount greater than zero." Saving from Vehicle pre-links `vehicle_id`; from a space pre-fills `space_id`.
 - **Acceptance:** Sums match SQL aggregates for the month in the profile's timezone; keypad behaves exactly like the prototype's `pressKey`.
 
 ### 6.7 Bills and subscriptions
 
-- **Screens:** Bills list (tabs All/Due Soon/Overdue/Upcoming/Paid, outstanding total), **Added:** Add/Edit bill, Bill detail (payment history, linked document, autopay flag), Payment sheet.
+- **Screens:** Bills list (tabs All/Due Soon/Overdue/Upcoming/Paid, outstanding total), Add/Edit bill, Bill detail (payment history, autopay flag), Payment sheet. *(All built — Phase 2, §12.3. The "linked document" chip waits on Documents, Phase 3.)*
 - **Behaviour:** Row actions differ by status (Pay now / Mark as paid / Manage / View receipt) and a frequency chip that opens reminder settings. Mark as paid → `Payment` + optional `Transaction` + advance `next_due` → toast. Subscriptions are bills with `kind = subscription` and a "renews" label. Empty state per tab.
 - **Acceptance:** Overdue bill appears in Needs attention and Notifications; paying it clears both; recurring next-due arithmetic handles month-end (31 Jan → 28/29 Feb).
 
@@ -818,9 +818,9 @@ Assumes one full-time Flutter developer from Phase 0 and a second part-time deve
 
 | Phase | Weeks | Scope | Exit criteria |
 |---|---|---|---|
-| **0 · Foundation** | 1.5 | Git, repo hygiene (section 10), dependency set, flavors, theme tokens + typography + `ThemeExtension`, shared component library (section 7.4) rendered in the States gallery, go_router shell with 5 empty tabs, Drift database with core tables + migrations framework, Riverpod wiring, CI running analyze/test/golden | App launches to an empty shell in light and dark; golden tests for every shared component pass; `flutter analyze` clean |
-| **1 · Core** | 4 | Onboarding, Home (all 5 sections), Tasks (CRUD, tabs, complete/undo, reschedule, delete, detail, edit, recurrence, links), Quick-add sheet, Calendar (3 views + Event entity), Notifications inbox + ReminderScheduler, Search (FTS), Settings/Appearance/Customize/Profile | All 12 prototype "wired flows" that involve tasks/search/dark mode work; reminders fire on both platforms; midnight rollover test passes |
-| **2 · Money** | 3 | Finance dashboard, Add expense keypad, transactions list/detail/edit, categories, income/budget setting, Bills & subscriptions (list, add/edit, detail, mark paid, payments, reminders), Home space utilities link | Add-expense flow matches prototype; overdue bill appears on Home/Calendar/Notifications and clears on payment |
+| **0 · Foundation** ✅ | 1.5 | Git, repo hygiene (section 10), dependency set, flavors, theme tokens + typography + `ThemeExtension`, shared component library (section 7.4) rendered in the States gallery, go_router shell with 5 empty tabs, Drift database with core tables + migrations framework, Riverpod wiring, CI running analyze/test/golden | App launches to an empty shell in light and dark; golden tests for every shared component pass; `flutter analyze` clean |
+| **1 · Core** ✅ | 4 | Onboarding, Home (all 5 sections), Tasks (CRUD, tabs, complete/undo, reschedule, delete, detail, edit, recurrence, links), Quick-add sheet, Calendar (3 views + Event entity), Notifications inbox + ReminderScheduler, Search (FTS), Settings/Appearance/Customize/Profile | All 12 prototype "wired flows" that involve tasks/search/dark mode work; reminders fire on both platforms; midnight rollover test passes |
+| **2 · Money** ✅ | 3 | Finance dashboard, Add expense keypad, transactions list/detail/edit, categories, income/budget setting, Bills & subscriptions (list, add/edit, detail, mark paid, payments, reminders), Home space utilities link | Add-expense flow matches prototype; overdue bill appears on Home/Calendar/Notifications and clears on payment |
 | **3 · Records & Spaces** | 4 | Documents (list, add with upload/scan, detail, viewer, replace, archive, reminders), Vehicle (overview, service, fuel, renewals), Home management (jobs, appliances), Spaces (grid, new space, generic space detail aggregator, space settings), Custom records (template builder, record editor), Groups UI with local members (trip card, shared expense sheet, ledger, settle up) | Scan → PDF → expiry reminder works on a physical device; ledger unit tests pass; a user-created space shows linked items |
 | **4 · Capture & Goals** | 2 | Shopping lists (manage lists, reorder, quick add), Notes (editor, tabs, archive), Ideas (capture, promote), Goals (list, detail, log progress, edit), export/import archive, nightly local backup | Feature-complete v1.0 candidate; internal dogfooding starts |
 | **5 · Accounts & Sharing** | 4 | Supabase project, auth (email OTP/magic link), profile sync, sync queue + worker, shared groups (invite link, join, member sync, shared expenses, settlements, remind push), conflict handling, cloud backup/restore | Two devices share a trip and see each other's expenses within seconds; offline edits reconcile |
@@ -965,47 +965,97 @@ D9 (exact reminders, opt-in, off by default) shipped as a small carry-over — s
 - Added to Space detail aggregation and Recent if the entity has a `space_id`
 - Accessibility labels on icon buttons; dark mode checked
 
-### 12.3 Phase-2 progress
+### 12.3 Phase 2 · Money — complete
 
-**Status (6 Sep 2026): first slice landed.** Schema is at v9 (adds `Transactions`
-— amount in paise, `type` expense/income, category, method, label, note, and the
-same soft-delete/UUID/timestamp shape as `Tasks`). Built: `TransactionRepository`
-(CRUD, month/date-range queries, `sumByType`, `categoryTotals`, `lastMethod`); the
-shared `AmountKeypad` widget (12-key grid, pure `pressKey` reducer, added to the
-States gallery); the New expense sheet (amount, expense/income toggle, category
-chips, method chips defaulting to last used, note); the Finance dashboard (This
-month card with Income/Expenses/Remaining/% spent/day-of-month progress, By
-category bars, Recent transactions) reachable from Home's Quick access and
-Quick add's Expense tile. D4 and D9 (§17) are resolved — see ADR 0005 and ADR
-0006. 250 unit/widget tests pass, `flutter analyze` is clean.
+**Status (6 Sep 2026): Phase 2 is complete.** Schema is at v11. Finance now covers the
+whole of section 6.6 — dashboard, New expense sheet, transaction detail and edit, All
+transactions with month/type/method/category filters, a Category manager, and the
+monthly-budget setting — and section 6.7's Bills & subscriptions is built end to end:
+five-tab list with an outstanding total, New bill sheet, Bill detail with payment
+history, Edit bill, and the Payment sheet. Bills reach Home's Needs attention and
+Upcoming, the Calendar, and the notification inbox through the same adapter interfaces
+Tasks already used.
 
-Deliberately deferred to the next Phase 2 slice, the same way Phase 1 named its
-own gaps rather than faking them (§12.1.3): Transaction detail/edit, All
-transactions (filter by month/category/method), a Category manager (categories
-are a fixed curated list for now, not user-editable), and all of Bills &
-subscriptions. Every control that would lead there today (the Bills icon,
-"See all", tapping a transaction row) toasts "Arriving in a later phase" —
-the same idiom Settings and Quick add already use for their own unbuilt rows.
+| Slice | Deliverables |
+|---|---|
+| 1 ✅ | `Transactions` (v9); `TransactionRepository`; `AmountKeypad`; New expense sheet; Finance dashboard |
+| 2 ✅ | `TransactionCategories` (v10) + Category manager; transaction detail/edit; All transactions with filters; monthly-budget sheet |
+| 3 ✅ | `Bills`/`Payments` (v11); bill status and next-due arithmetic; Bills list, detail, editor, Payment sheet; bill reminders |
+| 4 ✅ | Cross-feature wiring: Home aggregators, Calendar, notification reconciliation, Quick add, Quick access, Settings' Bill reminders toggle |
 
-**Live UI verification done (6 Sep 2026), on a real Android emulator (API 36).**
-Claude in Chrome wasn't connected and the sandboxed Browser pane can't load
-Kosha's web build (drift's worker hangs there — unrelated to this change), and
-this emulator has no Visual Studio toolchain for a Windows-desktop run either,
-so verification used a throwaway `integration_test` script driving the real
-Finance screen and New expense sheet end to end (typed an amount on the real
-keypad, picked a category, saved, added an income transaction too) and saving
-on-device screenshots pulled via `adb`. It found a real bug no widget test
-caught: `SheetScaffold`'s content (New expense's keypad + two rows of chips)
-overflowed by 33px on the emulator's actual screen size, because every widget
-test that exercises a tall sheet fakes a tall test viewport to fit it — which
-also hides genuine overflow instead of catching it. Fixed by making
-`SheetScaffold` wrap its content in a `SingleChildScrollView`
-(`lib/features/tasks/presentation/widgets/sheet_scaffold.dart`, shared by
-every sheet in the app, not just New expense). A regression test now pumps
-the New expense sheet at a realistic small-phone size (393×852) and asserts
-no overflow exception — see `new_expense_sheet_test.dart`. The dashboard's
-stats, category bar, recent-transactions list, and the overspent-month minus
-sign all rendered correctly on-device. 251 tests pass.
+### 12.3.1 Notes carried out of Phase 2
+
+- **A bill's status is derived in one place and checked in one order.** `billStatus`
+  (`bills/domain/entities/bill.dart`) settles Overdue and Due Soon *before* it considers
+  Paid, so a bill paid last cycle whose next due date has already come round reads as due
+  again rather than resting on an old payment. Only once the next date is comfortably
+  ahead does `lastPaidOn` make it "Paid" — and at that point the flag really does mean
+  "this cycle is settled", because paying is the only thing that advances `nextDue` past a
+  date that has passed. The Bills tabs filter in Dart rather than SQL for the same reason:
+  a WHERE clause would have to re-implement this and could drift from it.
+- **Paying a one-off clears its date instead of advancing it.** A bill with no recurrence
+  rule has no next cycle to move to, so `markPaid` sets `nextDue` to null. Leaving the old
+  date in place would have it read as overdue for ever; a null date is what "nothing is
+  owed" already means everywhere else in the feature.
+- **Month-end arithmetic came for free from the recurrence engine.** §6.7's acceptance
+  criterion (31 Jan → 28/29 Feb) is `Recurrence.nextAfter` with the `BYMONTHDAY` anchor
+  tasks already use, not a second implementation. That was the point of storing bill
+  frequency as an RFC 5545 rule string rather than an enum.
+- **A payment is three writes and an undo has to reverse all three.** `markPaid` records
+  the receipt, advances the cycle and writes the Finance expense; `BillPayment` carries the
+  previous `nextDue`/`lastPaidOn` back to the caller so `undoPayment` restores the bill
+  exactly rather than trying to compute a cycle backwards. Reversing only the receipt would
+  leave the money double-counted in Finance.
+- **Categories are stored on transactions as labels, not ids** — see ADR 0007. A rename
+  cascades to every transaction in one database transaction; a delete is a soft delete that
+  leaves past months reading the way they were entered.
+- **Home, Calendar and the inbox took additions, not rewrites.** Bills joined by adding
+  three adapters (`home/data/bill_home_sources.dart`), one `HomeItemKind` value plus one
+  switch case, one `CalendarItemKind` value, and one loop in `reconcile()`. This is the
+  claim §12.1.3 made about those merge points, tested rather than asserted.
+- **Toggles in a growing settings group must be found by label, not index.** Adding "Bill
+  reminders" between "Task reminders" and "Exact reminders" silently repointed a widget
+  test that tapped `KoshaToggle` at index 1. The tests now match on `semanticLabel`.
+- **A `??` default in a test helper can disable the case it was meant to exercise.**
+  `nextDue: nextDue ?? aDate` turned an explicit `null` back into a date, so the
+  "bill with no date" tests were quietly testing a dated bill. The helper takes a separate
+  `dated` flag now. Worth watching for anywhere a nullable field has a meaningful null.
+
+### 12.3.2 Live UI verification (6 Sep 2026)
+
+Phase 2's exit criterion was driven end to end on a real Android emulator (API 36) by a
+committed integration test, `integration_test/overdue_bill_pay_clears_test.dart`: an
+overdue bill appears in Home's Needs attention *and* in the notification inbox, opening it
+from Home lands on the bill, paying it through the real payment sheet advances the cycle,
+and both the attention row and the unread badge clear. It runs nightly in CI alongside the
+Phase 1 flow (see `.github/workflows/ci.yml`).
+
+A throwaway screenshot script (§15's "Live UI check") drove the same screens for a visual
+pass. **It ran only partway**: it reached Home, Finance, Finance scrolled, All transactions
+and All transactions filtered before the emulator's Gradle builds started wedging (a build
+that takes ~90 s warm sat for 20+ minutes), so Bills, Bill detail, the payment sheet, the
+category manager and transaction detail have **not** had a screenshot-level look — they are
+covered by the on-device flow test above and by widget tests, but nobody has looked at their
+pixels. Worth finishing at the start of Phase 3, when the machine is fresh. What it did
+reach found two things no widget test had:
+
+- **A `context.go` to a sibling route silently skips the screen you came from.** Transaction
+  detail lives at `/home/finance/tx/:id`, a sibling of `/home/finance/transactions`, so
+  `go` rebuilt the branch stack as Finance → detail and Back from a transaction landed on
+  the Finance dashboard rather than the All-transactions list the user opened it from.
+  All transactions now uses `context.push`; Finance's own Recent list still uses `go`,
+  because from there Back *should* land on Finance. Covered by a test in
+  `app_shell_test.dart`.
+- **The All-transactions filter row is a lazily-built horizontal list.** At a real phone
+  width the off-screen chips do not exist in the tree at all — the widget tests never saw
+  this because they pump at an inflated 800 px viewport. Not a defect in the app, but the
+  same class of blind spot as the `SheetScaffold` overflow §12.3 records, and a reason to
+  keep at least one test per scrolling row at a realistic size.
+
+Two harness notes for the next slice, both now in the project's memory: on Android
+`binding.convertFlutterSurfaceToImage()` must run in `setUpAll` or `takeScreenshot` throws
+and writes nothing; and `adb` is not on the shell's PATH on this machine, which makes a
+`|| true` pull loop report "no screenshots" when the files are actually there.
 
 ---
 

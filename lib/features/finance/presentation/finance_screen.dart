@@ -2,23 +2,27 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/kosha_colors.dart';
 import '../../../core/theme/kosha_shapes.dart';
 import '../../../core/utils/clock.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../shared/state/toast_controller.dart';
 import '../../../shared/widgets/widgets.dart';
+import '../../bills/domain/entities/bill.dart';
+import '../../bills/presentation/bill_labels.dart';
+import '../../bills/presentation/controllers/bill_providers.dart';
 import '../domain/entities/transaction.dart';
+import '../domain/entities/transaction_category.dart';
 import 'controllers/finance_providers.dart';
+import 'widgets/monthly_budget_sheet.dart';
 import 'widgets/new_expense_sheet.dart';
+import 'widgets/transaction_row.dart';
 
-/// Finance dashboard (section 6.6). Transaction detail/edit, All
-/// transactions, Category manager and Bills & subscriptions are the next
-/// Phase 2 slice — every control that leads there today toasts the same
-/// "arriving in a later phase" message the rest of the app's unbuilt screens
-/// use (e.g. Settings' phase-labelled rows).
+/// Finance dashboard (section 6.6): this month, spending by category, the
+/// last few transactions, and what bills are coming.
 class FinanceScreen extends ConsumerWidget {
   const FinanceScreen({super.key});
 
@@ -28,6 +32,9 @@ class FinanceScreen extends ConsumerWidget {
     final monthTransactions = ref.watch(thisMonthTransactionsProvider);
     final recent = ref.watch(recentTransactionsProvider);
     final monthlyBudget = ref.watch(monthlyBudgetMinorProvider);
+    final categories = ref.watch(
+      categoriesOfKindProvider(CategoryKind.expense),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -36,7 +43,7 @@ class FinanceScreen extends ConsumerWidget {
           IconButton(
             tooltip: 'Bills',
             icon: const Icon(Symbols.receipt_long_rounded),
-            onPressed: () => _later(context, ref),
+            onPressed: () => context.go(Routes.bills),
           ),
         ],
       ),
@@ -71,6 +78,8 @@ class FinanceScreen extends ConsumerWidget {
                       today: today,
                       transactions: transactions,
                       budgetMinor: budgetMinor,
+                      onSetBudget: () =>
+                          unawaited(showMonthlyBudgetSheet(context)),
                     ),
                     const SizedBox(height: 26),
                     _CategoryBarsSection(transactions: transactions),
@@ -79,19 +88,17 @@ class FinanceScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 26),
+            const _UpcomingBillsCard(),
+            const SizedBox(height: 26),
             _RecentTransactionsSection(
               recent: recent,
-              onSeeAll: () => _later(context, ref),
-              onTapTransaction: () => _later(context, ref),
+              categories: categories.value ?? const [],
+              onSeeAll: () => context.go(Routes.transactions),
             ),
           ],
         ),
       ),
     );
-  }
-
-  void _later(BuildContext context, WidgetRef ref) {
-    ref.read(toastControllerProvider.notifier).show('Arriving in a later phase');
   }
 }
 
@@ -100,11 +107,13 @@ class _ThisMonthCard extends StatelessWidget {
     required this.today,
     required this.transactions,
     required this.budgetMinor,
+    required this.onSetBudget,
   });
 
   final DateTime today;
   final List<Transaction> transactions;
   final int? budgetMinor;
+  final VoidCallback onSetBudget;
 
   @override
   Widget build(BuildContext context) {
@@ -182,6 +191,20 @@ class _ThisMonthCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             ProgressBar(value: dayProgress, color: c.text3, height: 3),
+            const SizedBox(height: 2),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: onSetBudget,
+                child: Text(
+                  hasIncome
+                      ? 'Set monthly budget'
+                      : budgetMinor == null || budgetMinor == 0
+                          ? 'Set a monthly budget'
+                          : 'Change monthly budget',
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -239,7 +262,15 @@ class _CategoryBarsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionLabel('By category'),
+        Row(
+          children: [
+            const Expanded(child: SectionLabel('By category')),
+            TextButton(
+              onPressed: () => context.go(Routes.categories),
+              child: const Text('Manage'),
+            ),
+          ],
+        ),
         if (top.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -294,16 +325,122 @@ class _CategoryBar extends StatelessWidget {
   }
 }
 
+/// Appendix A's "Upcoming bills card → Bills". Overdue bills lead, because
+/// they are the ones the user has to act on.
+class _UpcomingBillsCard extends ConsumerWidget {
+  const _UpcomingBillsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.kosha;
+    final t = Theme.of(context).textTheme;
+    final today = ref.watch(clockProvider).today();
+    final upcoming = ref.watch(upcomingBillsProvider).value ?? UpcomingBills.empty;
+    final preview = upcoming.bills.take(upcomingBillsPreviewCount).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const Expanded(child: SectionLabel('Upcoming bills')),
+            TextButton(
+              onPressed: () => context.go(Routes.bills),
+              child: const Text('See all'),
+            ),
+          ],
+        ),
+        Material(
+          color: c.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(KoshaRadius.card),
+            side: BorderSide(color: c.border),
+          ),
+          child: InkWell(
+            onTap: () => context.go(Routes.bills),
+            borderRadius: BorderRadius.circular(KoshaRadius.card),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: preview.isEmpty
+                  ? Row(
+                      children: [
+                        IconTile(
+                          Symbols.check_circle_rounded,
+                          color: c.success,
+                          background: c.successSoft,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Nothing due in the next '
+                            '$upcomingBillsWindowDays days.',
+                            style: t.bodyMedium,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${upcoming.count} '
+                                '${upcoming.count == 1 ? 'bill' : 'bills'} '
+                                'in the next $upcomingBillsWindowDays days',
+                                style: t.bodySmall?.copyWith(color: c.text3),
+                              ),
+                            ),
+                            Text(
+                              Money.inr(upcoming.totalMinor),
+                              style: t.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        for (final bill in preview)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    bill.name,
+                                    style: t.bodyMedium,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                StatusPill(
+                                  billPillStatus(billStatus(bill, today)),
+                                  label: billBadgeLabel(bill, today),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _RecentTransactionsSection extends StatelessWidget {
   const _RecentTransactionsSection({
     required this.recent,
+    required this.categories,
     required this.onSeeAll,
-    required this.onTapTransaction,
   });
 
   final AsyncValue<List<Transaction>> recent;
+  final List<TransactionCategory> categories;
   final VoidCallback onSeeAll;
-  final VoidCallback onTapTransaction;
 
   @override
   Widget build(BuildContext context) {
@@ -328,42 +465,22 @@ class _RecentTransactionsSection extends StatelessWidget {
               : Column(
                   children: [
                     for (final tx in transactions)
-                      _TransactionRow(transaction: tx, onTap: onTapTransaction),
+                      TransactionRow(
+                        transaction: tx,
+                        iconKey: _iconKeyFor(tx),
+                        onTap: () => context.go(Routes.transactionDetail(tx.id)),
+                      ),
                   ],
                 ),
         ),
       ],
     );
   }
-}
 
-class _TransactionRow extends StatelessWidget {
-  const _TransactionRow({required this.transaction, required this.onTap});
-
-  final Transaction transaction;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.kosha;
-    final t = Theme.of(context).textTheme;
-    final isIncome = transaction.type == TransactionType.income;
-    final amountColor = isIncome ? c.success : c.text;
-    final sign = isIncome ? '+' : '−';
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      onTap: onTap,
-      leading: IconTile(
-        isIncome ? Symbols.trending_up_rounded : Symbols.trending_down_rounded,
-        color: isIncome ? c.success : c.text2,
-        background: isIncome ? c.successSoft : c.sunk,
-      ),
-      title: Text(transaction.category ?? (isIncome ? 'Income' : 'Expense')),
-      subtitle: Text(Dates.dayMonth(transaction.date)),
-      trailing: Text(
-        '$sign${Money.inr(transaction.amountMinor)}',
-        style: t.titleSmall?.copyWith(color: amountColor, fontWeight: FontWeight.w700),
-      ),
-    );
+  String? _iconKeyFor(Transaction transaction) {
+    for (final category in categories) {
+      if (category.name == transaction.category) return category.iconKey;
+    }
+    return null;
   }
 }

@@ -7,6 +7,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/kosha_colors.dart';
 import '../../../core/theme/kosha_shapes.dart';
 import '../../../shared/state/toast_controller.dart';
+import '../../bills/presentation/widgets/new_bill_sheet.dart';
 import '../../calendar/presentation/widgets/new_event_sheet.dart';
 import '../../finance/presentation/widgets/new_expense_sheet.dart';
 import '../../tasks/presentation/widgets/new_task_sheet.dart';
@@ -40,10 +41,10 @@ enum _QuickAddOption {
   final IconData icon;
 }
 
-/// 10 options from the prototype. Task, Reminder and Expense do something
-/// today; everything else needs a feature (Shopping, Bills…) that hasn't
-/// been built yet, so those tiles toast the same "arriving later" message
-/// the rest of the still-missing screens use.
+/// 10 options from the prototype. Task, Reminder, Expense and Bill do
+/// something today; everything else needs a feature (Shopping, Documents…)
+/// that hasn't been built yet, so those tiles toast the same "arriving later"
+/// message the rest of the still-missing screens use.
 class QuickAddSheet extends ConsumerWidget {
   const QuickAddSheet({super.key});
 
@@ -84,9 +85,10 @@ class QuickAddSheet extends ConsumerWidget {
         await showNewEventSheet(context);
       case _QuickAddOption.expense:
         await showNewExpenseSheet(context);
+      case _QuickAddOption.bill:
+        await showNewBillSheet(context);
       case _QuickAddOption.note:
       case _QuickAddOption.shoppingItem:
-      case _QuickAddOption.bill:
       case _QuickAddOption.document:
       case _QuickAddOption.goal:
       case _QuickAddOption.splitWithFriends:

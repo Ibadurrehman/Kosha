@@ -5,6 +5,9 @@ import 'package:uuid/uuid.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/services/notifications/scheduled_reminder.dart';
 import '../../../core/utils/clock.dart';
+import '../../bills/data/bill_repository_impl.dart';
+import '../../bills/domain/bill_reminder.dart';
+import '../../bills/domain/bill_repository.dart';
 import '../../calendar/data/event_repository_impl.dart';
 import '../../calendar/domain/entities/event.dart';
 import '../../calendar/domain/event_reminder.dart';
@@ -23,7 +26,13 @@ part 'notification_repository_impl.g.dart';
 /// repository interfaces, the same cross-feature-read rule Home's
 /// aggregators follow (section 4.2).
 class DriftNotificationRepository implements NotificationRepository {
-  DriftNotificationRepository(this._db, this._clock, this._tasks, this._events);
+  DriftNotificationRepository(
+    this._db,
+    this._clock,
+    this._tasks,
+    this._events,
+    this._bills,
+  );
 
   static const Uuid _uuid = Uuid();
 
@@ -31,6 +40,7 @@ class DriftNotificationRepository implements NotificationRepository {
   final Clock _clock;
   final TaskRepository _tasks;
   final EventRepository _events;
+  final BillRepository _bills;
 
   @override
   Stream<List<NotificationEntry>> watchInbox() {
@@ -58,6 +68,18 @@ class DriftNotificationRepository implements NotificationRepository {
   }
 
   @override
+  Future<void> markReadForOwner(ReminderKind kind, String ownerId) async {
+    await (_db.update(_db.notifications)
+          ..where(
+            (n) =>
+                n.kind.equalsValue(kind) &
+                n.ownerId.equals(ownerId) &
+                n.readAt.isNull(),
+          ))
+        .write(NotificationsCompanion(readAt: Value(_clock.now())));
+  }
+
+  @override
   Future<void> reconcile({required DateTime now}) async {
     for (final task in await _tasks.remindable()) {
       await _reconcileOne(
@@ -78,6 +100,17 @@ class DriftNotificationRepository implements NotificationRepository {
         body: _dueEventBody(event),
         route: '/calendar',
         fireAt: intendedEventFireAt(event),
+        now: now,
+      );
+    }
+    for (final bill in await _bills.remindable()) {
+      await _reconcileOne(
+        kind: ReminderKind.bill,
+        ownerId: bill.id,
+        title: bill.name,
+        body: billReminderBody(bill),
+        route: '/home/finance/bills/${bill.id}',
+        fireAt: intendedBillFireAt(bill),
         now: now,
       );
     }
@@ -137,4 +170,5 @@ NotificationRepository notificationRepository(Ref ref) => DriftNotificationRepos
       ref.watch(clockProvider),
       ref.watch(taskRepositoryProvider),
       ref.watch(eventRepositoryProvider),
+      ref.watch(billRepositoryProvider),
     );

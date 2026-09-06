@@ -3,11 +3,15 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../features/bills/data/bill_table.dart';
+import '../../features/bills/domain/entities/bill.dart';
 import '../../features/calendar/data/event_table.dart';
+import '../../features/finance/data/transaction_category_table.dart';
 import '../../features/finance/data/transaction_table.dart';
 // Enum columns: the generated part file resolves these through this library's
 // imports, so they must be imported here even though this file never names them.
 import '../../features/finance/domain/entities/transaction.dart';
+import '../../features/finance/domain/entities/transaction_category.dart';
 import '../../features/home/data/dashboard_section_table.dart';
 import '../../features/notifications/data/notification_table.dart';
 import '../../features/onboarding/data/profile_table.dart';
@@ -44,6 +48,9 @@ class Settings extends Table {
     Events,
     Notifications,
     Transactions,
+    TransactionCategories,
+    Bills,
+    Payments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -53,7 +60,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -109,6 +116,22 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(transactions);
             await m.createIndex(transactionsDate);
             await m.createIndex(transactionsSpace);
+          }
+          // v10 (Phase 2): user-editable categories. Nothing is backfilled —
+          // the repository seeds a kind's defaults the first time it is read,
+          // so an upgrading install picks them up on its next visit to
+          // Finance with the same `Clock` every other write uses.
+          if (from < 10) {
+            await m.createTable(transactionCategories);
+            await m.createIndex(categoriesKindSort);
+          }
+          // v11 (Phase 2): bills, subscriptions and their payment history.
+          if (from < 11) {
+            await m.createTable(bills);
+            await m.createIndex(billsNextDue);
+            await m.createIndex(billsSpace);
+            await m.createTable(payments);
+            await m.createIndex(paymentsBill);
           }
         },
         beforeOpen: (details) async {
