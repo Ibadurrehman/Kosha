@@ -1,6 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/models/priority.dart';
+import '../../../../core/utils/dates.dart';
+
+// Re-exported so the many callers that reach for `dateOnly` alongside `Task`
+// keep working; the single definition lives in core/utils/dates.dart.
+export '../../../../core/utils/dates.dart' show dateOnly;
 
 part 'task.freezed.dart';
 
@@ -21,9 +26,7 @@ enum TaskBucket {
   final String label;
 }
 
-/// Strips the time component so two dates can be compared by day.
-DateTime dateOnly(DateTime value) =>
-    DateTime(value.year, value.month, value.day);
+
 
 @freezed
 abstract class Task with _$Task {

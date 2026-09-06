@@ -1057,6 +1057,46 @@ Two harness notes for the next slice, both now in the project's memory: on Andro
 and writes nothing; and `adb` is not on the shell's PATH on this machine, which makes a
 `|| true` pull loop report "no screenshots" when the files are actually there.
 
+### 12.4 Phase 0–2 review (6 Sep 2026)
+
+A pass back over the three completed phases, checking them against their own exit
+criteria rather than only re-running the suite. Four things came out of it; all four are
+fixed, each with a test that fails without the fix.
+
+- **Phase 0's "golden tests for every shared component pass" had never been met.**
+  `alchemist` was in `pubspec.yaml` from Phase 0 and there was not one golden in the
+  repo, so a stated gate had been reported as green. There are now goldens for all 14
+  shared components, light and dark (`test/shared/golden/`). Only alchemist's *CI*
+  goldens are enabled (`test/flutter_test_config.dart`): the platform kind bakes in the
+  host's text rendering and then fails for everyone else, which is how teams end up
+  deleting their goldens. `dart_test.yaml` declares the `golden` tag so they can be run
+  or skipped on their own.
+- **`SectionLabel` overflowed** — found by the very first run of those goldens. Its `Row`
+  gave neither child a flex, so a heading beside a trailing label (Home's "Today · 12 of
+  15 left") painted the overflow stripe rather than ellipsising. Both children flex now.
+  Section 7.6 asks for 130 % text scale on Home, Tasks and Finance and nothing tested it,
+  so `test/accessibility/text_scale_test.dart` now pumps all three at 100 % and 130 % on a
+  393×852 phone and asserts no overflow.
+- **Day arithmetic was not calendar-safe.** Five places stepped dates with
+  `add(Duration(days: n))`, which adds 24 hours rather than a day: the recurrence engine's
+  DAILY/WEEKLY branches, the month grid, the week strip, Calendar's week/day navigation
+  and the notification grouping's week boundary. Across a daylight-saving transition a
+  daily task can fail to advance, and the month grid's cells stop matching the
+  local-midnight keys items are grouped under — so items silently vanish from the
+  calendar. India has no DST so nobody is hitting this today, but the repository already
+  claimed calendar-safety for the Today/Overdue boundary and these contradicted it.
+  `core/utils/dates.dart` now owns `dateOnly`, `addDays` and `addWeeks`, and the two
+  duplicate `dateOnly` definitions are gone.
+- **`countCompleted` counted deleted tasks.** It was the only query in `TaskRepository`
+  without a `deletedAt IS NULL` filter — including its own sibling `countCreated` — so a
+  task you threw away kept padding Profile's "completed this month" figure.
+
+Verified and left alone: the v1→v11 migration path, soft-delete filtering in the other
+three repositories, FTS query escaping, `ProgressBar` clamping, and Phase 1's
+midnight-rollover coverage. Still not covered anywhere: iOS (no Mac on this machine, so
+"reminders fire on both platforms" is half-verified), and the visual pass §12.3.2 records
+as unfinished.
+
 ---
 
 ## 13. Gaps in the prototype and proposed resolutions

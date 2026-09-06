@@ -1,3 +1,5 @@
+import '../../../core/utils/dates.dart';
+
 /// Which bucket the Notifications screen sorts a row into.
 enum NotificationGroup {
   today('Today'),
@@ -13,9 +15,9 @@ enum NotificationGroup {
 /// one from the 6 days before that is "earlier this week"; anything older is
 /// just "earlier".
 NotificationGroup notificationGroupFor(DateTime createdAt, DateTime today) {
-  final day = DateTime(createdAt.year, createdAt.month, createdAt.day);
+  final day = dateOnly(createdAt);
   if (day == today) return NotificationGroup.today;
-  final weekAgo = today.subtract(const Duration(days: 7));
+  final weekAgo = addDays(today, -7);
   if (day.isAfter(weekAgo)) return NotificationGroup.earlierThisWeek;
   return NotificationGroup.earlier;
 }

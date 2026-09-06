@@ -8,6 +8,8 @@
 /// 28 February, where RFC 5545 would skip the month entirely.
 library;
 
+import '../../utils/dates.dart';
+
 /// The repeat options the UI offers.
 enum RecurrencePreset {
   never('Never'),
@@ -77,9 +79,9 @@ abstract final class Recurrence {
 
     switch (parts['FREQ']) {
       case 'DAILY':
-        return date.add(Duration(days: interval));
+        return addDays(date, interval);
       case 'WEEKLY':
-        return date.add(Duration(days: 7 * interval));
+        return addWeeks(date, interval);
       case 'MONTHLY':
         final anchor = int.tryParse(parts['BYMONTHDAY'] ?? '') ?? date.day;
         return _addMonths(date, interval, anchorDay: anchor);

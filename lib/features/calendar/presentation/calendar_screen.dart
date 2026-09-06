@@ -10,6 +10,7 @@ import '../../../core/router/app_router.dart';
 import '../../../core/theme/kosha_colors.dart';
 import '../../../core/theme/kosha_shapes.dart';
 import '../../../core/utils/clock.dart';
+import '../../../core/utils/dates.dart';
 import '../../../shared/widgets/widgets.dart';
 import '../../quick_add/presentation/quick_add_sheet.dart';
 import '../domain/calendar_grid.dart';
@@ -32,7 +33,7 @@ class CalendarScreen extends ConsumerWidget {
     final selected = ref.watch(selectedCalendarDateProvider);
     final grid = monthGridDays(selected);
     final from = grid.first;
-    final to = grid.last.add(const Duration(days: 1));
+    final to = addDays(grid.last, 1);
     final itemsByDay = ref.watch(calendarItemsByDayProvider(from, to));
 
     return Scaffold(
@@ -107,8 +108,8 @@ class CalendarScreen extends ConsumerWidget {
     final next = switch (view) {
       CalendarView.month =>
         DateTime(selected.year, selected.month + direction, selected.day),
-      CalendarView.week => selected.add(Duration(days: 7 * direction)),
-      CalendarView.agenda => selected.add(Duration(days: direction)),
+      CalendarView.week => addWeeks(selected, direction),
+      CalendarView.agenda => addDays(selected, direction),
     };
     ref.read(selectedCalendarDateProvider.notifier).select(next);
   }

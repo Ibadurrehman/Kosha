@@ -7,6 +7,7 @@ import '../../../core/services/notifications/reminder_scheduler.dart';
 import '../../../core/services/notifications/scheduled_reminder.dart';
 import '../../../core/services/recurrence/recurrence.dart';
 import '../../../core/utils/clock.dart';
+import '../../../core/utils/dates.dart';
 import '../../finance/data/transaction_repository_impl.dart';
 import '../../finance/domain/entities/transaction.dart';
 import '../../finance/domain/transaction_repository.dart';
@@ -155,7 +156,7 @@ class DriftBillRepository implements BillRepository {
   }) async {
     final bill = await _require(id);
     final now = _clock.now();
-    final settledOn = _dateOnly(paidOn ?? now);
+    final settledOn = dateOnly(paidOn ?? now);
     final amount = amountMinor ?? bill.amountMinor;
     final dueSettled = bill.nextDue;
 
@@ -295,9 +296,6 @@ class DriftBillRepository implements BillRepository {
       await _scheduler.schedule(reminder);
     }
   }
-
-  static DateTime _dateOnly(DateTime value) =>
-      DateTime(value.year, value.month, value.day);
 
   Bill _toDomain(BillRow row) => Bill(
         id: row.id,

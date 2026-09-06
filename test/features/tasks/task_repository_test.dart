@@ -442,6 +442,70 @@ void main() {
       expect(setting.value, '"dark"');
     });
   });
+
+  group('Profile month counts', () {
+    test('countCompleted counts what was completed inside the window', () async {
+      final inside = await repository.create(const NewTask(title: 'Inside'));
+      await repository.setDone(inside.id, done: true);
+
+      expect(
+        await repository.countCompleted(
+          from: DateTime(2026, 9),
+          to: DateTime(2026, 10),
+        ),
+        1,
+      );
+      expect(
+        await repository.countCompleted(
+          from: DateTime(2026, 8),
+          to: DateTime(2026, 9),
+        ),
+        0,
+      );
+    });
+
+    test('a deleted task stops counting as completed', () async {
+      final task = await repository.create(const NewTask(title: 'Thrown away'));
+      await repository.setDone(task.id, done: true);
+      await repository.softDelete(task.id);
+
+      // Regression: this query was the only one in the repository that did not
+      // filter soft-deleted rows, so a task you deleted kept padding Profile's
+      // "completed this month" figure.
+      expect(
+        await repository.countCompleted(
+          from: DateTime(2026, 9),
+          to: DateTime(2026, 10),
+        ),
+        0,
+      );
+
+      // …and restoring it brings the count back, the way undo should.
+      await repository.restore(task.id);
+      expect(
+        await repository.countCompleted(
+          from: DateTime(2026, 9),
+          to: DateTime(2026, 10),
+        ),
+        1,
+      );
+    });
+
+    test('countCreated ignores deleted tasks too', () async {
+      final kept = await repository.create(const NewTask(title: 'Kept'));
+      final gone = await repository.create(const NewTask(title: 'Gone'));
+      await repository.softDelete(gone.id);
+
+      expect(
+        await repository.countCreated(
+          from: DateTime(2026, 9),
+          to: DateTime(2026, 10),
+        ),
+        1,
+      );
+      expect(kept.id, isNotEmpty);
+    });
+  });
 }
 
 extension on NewTask {

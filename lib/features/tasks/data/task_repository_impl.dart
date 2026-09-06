@@ -302,6 +302,11 @@ class DriftTaskRepository implements TaskRepository {
       (_db.select(_db.tasks)
             ..where(
               (t) =>
+                  // Deleted tasks stop counting, the same as they do in
+                  // countCreated and in every list query — a task you threw
+                  // away should not still be padding a "completed this month"
+                  // figure.
+                  t.deletedAt.isNull() &
                   t.completedAt.isBiggerOrEqualValue(from) &
                   t.completedAt.isSmallerThanValue(to),
             ))
