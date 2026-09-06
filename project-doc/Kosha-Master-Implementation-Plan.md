@@ -1080,6 +1080,7 @@ The prototype is a click-through; several actions end in a toast. Each gap below
 | Widgets | Widget tests | Each screen's main path with fake repositories; sheets open/close; empty/error states |
 | Visual | Golden tests (`alchemist`) light + dark | Every shared component; States gallery; Home, Tasks, Finance, Documents screens with fixture data |
 | End-to-end | `integration_test` on emulator + one physical device per platform | Onboarding → add task → complete → undo; add expense; add document with expiry → notification scheduled; add shared expense → settle |
+| Live UI check | A hand-run `integration_test` screenshot script, written per slice and not enrolled in CI | Each slice looked at on a real screen before it is called done. Widget tests fake a viewport tall enough to fit any sheet, which hides overflow rather than catching it — see §12.3 |
 | Non-functional | Manual + scripts | 10k-row performance fixture; text scale 130 %; TalkBack/VoiceOver pass on Home and Tasks; offline run |
 
 Coverage goal: 80 % on `domain/` and `data/`, no target on `presentation/` beyond main paths. Tests run on every push (section 16).
