@@ -53,9 +53,11 @@ class _KoshaAppState extends ConsumerState<KoshaApp> {
   /// left to surface as an uncaught async error.
   Future<void> _resyncReminders() async {
     try {
-      final tasksEnabled = await readTaskRemindersEnabled(
-        ref.read(settingsStoreProvider),
-      );
+      final store = ref.read(settingsStoreProvider);
+      final exactEnabled = await readExactRemindersEnabled(store);
+      await ref.read(reminderSchedulerProvider).setExactAlarmsEnabled(exactEnabled);
+
+      final tasksEnabled = await readTaskRemindersEnabled(store);
       if (tasksEnabled) {
         await ref.read(taskRepositoryProvider).resyncReminders();
       }

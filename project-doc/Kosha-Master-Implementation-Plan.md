@@ -835,9 +835,11 @@ sections, Quick add, Calendar (Month/Week/Agenda) with a new Event entity, Searc
 the Notifications inbox, Settings/Appearance/Customize dashboard/Profile, and the tasks
 feature from weeks 1–2 are all built and wired end to end. Schema is at v8 (Settings → Tasks
 → ActivityEntries → Profiles → DashboardSections → Events → Notifications → `tasks_fts`).
-220 unit/widget tests pass, `flutter analyze` is clean, and the repo's first integration
+222 unit/widget tests pass, `flutter analyze` is clean, and the repo's first integration
 test (`integration_test/add_complete_undo_delete_test.dart`) passed live on a real Android
-emulator (API 36) — see 12.1.4.
+emulator (API 36) — see 12.1.4. `phase1-weeks-3-4` merged into `main` 2026-09-06. CI now
+runs that integration test nightly on an emulator via `android-emulator-runner` (§16), and
+D9 (exact reminders, opt-in, off by default) shipped as a small carry-over — see ADR 0005.
 
 | Week | Deliverables |
 |---|---|
@@ -1059,12 +1061,12 @@ Coverage goal: 80 % on `domain/` and `data/`, no target on `presentation/` beyon
 | D1 | Application id / bundle id | `com.taritas.kosha` vs another domain | **Decided: `com.taritas.kosha`** (ADR 0001) | Done |
 | D2 | Ship order: local-only v1.0 first, or wait for sharing | Ship after Phase 4 + security; sharing as v1.1 | Ship local-only first; validates 90 % of the product sooner | Phase 2 |
 | D3 | Backend for sharing | Supabase vs Firebase vs custom | Supabase | Before Phase 5 |
-| D4 | How "Income" on Finance is captured | Income transactions vs monthly budget setting vs both | Both: income transactions when entered, else fall back to a "monthly budget" setting | Phase 2 |
+| D4 | How "Income" on Finance is captured | Income transactions vs monthly budget setting vs both | **Decided: both** — income transactions when entered, else fall back to a "monthly budget" setting (ADR 0006) | Done |
 | D5 | Encryption at rest in v1.0 | SQLCipher from Phase 0 vs Phase 6 | **Decided: Phase 6**, before any external distribution (ADR 0002) | Done |
 | D6 | Analytics | None vs opt-in Sentry only vs product analytics | Opt-in Sentry only | Phase 6 |
 | D7 | Tablet support in v1 | Breakpoint rules only vs dedicated layouts | Breakpoint rules only | Phase 6 |
 | D8 | Bundling fonts vs runtime google_fonts | Bundle | **Decided: bundle**; runtime fetch in Phase 0, TTFs added in Phase 1 (ADR 0003) | Done |
-| D9 | Exact alarms on Android | Opt-in setting vs never | Opt-in setting | Phase 1 |
+| D9 | Exact alarms on Android | Opt-in setting vs never | **Decided: opt-in setting**, off by default (ADR 0005) | Done |
 | D10 | Multiple vehicles / multiple profiles | Model supports; UI single in v1 | Keep model multi, UI single | Phase 3 |
 
 ---

@@ -10,6 +10,7 @@ import '../../../core/services/settings/settings_store.dart';
 import '../../../core/theme/kosha_colors.dart';
 import '../../../core/theme/kosha_shapes.dart';
 import '../../../shared/widgets/kosha_toggle.dart';
+import '../../calendar/data/event_repository_impl.dart';
 import '../../tasks/data/task_repository_impl.dart';
 import '../domain/notification_settings.dart';
 import 'appearance_screen.dart';
@@ -65,6 +66,7 @@ class SettingsScreen extends ConsumerWidget {
             title: 'Notifications',
             rows: [
               _TaskRemindersRow(),
+              _ExactRemindersRow(),
               _Row.later(icon: Symbols.receipt_long_rounded, label: 'Bills lead', phase: 'Phase 2'),
               _Row.later(
                 icon: Symbols.folder_shared_rounded,
@@ -242,5 +244,45 @@ class _TaskRemindersRow extends ConsumerWidget {
         await scheduler.cancel(ReminderKind.task, task.id);
       }
     }
+  }
+}
+
+/// D9: opt in to exact (`SCHEDULE_EXACT_ALARM`) delivery instead of the
+/// battery-friendly inexact default. Declining the Android permission prompt
+/// leaves the setting off, matching [_TaskRemindersRow]'s own no-throw style.
+class _ExactRemindersRow extends ConsumerWidget {
+  const _ExactRemindersRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.kosha;
+    final enabled = ref.watch(exactRemindersEnabledProvider).value ?? false;
+    return ListTile(
+      leading: Icon(Symbols.alarm_on_rounded, color: c.text2),
+      title: const Text('Exact reminders'),
+      subtitle: const Text('Uses more battery; falls back if permission is declined'),
+      trailing: KoshaToggle(
+        value: enabled,
+        semanticLabel: 'Exact reminders',
+        onChanged: (value) => unawaited(_toggle(ref, value)),
+      ),
+    );
+  }
+
+  Future<void> _toggle(WidgetRef ref, bool enabled) async {
+    final scheduler = ref.read(reminderSchedulerProvider);
+    if (enabled) {
+      final granted = await scheduler.requestExactAlarmsPermission();
+      if (!granted) return;
+    }
+
+    final store = ref.read(settingsStoreProvider);
+    await writeExactRemindersEnabled(store, enabled: enabled);
+    await scheduler.setExactAlarmsEnabled(enabled);
+    ref.invalidate(exactRemindersEnabledProvider);
+
+    final tasksEnabled = await readTaskRemindersEnabled(store);
+    if (tasksEnabled) await ref.read(taskRepositoryProvider).resyncReminders();
+    await ref.read(eventRepositoryProvider).resyncReminders();
   }
 }

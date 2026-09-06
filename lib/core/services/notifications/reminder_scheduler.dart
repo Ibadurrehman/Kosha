@@ -23,6 +23,17 @@ abstract interface class ReminderScheduler {
   /// once; returns false when the user has declined.
   Future<bool> requestPermission();
 
+  /// Asks Android for the `SCHEDULE_EXACT_ALARM` permission (D9); a no-op
+  /// that returns true on platforms without the concept, since their
+  /// reminders already fire at the exact moment.
+  Future<bool> requestExactAlarmsPermission();
+
+  /// Switches every reminder scheduled from now on between exact and
+  /// inexact delivery. Does not touch reminders already scheduled — the
+  /// caller re-schedules those (e.g. via `resyncReminders()`) if it wants
+  /// the new mode to apply retroactively.
+  Future<void> setExactAlarmsEnabled(bool enabled);
+
   /// The route payload of every OS notification the user taps, including one
   /// that launched the app cold. `app.dart` listens once and deep-links.
   Stream<String> get notificationTaps;
@@ -42,6 +53,12 @@ class NoopReminderScheduler implements ReminderScheduler {
   Future<bool> requestPermission() async => false;
 
   @override
+  Future<bool> requestExactAlarmsPermission() async => true;
+
+  @override
+  Future<void> setExactAlarmsEnabled(bool enabled) async {}
+
+  @override
   Stream<String> get notificationTaps => const Stream.empty();
 }
 
@@ -58,6 +75,7 @@ class LocalNotificationsReminderScheduler implements ReminderScheduler {
   final FlutterLocalNotificationsPlugin _plugin;
   Future<void>? _ready;
   final StreamController<String> _taps = StreamController<String>.broadcast();
+  bool _exactAlarmsEnabled = false;
 
   @override
   Stream<String> get notificationTaps => _taps.stream;
@@ -108,7 +126,9 @@ class LocalNotificationsReminderScheduler implements ReminderScheduler {
       body: reminder.body,
       payload: reminder.route,
       scheduledDate: tz.TZDateTime.from(reminder.fireAt, tz.local),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: _exactAlarmsEnabled
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           reminder.kind.channelId,
@@ -142,6 +162,22 @@ class LocalNotificationsReminderScheduler implements ReminderScheduler {
       return await darwin.requestPermissions(alert: true, sound: true) ?? false;
     }
     return false;
+  }
+
+  @override
+  Future<bool> requestExactAlarmsPermission() async {
+    await _ensureReady();
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    // iOS (and every other platform) has no separate exact-alarm concept —
+    // its reminders already fire at the exact moment requested.
+    if (android == null) return true;
+    return await android.requestExactAlarmsPermission() ?? false;
+  }
+
+  @override
+  Future<void> setExactAlarmsEnabled(bool enabled) async {
+    _exactAlarmsEnabled = enabled;
   }
 }
 

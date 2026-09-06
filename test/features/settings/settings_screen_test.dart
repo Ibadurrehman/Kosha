@@ -69,6 +69,51 @@ void main() {
     await settleAndDispose(tester);
   });
 
+  testWidgets('turning exact reminders on requests permission and resyncs',
+      (tester) async {
+    final repository = testRepository(db, now: testNow, scheduler: scheduler);
+    final task = await repository.create(
+      NewTask(
+        title: 'Renew passport',
+        dueDate: DateTime(2026, 9, 10),
+        reminderOffsetMinutes: 0,
+      ),
+    );
+    scheduler.clear();
+
+    await tester.pumpWidget(
+      wrapScreen(const SettingsScreen(), db: db, now: testNow, scheduler: scheduler),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(KoshaToggle).at(1));
+    await tester.pumpAndSettle();
+
+    expect(scheduler.exactAlarmsEnabled, isTrue);
+    expect(scheduler.scheduled.map((r) => r.ownerId), contains(task.id));
+    await settleAndDispose(tester);
+  });
+
+  testWidgets('declining the exact-alarm permission leaves the setting off',
+      (tester) async {
+    scheduler.grantExactAlarmsPermission = false;
+
+    await tester.pumpWidget(
+      wrapScreen(const SettingsScreen(), db: db, now: testNow, scheduler: scheduler),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(KoshaToggle).at(1));
+    await tester.pumpAndSettle();
+
+    expect(scheduler.exactAlarmsEnabled, isFalse);
+    expect(
+      tester.widget<KoshaToggle>(find.byType(KoshaToggle).at(1)).value,
+      isFalse,
+    );
+    await settleAndDispose(tester);
+  });
+
   testWidgets('static rows name the phase they arrive in', (tester) async {
     await tester.pumpWidget(wrapScreen(const SettingsScreen(), db: db));
     await tester.pumpAndSettle();

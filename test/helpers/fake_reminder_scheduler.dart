@@ -32,6 +32,19 @@ class RecordingReminderScheduler implements ReminderScheduler {
   @override
   Future<bool> requestPermission() async => true;
 
+  /// Toggle before a test to simulate the user declining the OS prompt.
+  bool grantExactAlarmsPermission = true;
+
+  @override
+  Future<bool> requestExactAlarmsPermission() async => grantExactAlarmsPermission;
+
+  bool exactAlarmsEnabled = false;
+
+  @override
+  Future<void> setExactAlarmsEnabled(bool enabled) async {
+    exactAlarmsEnabled = enabled;
+  }
+
   @override
   Stream<String> get notificationTaps => const Stream.empty();
 }
