@@ -10,6 +10,9 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../shared/state/toast_controller.dart';
 import '../../../../shared/widgets/amount_keypad.dart';
 import '../../../../shared/widgets/kosha_chip.dart';
+import '../../../spaces/domain/entities/space.dart';
+import '../../../spaces/presentation/controllers/space_providers.dart';
+import '../../../spaces/presentation/space_icons.dart';
 import '../../../tasks/presentation/widgets/sheet_scaffold.dart';
 import '../../data/transaction_repository_impl.dart';
 import '../../domain/entities/transaction.dart';
@@ -69,6 +72,7 @@ class _NewExpenseSheetState extends ConsumerState<NewExpenseSheet> {
   String _amount = '';
   TransactionType _type = TransactionType.expense;
   String? _category;
+  String? _spaceId;
   TransactionMethod? _method;
   DateTime? _date;
   late final TextEditingController _label =
@@ -133,7 +137,7 @@ class _NewExpenseSheetState extends ConsumerState<NewExpenseSheet> {
       label: label.isEmpty ? null : label,
       note: note.isEmpty ? null : note,
       billId: widget.billId,
-      spaceId: widget.spaceId,
+      spaceId: widget.spaceId ?? _spaceId,
       vehicleId: widget.vehicleId,
     );
 
@@ -229,6 +233,18 @@ class _NewExpenseSheetState extends ConsumerState<NewExpenseSheet> {
             ],
           ),
         ),
+        // Section 6.5's acceptance criterion: a space that holds expenses is
+        // selectable here. A sheet opened from somewhere that already knows
+        // the space (a vehicle, a bill) does not ask again.
+        if (widget.spaceId == null) ...[
+          const SizedBox(height: 14),
+          const _FieldLabel('Space'),
+          const SizedBox(height: 8),
+          _SpacePicker(
+            selectedId: _spaceId,
+            onChanged: (id) => setState(() => _spaceId = id),
+          ),
+        ],
         const SizedBox(height: 14),
         const _FieldLabel('Method'),
         const SizedBox(height: 8),
@@ -286,6 +302,40 @@ class _NewExpenseSheetState extends ConsumerState<NewExpenseSheet> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// The spaces that accept expenses, as chips. Renders nothing at all when
+/// there are none — an empty "Space" heading would be a question with no
+/// answers.
+class _SpacePicker extends ConsumerWidget {
+  const _SpacePicker({required this.selectedId, required this.onChanged});
+
+  final String? selectedId;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final spaces = ref.watch(spacesHoldingProvider(SpaceHolds.expenses));
+    return spaces.maybeWhen(
+      orElse: () => const SizedBox.shrink(),
+      data: (list) => list.isEmpty
+          ? const SizedBox.shrink()
+          : Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final space in list)
+                  KoshaChip(
+                    label: space.name,
+                    icon: spaceIcon(space.iconKey),
+                    selected: selectedId == space.id,
+                    onTap: () =>
+                        onChanged(selectedId == space.id ? null : space.id),
+                  ),
+              ],
+            ),
     );
   }
 }

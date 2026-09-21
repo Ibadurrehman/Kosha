@@ -23,6 +23,7 @@ import '../../features/onboarding/presentation/onboarding_welcome_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/settings/presentation/profile_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/spaces/presentation/space_detail_screen.dart';
 import '../../features/spaces/presentation/spaces_screen.dart';
 import '../../features/states_gallery/presentation/states_gallery_screen.dart';
 import '../../features/tasks/presentation/task_detail_screen.dart';
@@ -69,6 +70,10 @@ abstract final class Routes {
   static String billDetail(String id) => '$bills/$id';
 
   static String billEdit(String id) => '$bills/$id/edit';
+
+  /// Space detail lives under the Spaces tab, so the bottom bar keeps Spaces
+  /// lit however the space was reached.
+  static String spaceDetail(String id) => '$spaces/$id';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -211,7 +216,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: Routes.spaces, builder: (_, _) => const SpacesScreen()),
+              GoRoute(
+                path: Routes.spaces,
+                builder: (_, _) => const SpacesScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) => SpaceDetailScreen(
+                      spaceId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(

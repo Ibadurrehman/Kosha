@@ -821,7 +821,7 @@ Assumes one full-time Flutter developer from Phase 0 and a second part-time deve
 | **0 · Foundation** ✅ | 1.5 | Git, repo hygiene (section 10), dependency set, flavors, theme tokens + typography + `ThemeExtension`, shared component library (section 7.4) rendered in the States gallery, go_router shell with 5 empty tabs, Drift database with core tables + migrations framework, Riverpod wiring, CI running analyze/test/golden | App launches to an empty shell in light and dark; golden tests for every shared component pass; `flutter analyze` clean |
 | **1 · Core** ✅ | 4 | Onboarding, Home (all 5 sections), Tasks (CRUD, tabs, complete/undo, reschedule, delete, detail, edit, recurrence, links), Quick-add sheet, Calendar (3 views + Event entity), Notifications inbox + ReminderScheduler, Search (FTS), Settings/Appearance/Customize/Profile | All 12 prototype "wired flows" that involve tasks/search/dark mode work; reminders fire on both platforms; midnight rollover test passes |
 | **2 · Money** ✅ | 3 | Finance dashboard, Add expense keypad, transactions list/detail/edit, categories, income/budget setting, Bills & subscriptions (list, add/edit, detail, mark paid, payments, reminders), Home space utilities link | Add-expense flow matches prototype; overdue bill appears on Home/Calendar/Notifications and clears on payment |
-| **3 · Records & Spaces** | 4 | Documents (list, add with upload/scan, detail, viewer, replace, archive, reminders), Vehicle (overview, service, fuel, renewals), Home management (jobs, appliances), Spaces (grid, new space, generic space detail aggregator, space settings), Custom records (template builder, record editor), Groups UI with local members (trip card, shared expense sheet, ledger, settle up) | Scan → PDF → expiry reminder works on a physical device; ledger unit tests pass; a user-created space shows linked items |
+| **3 · Records & Spaces** ⏳ | 4 | Documents (list, add with upload/scan, detail, viewer, replace, archive, reminders), Vehicle (overview, service, fuel, renewals), Home management (jobs, appliances), Spaces (grid, new space, generic space detail aggregator, space settings), Custom records (template builder, record editor), Groups UI with local members (trip card, shared expense sheet, ledger, settle up) | Scan → PDF → expiry reminder works on a physical device; ledger unit tests pass; a user-created space shows linked items |
 | **4 · Capture & Goals** | 2 | Shopping lists (manage lists, reorder, quick add), Notes (editor, tabs, archive), Ideas (capture, promote), Goals (list, detail, log progress, edit), export/import archive, nightly local backup | Feature-complete v1.0 candidate; internal dogfooding starts |
 | **5 · Accounts & Sharing** | 4 | Supabase project, auth (email OTP/magic link), profile sync, sync queue + worker, shared groups (invite link, join, member sync, shared expenses, settlements, remind push), conflict handling, cloud backup/restore | Two devices share a trip and see each other's expenses within seconds; offline edits reconcile |
 | **6 · Hardening & release** | 2.5 | App lock + biometrics, SQLCipher + attachment encryption, performance pass (large fixtures), accessibility audit, localisation scaffold (arb), crash reporting opt-in, store assets, privacy policy, TestFlight/Play internal testing, release checklist | Store submission for v1.0 (local) or v1.1 (with sharing, if Phase 5 completed first — see section 17) |
@@ -1096,6 +1096,59 @@ three repositories, FTS query escaping, `ProgressBar` clamping, and Phase 1's
 midnight-rollover coverage. Still not covered anywhere: iOS (no Mac on this machine, so
 "reminders fire on both platforms" is half-verified), and the visual pass §12.3.2 records
 as unfinished.
+
+### 12.5 Phase 3 · Records & Spaces — in progress
+
+**Status (22 Sep 2026): week 1, Spaces foundation, is complete.** Schema is at v12. The
+`Spaces` table, its repository, the grid, the generic Space detail aggregator and Space
+settings are in; 38 new tests (460 in the suite, was 422), `flutter analyze` clean.
+
+Why Spaces went first: Tasks, Bills, Events and Transactions have carried a nullable
+`space_id` since Phases 1 and 2 with nothing to point at, and every remaining Phase 3
+feature (Documents, Vehicle, Home management, custom records, Groups) hangs off a space.
+
+What week 1 built:
+- **Ten system spaces, seeded on first read** — Finance, Home, Vehicle, Documents,
+  Shopping, Goals, Notes, Ideas, Health, Travel — following the lazy-seed pattern
+  Profiles, DashboardSections and categories set, so the injected `Clock` supplies the
+  timestamps. Seeding also has to await another repository, which a `MigrationStrategy`
+  callback cannot: onboarding's "Pick areas" selection decides which spaces start
+  visible, the reading §12.1.3 asked Phase 3 for.
+- **A skipped area seeds its space archived, not absent.** With the default selection
+  that is four of the ten (Home, Vehicle, Goals, Notes), so the Spaces screen carries a
+  "Not shown" footer offering them back — on first run it is a normal state, not a rare
+  one, and it is the only way a user learns Vehicle exists.
+- **Space detail**, header + three stats + one section per hold kind, pulling items whose
+  `space_id` matches. Only Tasks and Money are built: Documents, Notes and Lists have no
+  tables yet, and a section that could only ever render an empty state would be a promise
+  the app cannot keep.
+- **The New expense sheet now offers a space picker**, which is §6.5's acceptance
+  criterion ("creating a space with Expenses enabled makes it selectable"). A sheet opened
+  from somewhere that already knows the space does not ask again.
+
+### 12.5.1 Notes carried out of week 1
+
+- **Archiving keeps every link (ADR 0008).** §6.5 asks that deleting a user space unlink
+  its items; doing that at read time rather than nulling `space_id` across four tables is
+  what makes undo a one-row restore. The observable behaviour is identical — no surface
+  reads an archived space — except when the user undoes. `Spaces` therefore has no
+  `deletedAt`, the only table in the database without one.
+- **Two identity columns are stored by name, not index.** `systemKey` is a `textEnum`
+  because the code matches on it (`systemKey == SystemSpace.vehicle` is how the Vehicle
+  screen will find its own space), and the holds set is comma-joined enum names written
+  in declaration order, so an identical selection always produces an identical string. A
+  unique index on `systemKey` is what actually prevents a second Finance space,
+  independent of the seeding guard.
+- **`combineLatestLists` took its third caller without changing.** The grid's sub-lines
+  are three `GROUP BY` queries merged through the same primitive Home and the Calendar
+  use, folded into one summary per space. Adding documents later is a fourth entry in the
+  list, as §12.1.3 predicted.
+- **The grid is taller than the 800×600 test surface** once six spaces are seeded, so its
+  widget tests scroll to the New space tile and the footer rather than inflating the test
+  window — inflating would hide exactly the overflow §7.6 asks these screens to survive.
+- **Still to do in week 1's area:** the grid's Custom records card (Appendix A) waits on
+  the `RecordTemplate`/`CustomRecord` tables in week 4, and Space detail's Upcoming
+  section waits on documents and renewals having dates to contribute.
 
 ---
 

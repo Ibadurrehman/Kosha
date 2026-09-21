@@ -33,6 +33,10 @@ abstract interface class TaskRepository {
   /// first. Home's "Recent" section.
   Stream<List<Task>> watchRecent({required int limit});
 
+  /// Open tasks filed under one space, soonest due first — the Tasks section
+  /// of Space detail (section 6.5).
+  Stream<List<Task>> watchInSpace(String spaceId, {required int limit});
+
   /// Emits null once the task is deleted.
   Stream<Task?> watchById(String id);
 
