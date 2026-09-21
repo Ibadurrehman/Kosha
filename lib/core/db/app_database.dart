@@ -15,6 +15,8 @@ import '../../features/finance/domain/entities/transaction_category.dart';
 import '../../features/home/data/dashboard_section_table.dart';
 import '../../features/notifications/data/notification_table.dart';
 import '../../features/onboarding/data/profile_table.dart';
+import '../../features/spaces/data/space_table.dart';
+import '../../features/spaces/domain/entities/space.dart';
 import '../../features/tasks/data/activity_table.dart';
 import '../../features/tasks/data/task_table.dart';
 import '../../features/tasks/domain/entities/activity_entry.dart';
@@ -51,6 +53,7 @@ class Settings extends Table {
     TransactionCategories,
     Bills,
     Payments,
+    Spaces,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -60,7 +63,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -132,6 +135,20 @@ class AppDatabase extends _$AppDatabase {
             await m.createIndex(billsSpace);
             await m.createTable(payments);
             await m.createIndex(paymentsBill);
+          }
+          // v12 (Phase 3): spaces. Nothing is backfilled — the repository
+          // seeds the ten system spaces the first time it is read, using
+          // onboarding's stored "Pick areas" selection to decide which start
+          // archived, so an upgrading install picks them up on its next visit
+          // to the Spaces tab with the same `Clock` every other write uses.
+          // The `space_id` columns that Tasks, Bills, Events and Transactions
+          // have carried since Phases 1 and 2 are left alone: they are all
+          // null until something here is picked, so there is nothing to point
+          // at anything.
+          if (from < 12) {
+            await m.createTable(spaces);
+            await m.createIndex(spacesSort);
+            await m.createIndex(spacesSystemKey);
           }
         },
         beforeOpen: (details) async {

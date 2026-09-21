@@ -12,6 +12,7 @@ import 'package:kosha/features/bills/data/bill_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_category_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_repository_impl.dart';
 import 'package:kosha/features/onboarding/data/profile_repository_impl.dart';
+import 'package:kosha/features/spaces/data/space_repository_impl.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
 import 'package:kosha/shared/state/toast_controller.dart';
 import 'package:kosha/shared/widgets/toast_host.dart';
@@ -74,6 +75,22 @@ DriftBillRepository testBillRepository(
       scheduler ?? const NoopReminderScheduler(),
       testTransactionRepository(db, now: now),
     );
+
+/// A space repository on [db]. It reads onboarding's "Pick areas" selection
+/// when it seeds, so it is handed a real profile repository over the same
+/// database rather than a stub — a test that wants a different selection calls
+/// `setVisibleAreas` on [testProfileRepository] before the first read.
+DriftSpaceRepository testSpaceRepository(AppDatabase db, {DateTime? now}) =>
+    DriftSpaceRepository(
+      db,
+      FixedClock(now ?? testNow),
+      testProfileRepository(db, now: now),
+    );
+
+DriftProfileRepository testProfileRepository(AppDatabase db, {DateTime? now}) {
+  final clock = FixedClock(now ?? testNow);
+  return DriftProfileRepository(db, clock, SettingsStore(db, clock));
+}
 
 /// Wraps [app] in a scope with a throwaway database, a fixed clock and no real
 /// notifications.
