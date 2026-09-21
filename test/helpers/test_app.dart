@@ -9,6 +9,7 @@ import 'package:kosha/core/services/settings/settings_store.dart';
 import 'package:kosha/core/theme/kosha_theme.dart';
 import 'package:kosha/core/utils/clock.dart';
 import 'package:kosha/features/bills/data/bill_repository_impl.dart';
+import 'package:kosha/features/documents/data/document_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_category_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_repository_impl.dart';
 import 'package:kosha/features/onboarding/data/profile_repository_impl.dart';
@@ -74,6 +75,17 @@ DriftBillRepository testBillRepository(
       FixedClock(now ?? testNow),
       scheduler ?? const NoopReminderScheduler(),
       testTransactionRepository(db, now: now),
+    );
+
+DriftDocumentRepository testDocumentRepository(
+  AppDatabase db, {
+  DateTime? now,
+  ReminderScheduler? scheduler,
+}) =>
+    DriftDocumentRepository(
+      db,
+      FixedClock(now ?? testNow),
+      scheduler ?? const NoopReminderScheduler(),
     );
 
 /// A space repository on [db]. It reads onboarding's "Pick areas" selection

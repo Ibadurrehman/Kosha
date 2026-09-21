@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import '../../features/bills/data/bill_table.dart';
 import '../../features/bills/domain/entities/bill.dart';
 import '../../features/calendar/data/event_table.dart';
+import '../../features/documents/data/document_table.dart';
+import '../../features/documents/domain/entities/document.dart';
 import '../../features/finance/data/transaction_category_table.dart';
 import '../../features/finance/data/transaction_table.dart';
 // Enum columns: the generated part file resolves these through this library's
@@ -54,6 +56,8 @@ class Settings extends Table {
     Bills,
     Payments,
     Spaces,
+    Documents,
+    Attachments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -63,7 +67,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -149,6 +153,20 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(spaces);
             await m.createIndex(spacesSort);
             await m.createIndex(spacesSystemKey);
+          }
+          // v13 (Phase 3): documents and the files attached to them.
+          // Attachments is deliberately not scoped to documents — its
+          // ownerType/ownerId pair is what lets a vehicle service record and
+          // an appliance invoice reuse it, the shape ActivityEntries already
+          // uses.
+          if (from < 13) {
+            await m.createTable(documents);
+            await m.createIndex(documentsExpires);
+            await m.createIndex(documentsCategory);
+            await m.createIndex(documentsSpace);
+            await m.createTable(attachments);
+            await m.createIndex(attachmentsOwner);
+            await m.createIndex(attachmentsSha);
           }
         },
         beforeOpen: (details) async {
