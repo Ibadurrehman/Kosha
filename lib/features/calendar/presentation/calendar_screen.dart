@@ -10,6 +10,7 @@ import '../../../core/router/app_router.dart';
 import '../../../core/theme/kosha_colors.dart';
 import '../../../core/theme/kosha_shapes.dart';
 import '../../../core/utils/clock.dart';
+import '../../../core/utils/dates.dart';
 import '../../../shared/widgets/widgets.dart';
 import '../../quick_add/presentation/quick_add_sheet.dart';
 import '../domain/calendar_grid.dart';
@@ -32,7 +33,7 @@ class CalendarScreen extends ConsumerWidget {
     final selected = ref.watch(selectedCalendarDateProvider);
     final grid = monthGridDays(selected);
     final from = grid.first;
-    final to = grid.last.add(const Duration(days: 1));
+    final to = addDays(grid.last, 1);
     final itemsByDay = ref.watch(calendarItemsByDayProvider(from, to));
 
     return Scaffold(
@@ -107,12 +108,21 @@ class CalendarScreen extends ConsumerWidget {
     final next = switch (view) {
       CalendarView.month =>
         DateTime(selected.year, selected.month + direction, selected.day),
-      CalendarView.week => selected.add(Duration(days: 7 * direction)),
-      CalendarView.agenda => selected.add(Duration(days: direction)),
+      CalendarView.week => addWeeks(selected, direction),
+      CalendarView.agenda => addDays(selected, direction),
     };
     ref.read(selectedCalendarDateProvider.notifier).select(next);
   }
 }
+
+/// Section 5.2's day-dot tones: task → accent, event → info, bill → warning.
+/// One place, so the month dots, the agenda dots and the legend can never
+/// disagree about what a colour means.
+Color calendarItemColor(CalendarItemKind kind, KoshaColors c) => switch (kind) {
+      CalendarItemKind.task => c.accent,
+      CalendarItemKind.event => c.info,
+      CalendarItemKind.bill => c.warning,
+    };
 
 class _Legend extends StatelessWidget {
   const _Legend();
@@ -141,6 +151,8 @@ class _Legend extends StatelessWidget {
           dot(c.accent, 'Task'),
           const SizedBox(width: 16),
           dot(c.info, 'Event'),
+          const SizedBox(width: 16),
+          dot(c.warning, 'Bill'),
         ],
       ),
     );
@@ -258,7 +270,7 @@ class _DayCell extends StatelessWidget {
                       width: 4,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: item.kind == CalendarItemKind.task ? c.accent : c.info,
+                        color: calendarItemColor(item.kind, c),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -376,9 +388,13 @@ class _AgendaRow extends StatelessWidget {
         side: BorderSide(color: c.border),
       ),
       child: InkWell(
-        onTap: item.kind == CalendarItemKind.task
-            ? () => context.go(Routes.taskDetail(item.id))
-            : null,
+        onTap: switch (item.kind) {
+          CalendarItemKind.task => () => context.go(Routes.taskDetail(item.id)),
+          CalendarItemKind.bill => () => context.go(Routes.billDetail(item.id)),
+          // Events have no detail screen of their own yet — the Calendar is
+          // where an event lives.
+          CalendarItemKind.event => null,
+        },
         borderRadius: BorderRadius.circular(KoshaRadius.row),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
@@ -393,7 +409,7 @@ class _AgendaRow extends StatelessWidget {
                 height: 8,
                 margin: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
-                  color: item.kind == CalendarItemKind.task ? c.accent : c.info,
+                  color: calendarItemColor(item.kind, c),
                   shape: BoxShape.circle,
                 ),
               ),

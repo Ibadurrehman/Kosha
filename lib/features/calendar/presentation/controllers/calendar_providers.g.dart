@@ -121,8 +121,8 @@ abstract class _$SelectedCalendarDate extends $Notifier<DateTime> {
   }
 }
 
-/// Every task with a due date and every event starting in `[from, to)`,
-/// merged, sorted, and pre-grouped by day — grouping happens here rather
+/// Every task with a due date, every event starting, and every bill falling
+/// due in `[from, to)`, merged, sorted, and pre-grouped by day — grouping happens here rather
 /// than in the widget so a 500-item month renders without re-scanning the
 /// full list per cell (section 6.4's stated performance target).
 ///
@@ -133,8 +133,8 @@ abstract class _$SelectedCalendarDate extends $Notifier<DateTime> {
 @ProviderFor(calendarItemsByDay)
 final calendarItemsByDayProvider = CalendarItemsByDayFamily._();
 
-/// Every task with a due date and every event starting in `[from, to)`,
-/// merged, sorted, and pre-grouped by day — grouping happens here rather
+/// Every task with a due date, every event starting, and every bill falling
+/// due in `[from, to)`, merged, sorted, and pre-grouped by day — grouping happens here rather
 /// than in the widget so a 500-item month renders without re-scanning the
 /// full list per cell (section 6.4's stated performance target).
 ///
@@ -152,8 +152,8 @@ final class CalendarItemsByDayProvider
     with
         $FutureModifier<Map<DateTime, List<CalendarItem>>>,
         $StreamProvider<Map<DateTime, List<CalendarItem>>> {
-  /// Every task with a due date and every event starting in `[from, to)`,
-  /// merged, sorted, and pre-grouped by day — grouping happens here rather
+  /// Every task with a due date, every event starting, and every bill falling
+  /// due in `[from, to)`, merged, sorted, and pre-grouped by day — grouping happens here rather
   /// than in the widget so a 500-item month renders without re-scanning the
   /// full list per cell (section 6.4's stated performance target).
   ///
@@ -205,10 +205,10 @@ final class CalendarItemsByDayProvider
 }
 
 String _$calendarItemsByDayHash() =>
-    r'f17294ee70029824016fde347cbc71e4d86d0520';
+    r'5f8f02694a1e9438e4735bc7a759a4179dedcee4';
 
-/// Every task with a due date and every event starting in `[from, to)`,
-/// merged, sorted, and pre-grouped by day — grouping happens here rather
+/// Every task with a due date, every event starting, and every bill falling
+/// due in `[from, to)`, merged, sorted, and pre-grouped by day — grouping happens here rather
 /// than in the widget so a 500-item month renders without re-scanning the
 /// full list per cell (section 6.4's stated performance target).
 ///
@@ -231,8 +231,8 @@ final class CalendarItemsByDayFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// Every task with a due date and every event starting in `[from, to)`,
-  /// merged, sorted, and pre-grouped by day — grouping happens here rather
+  /// Every task with a due date, every event starting, and every bill falling
+  /// due in `[from, to)`, merged, sorted, and pre-grouped by day — grouping happens here rather
   /// than in the widget so a 500-item month renders without re-scanning the
   /// full list per cell (section 6.4's stated performance target).
   ///

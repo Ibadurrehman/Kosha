@@ -8,6 +8,9 @@ import 'package:kosha/core/services/notifications/reminder_scheduler.dart';
 import 'package:kosha/core/services/settings/settings_store.dart';
 import 'package:kosha/core/theme/kosha_theme.dart';
 import 'package:kosha/core/utils/clock.dart';
+import 'package:kosha/features/bills/data/bill_repository_impl.dart';
+import 'package:kosha/features/finance/data/transaction_category_repository_impl.dart';
+import 'package:kosha/features/finance/data/transaction_repository_impl.dart';
 import 'package:kosha/features/onboarding/data/profile_repository_impl.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
 import 'package:kosha/shared/state/toast_controller.dart';
@@ -44,6 +47,32 @@ DriftTaskRepository testRepository(
       db,
       FixedClock(now ?? testNow),
       scheduler ?? const NoopReminderScheduler(),
+    );
+
+DriftTransactionRepository testTransactionRepository(
+  AppDatabase db, {
+  DateTime? now,
+}) =>
+    DriftTransactionRepository(db, FixedClock(now ?? testNow));
+
+DriftTransactionCategoryRepository testCategoryRepository(
+  AppDatabase db, {
+  DateTime? now,
+}) =>
+    DriftTransactionCategoryRepository(db, FixedClock(now ?? testNow));
+
+/// A bill repository on [db]. Shares the [TransactionRepository] Finance uses
+/// so a payment's expense lands in the same database the assertions read.
+DriftBillRepository testBillRepository(
+  AppDatabase db, {
+  DateTime? now,
+  ReminderScheduler? scheduler,
+}) =>
+    DriftBillRepository(
+      db,
+      FixedClock(now ?? testNow),
+      scheduler ?? const NoopReminderScheduler(),
+      testTransactionRepository(db, now: now),
     );
 
 /// Wraps [app] in a scope with a throwaway database, a fixed clock and no real

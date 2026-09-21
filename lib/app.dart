@@ -9,6 +9,7 @@ import 'core/services/settings/settings_store.dart';
 import 'core/theme/kosha_theme.dart';
 import 'core/theme/theme_mode_controller.dart';
 import 'core/utils/clock.dart';
+import 'features/bills/data/bill_repository_impl.dart';
 import 'features/calendar/data/event_repository_impl.dart';
 import 'features/notifications/data/notification_repository_impl.dart';
 import 'features/onboarding/presentation/controllers/onboarding_providers.dart';
@@ -62,6 +63,11 @@ class _KoshaAppState extends ConsumerState<KoshaApp> {
         await ref.read(taskRepositoryProvider).resyncReminders();
       }
       await ref.read(eventRepositoryProvider).resyncReminders();
+
+      final billsEnabled = await readBillRemindersEnabled(store);
+      if (billsEnabled) {
+        await ref.read(billRepositoryProvider).resyncReminders();
+      }
     } on Object catch (error, stack) {
       debugPrint('Kosha: could not re-register reminders ($error)');
       debugPrintStack(stackTrace: stack);

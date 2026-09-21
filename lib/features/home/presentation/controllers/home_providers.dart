@@ -2,7 +2,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/utils/clock.dart';
 import '../../../../core/utils/combine_streams.dart';
+import '../../../bills/data/bill_repository_impl.dart';
 import '../../../tasks/data/task_repository_impl.dart';
+import '../../data/bill_home_sources.dart';
 import '../../data/dashboard_section_repository_impl.dart';
 import '../../data/task_needs_attention_source.dart';
 import '../../data/task_recent_source.dart';
@@ -36,13 +38,14 @@ String dashboardSectionHint(HomeSectionKey key) => switch (key) {
 /// covers).
 const int upcomingWindowDays = 7;
 
-/// Every feature's contribution to "Needs attention", merged. Only Tasks
-/// exists today; Bills/Documents add their own [NeedsAttentionSource] later.
+/// Every feature's contribution to "Needs attention", merged. Tasks and Bills
+/// today; Documents adds its own [NeedsAttentionSource] in Phase 3.
 @riverpod
 Stream<List<NeedsAttentionItem>> needsAttention(Ref ref) {
   final today = ref.watch(clockProvider).today();
   final sources = <NeedsAttentionSource>[
     TaskNeedsAttentionSource(ref.watch(taskRepositoryProvider)),
+    BillNeedsAttentionSource(ref.watch(billRepositoryProvider)),
   ];
   return combineLatestLists([for (final s in sources) s.watch(today: today)]);
 }
@@ -55,6 +58,7 @@ Stream<List<UpcomingItem>> upcoming(Ref ref) {
   final to = DateTime(today.year, today.month, today.day + 1 + upcomingWindowDays);
   final sources = <UpcomingSource>[
     TaskUpcomingSource(ref.watch(taskRepositoryProvider)),
+    BillUpcomingSource(ref.watch(billRepositoryProvider)),
   ];
   return combineLatestLists([for (final s in sources) s.watch(from: from, to: to)])
       .map((items) => [...items]..sort((a, b) => a.date.compareTo(b.date)));
@@ -67,6 +71,7 @@ Stream<List<RecentItem>> recentItems(Ref ref) {
   const limit = 10;
   final sources = <RecentSource>[
     TaskRecentSource(ref.watch(taskRepositoryProvider)),
+    BillRecentSource(ref.watch(billRepositoryProvider)),
   ];
   return combineLatestLists([for (final s in sources) s.watch(limit: limit)]).map((items) {
     final sorted = [...items]..sort((a, b) => b.at.compareTo(a.at));

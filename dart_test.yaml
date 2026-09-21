@@ -1,0 +1,6 @@
+# Declares the tag alchemist puts on every golden test, so `flutter test` does
+# not warn about an unknown tag. Goldens can then also be run or skipped on
+# their own: `flutter test --tags golden` / `--exclude-tags golden`.
+tags:
+  golden:
+    description: Golden-file tests for shared components (section 15).

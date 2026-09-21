@@ -1,13 +1,14 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../bills/domain/entities/bill.dart';
 import '../../../tasks/domain/entities/task.dart';
 import 'event.dart';
 
 part 'calendar_item.freezed.dart';
 
-/// What kind of record a calendar row points back to — Task or Event today;
-/// Bills/renewals/group trips join in later phases (section 6.4).
-enum CalendarItemKind { task, event }
+/// What kind of record a calendar row points back to — Task, Event or Bill
+/// today; renewals and group trips join in later phases (section 6.4).
+enum CalendarItemKind { task, event, bill }
 
 /// One task or event, flattened to what the Calendar screen needs to draw:
 /// a day to group by, an optional time to sort and show, a title, and enough
@@ -33,6 +34,15 @@ CalendarItem calendarItemFromTask(Task task) => CalendarItem(
       title: task.title,
       date: task.dueDate!,
       minutes: task.dueMinutes,
+    );
+
+/// A bill sits on its due date with no time — money is owed that day, not at
+/// a particular hour — so it sorts alongside the all-day events.
+CalendarItem calendarItemFromBill(Bill bill) => CalendarItem(
+      id: bill.id,
+      kind: CalendarItemKind.bill,
+      title: bill.name,
+      date: bill.nextDue!,
     );
 
 CalendarItem calendarItemFromEvent(Event event) => CalendarItem(

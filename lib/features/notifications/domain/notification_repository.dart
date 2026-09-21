@@ -1,3 +1,4 @@
+import '../../../core/services/notifications/scheduled_reminder.dart';
 import 'entities/notification_entry.dart';
 
 /// The notification inbox: what fired, grouped Today / Earlier this week /
@@ -10,6 +11,14 @@ abstract interface class NotificationRepository {
   Future<void> markRead(String id);
 
   Future<void> markAllRead();
+
+  /// Marks every row about one record read — what "acting on it clears the
+  /// notification" means (section 6.7's acceptance for paying a bill).
+  ///
+  /// The rows stay in the inbox: the reminder genuinely did fire, and the
+  /// inbox is a record of what happened, not a to-do list. Reading them is
+  /// the part that should follow from dealing with the thing itself.
+  Future<void> markReadForOwner(ReminderKind kind, String ownerId);
 
   /// Finds every remindable task/event whose intended fire moment is at or
   /// before [now] and inserts an inbox row for any such moment not already

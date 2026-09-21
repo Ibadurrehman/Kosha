@@ -18,10 +18,23 @@ class SectionLabel extends StatelessWidget {
     return Padding(
       padding: padding,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(text.toUpperCase(), style: Theme.of(context).textTheme.labelMedium),
-          ?trailing,
+          // Both children flex, so a long heading or a long trailing string
+          // ellipsises instead of overflowing the row. Without this the pair
+          // on Home's "Today" section ("TODAY" + "12 of 15 left") overflows at
+          // the 130 % text scale section 7.6 asks the app to support.
+          Expanded(
+            child: Text(
+              text.toUpperCase(),
+              style: Theme.of(context).textTheme.labelMedium,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (trailing != null) ...[
+            const SizedBox(width: 8),
+            Flexible(child: trailing!),
+          ],
         ],
       ),
     );

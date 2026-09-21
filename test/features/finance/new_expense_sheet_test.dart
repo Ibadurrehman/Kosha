@@ -74,13 +74,21 @@ void main() {
     await settleAndDispose(tester);
   });
 
-  testWidgets('switching to Income hides the category chips', (tester) async {
+  testWidgets('switching to Income swaps in the income categories',
+      (tester) async {
     await openSheet(tester);
 
-    expect(find.text('Category'), findsOneWidget);
+    // Both sides of the toggle offer categories now that they are
+    // user-editable; the seeded sets differ, which is what proves the swap.
+    expect(find.text('Groceries'), findsOneWidget);
+    expect(find.text('Salary'), findsNothing);
+
     await tester.tap(find.text('Income'));
-    await tester.pump();
-    expect(find.text('Category'), findsNothing);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Category'), findsOneWidget);
+    expect(find.text('Salary'), findsOneWidget);
+    expect(find.text('Groceries'), findsNothing);
     await settleAndDispose(tester);
   });
 

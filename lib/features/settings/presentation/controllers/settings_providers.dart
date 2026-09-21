@@ -10,5 +10,9 @@ Future<bool> taskRemindersEnabled(Ref ref) =>
     readTaskRemindersEnabled(ref.watch(settingsStoreProvider));
 
 @riverpod
+Future<bool> billRemindersEnabled(Ref ref) =>
+    readBillRemindersEnabled(ref.watch(settingsStoreProvider));
+
+@riverpod
 Future<bool> exactRemindersEnabled(Ref ref) =>
     readExactRemindersEnabled(ref.watch(settingsStoreProvider));

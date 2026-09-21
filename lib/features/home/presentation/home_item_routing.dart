@@ -6,4 +6,5 @@ import '../domain/entities/home_item_kind.dart';
 /// about `Routes` directly, only about this function.
 String homeItemRoute(HomeItemKind kind, String id) => switch (kind) {
       HomeItemKind.task => Routes.taskDetail(id),
+      HomeItemKind.bill => Routes.billDetail(id),
     };

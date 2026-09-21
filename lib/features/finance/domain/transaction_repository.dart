@@ -29,6 +29,9 @@ abstract interface class TransactionRepository {
   /// Transactions dated in `[from, to)` — end exclusive.
   Stream<List<Transaction>> watchBetween(DateTime from, DateTime to);
 
+  /// Emits null once the transaction is deleted — the detail screen.
+  Stream<Transaction?> watchById(String id);
+
   Future<Transaction?> findById(String id);
 
   Future<Transaction> create(NewTransaction draft);

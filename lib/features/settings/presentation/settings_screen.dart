@@ -10,6 +10,7 @@ import '../../../core/services/settings/settings_store.dart';
 import '../../../core/theme/kosha_colors.dart';
 import '../../../core/theme/kosha_shapes.dart';
 import '../../../shared/widgets/kosha_toggle.dart';
+import '../../bills/data/bill_repository_impl.dart';
 import '../../calendar/data/event_repository_impl.dart';
 import '../../tasks/data/task_repository_impl.dart';
 import '../domain/notification_settings.dart';
@@ -66,6 +67,7 @@ class SettingsScreen extends ConsumerWidget {
             title: 'Notifications',
             rows: [
               _TaskRemindersRow(),
+              _BillRemindersRow(),
               _ExactRemindersRow(),
               _Row.later(icon: Symbols.receipt_long_rounded, label: 'Bills lead', phase: 'Phase 2'),
               _Row.later(
@@ -247,6 +249,41 @@ class _TaskRemindersRow extends ConsumerWidget {
   }
 }
 
+/// The same shape as [_TaskRemindersRow]: turning it off cancels what is
+/// already scheduled rather than waiting for the next launch's resync, and
+/// turning it back on re-states every bill that still owes money.
+class _BillRemindersRow extends ConsumerWidget {
+  const _BillRemindersRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.kosha;
+    final enabled = ref.watch(billRemindersEnabledProvider).value ?? true;
+    return ListTile(
+      leading: Icon(Symbols.receipt_long_rounded, color: c.text2),
+      title: const Text('Bill reminders'),
+      trailing: KoshaToggle(
+        value: enabled,
+        semanticLabel: 'Bill reminders',
+        onChanged: (value) => unawaited(_toggle(ref, value)),
+      ),
+    );
+  }
+
+  Future<void> _toggle(WidgetRef ref, bool enabled) async {
+    final store = ref.read(settingsStoreProvider);
+    await writeBillRemindersEnabled(store, enabled: enabled);
+    ref.invalidate(billRemindersEnabledProvider);
+
+    final repository = ref.read(billRepositoryProvider);
+    if (enabled) {
+      await repository.resyncReminders();
+    } else {
+      await repository.cancelReminders();
+    }
+  }
+}
+
 /// D9: opt in to exact (`SCHEDULE_EXACT_ALARM`) delivery instead of the
 /// battery-friendly inexact default. Declining the Android permission prompt
 /// leaves the setting off, matching [_TaskRemindersRow]'s own no-throw style.
@@ -284,5 +321,7 @@ class _ExactRemindersRow extends ConsumerWidget {
     final tasksEnabled = await readTaskRemindersEnabled(store);
     if (tasksEnabled) await ref.read(taskRepositoryProvider).resyncReminders();
     await ref.read(eventRepositoryProvider).resyncReminders();
+    final billsEnabled = await readBillRemindersEnabled(store);
+    if (billsEnabled) await ref.read(billRepositoryProvider).resyncReminders();
   }
 }
