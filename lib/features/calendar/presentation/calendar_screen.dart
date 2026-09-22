@@ -115,13 +115,14 @@ class CalendarScreen extends ConsumerWidget {
   }
 }
 
-/// Section 5.2's day-dot tones: task → accent, event → info, bill → warning.
-/// One place, so the month dots, the agenda dots and the legend can never
-/// disagree about what a colour means.
+/// Section 5.2's day-dot tones: task → accent, event → info, bill → warning,
+/// expiry → error. One place, so the month dots, the agenda dots and the
+/// legend can never disagree about what a colour means.
 Color calendarItemColor(CalendarItemKind kind, KoshaColors c) => switch (kind) {
       CalendarItemKind.task => c.accent,
       CalendarItemKind.event => c.info,
       CalendarItemKind.bill => c.warning,
+      CalendarItemKind.documentExpiry => c.error,
     };
 
 class _Legend extends StatelessWidget {
@@ -153,6 +154,8 @@ class _Legend extends StatelessWidget {
           dot(c.info, 'Event'),
           const SizedBox(width: 16),
           dot(c.warning, 'Bill'),
+          const SizedBox(width: 16),
+          dot(c.error, 'Expiry'),
         ],
       ),
     );
@@ -391,6 +394,8 @@ class _AgendaRow extends StatelessWidget {
         onTap: switch (item.kind) {
           CalendarItemKind.task => () => context.go(Routes.taskDetail(item.id)),
           CalendarItemKind.bill => () => context.go(Routes.billDetail(item.id)),
+          CalendarItemKind.documentExpiry => () =>
+              context.go(Routes.documentDetail(item.id)),
           // Events have no detail screen of their own yet — the Calendar is
           // where an event lives.
           CalendarItemKind.event => null,

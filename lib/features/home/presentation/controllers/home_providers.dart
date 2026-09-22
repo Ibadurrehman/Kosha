@@ -3,9 +3,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/utils/clock.dart';
 import '../../../../core/utils/combine_streams.dart';
 import '../../../bills/data/bill_repository_impl.dart';
+import '../../../documents/data/document_repository_impl.dart';
 import '../../../tasks/data/task_repository_impl.dart';
 import '../../data/bill_home_sources.dart';
 import '../../data/dashboard_section_repository_impl.dart';
+import '../../data/document_home_sources.dart';
 import '../../data/task_needs_attention_source.dart';
 import '../../data/task_recent_source.dart';
 import '../../data/task_upcoming_source.dart';
@@ -39,13 +41,14 @@ String dashboardSectionHint(HomeSectionKey key) => switch (key) {
 const int upcomingWindowDays = 7;
 
 /// Every feature's contribution to "Needs attention", merged. Tasks and Bills
-/// today; Documents adds its own [NeedsAttentionSource] in Phase 3.
+/// today, plus Documents since Phase 3.
 @riverpod
 Stream<List<NeedsAttentionItem>> needsAttention(Ref ref) {
   final today = ref.watch(clockProvider).today();
   final sources = <NeedsAttentionSource>[
     TaskNeedsAttentionSource(ref.watch(taskRepositoryProvider)),
     BillNeedsAttentionSource(ref.watch(billRepositoryProvider)),
+    DocumentNeedsAttentionSource(ref.watch(documentRepositoryProvider)),
   ];
   return combineLatestLists([for (final s in sources) s.watch(today: today)]);
 }
@@ -59,6 +62,7 @@ Stream<List<UpcomingItem>> upcoming(Ref ref) {
   final sources = <UpcomingSource>[
     TaskUpcomingSource(ref.watch(taskRepositoryProvider)),
     BillUpcomingSource(ref.watch(billRepositoryProvider)),
+    DocumentUpcomingSource(ref.watch(documentRepositoryProvider)),
   ];
   return combineLatestLists([for (final s in sources) s.watch(from: from, to: to)])
       .map((items) => [...items]..sort((a, b) => a.date.compareTo(b.date)));
@@ -72,6 +76,7 @@ Stream<List<RecentItem>> recentItems(Ref ref) {
   final sources = <RecentSource>[
     TaskRecentSource(ref.watch(taskRepositoryProvider)),
     BillRecentSource(ref.watch(billRepositoryProvider)),
+    DocumentRecentSource(ref.watch(documentRepositoryProvider)),
   ];
   return combineLatestLists([for (final s in sources) s.watch(limit: limit)]).map((items) {
     final sorted = [...items]..sort((a, b) => b.at.compareTo(a.at));

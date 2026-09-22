@@ -6,6 +6,10 @@ import '../../features/bills/presentation/bill_detail_screen.dart';
 import '../../features/bills/presentation/bill_edit_screen.dart';
 import '../../features/bills/presentation/bills_screen.dart';
 import '../../features/calendar/presentation/calendar_screen.dart';
+import '../../features/documents/presentation/document_archive_screen.dart';
+import '../../features/documents/presentation/document_detail_screen.dart';
+import '../../features/documents/presentation/document_edit_screen.dart';
+import '../../features/documents/presentation/documents_screen.dart';
 import '../../features/finance/presentation/all_transactions_screen.dart';
 import '../../features/finance/presentation/category_manager_screen.dart';
 import '../../features/finance/presentation/finance_screen.dart';
@@ -52,6 +56,12 @@ abstract final class Routes {
   static const transactions = '$finance/transactions';
   static const categories = '$finance/categories';
   static const bills = '$finance/bills';
+  /// Documents sit in the Spaces branch rather than under `/spaces/<id>`:
+  /// the grid's Documents tile is a space like any other, but a document's
+  /// own screens are not that space's detail, and a literal segment competing
+  /// with `/spaces/:id` would be matched by route order rather than by intent.
+  static const documents = '/documents';
+  static const documentsArchive = '/documents/archive';
   static const profile = '/more/profile';
   static const settings = '/more/settings';
 
@@ -74,6 +84,10 @@ abstract final class Routes {
   /// Space detail lives under the Spaces tab, so the bottom bar keeps Spaces
   /// lit however the space was reached.
   static String spaceDetail(String id) => '$spaces/$id';
+
+  static String documentDetail(String id) => '$documents/$id';
+
+  static String documentEdit(String id) => '$documents/$id/edit';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -216,6 +230,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
+              GoRoute(
+                path: Routes.documents,
+                builder: (_, _) => const DocumentsScreen(),
+                routes: [
+                  // Before ':id', so the literal wins: go_router matches in
+                  // order, and "archive" is a screen, not a document.
+                  GoRoute(
+                    path: 'archive',
+                    builder: (_, _) => const DocumentArchiveScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) => DocumentDetailScreen(
+                      documentId: state.pathParameters['id']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (_, state) => DocumentEditScreen(
+                          documentId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               GoRoute(
                 path: Routes.spaces,
                 builder: (_, _) => const SpacesScreen(),

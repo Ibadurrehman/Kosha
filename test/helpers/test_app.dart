@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kosha/core/db/app_database.dart';
+import 'package:kosha/core/services/files/document_capture.dart';
+import 'package:kosha/core/services/files/file_service.dart';
 import 'package:kosha/core/services/notifications/reminder_scheduler.dart';
 import 'package:kosha/core/services/settings/settings_store.dart';
 import 'package:kosha/core/theme/kosha_theme.dart';
@@ -114,6 +116,8 @@ Widget wrapApp(
   required AppDatabase db,
   DateTime? now,
   ReminderScheduler? scheduler,
+  DocumentCapture? capture,
+  FileService? files,
 }) {
   return ProviderScope(
     overrides: [
@@ -123,6 +127,12 @@ Widget wrapApp(
       reminderSchedulerProvider.overrideWithValue(
         scheduler ?? const NoopReminderScheduler(),
       ),
+      // Documents reach the camera and the file system through these two.
+      // A test that does not pass either gets services that touch neither:
+      // the capture double backs out of every prompt, and the file service
+      // writes into a throwaway temp directory rather than the real sandbox.
+      if (capture != null) documentCaptureProvider.overrideWithValue(capture),
+      if (files != null) fileServiceProvider.overrideWithValue(files),
     ],
     child: app,
   );
@@ -135,6 +145,8 @@ Widget wrapScreen(
   required AppDatabase db,
   DateTime? now,
   ReminderScheduler? scheduler,
+  DocumentCapture? capture,
+  FileService? files,
 }) {
   return wrapApp(
     MaterialApp(
@@ -146,6 +158,8 @@ Widget wrapScreen(
     db: db,
     now: now,
     scheduler: scheduler,
+    capture: capture,
+    files: files,
   );
 }
 
@@ -157,6 +171,8 @@ Widget wrapPushedScreen(
   Widget screen, {
   required AppDatabase db,
   DateTime? now,
+  DocumentCapture? capture,
+  FileService? files,
 }) {
   final router = GoRouter(
     initialLocation: '/screen',
@@ -179,6 +195,8 @@ Widget wrapPushedScreen(
     ),
     db: db,
     now: now,
+    capture: capture,
+    files: files,
   );
 }
 

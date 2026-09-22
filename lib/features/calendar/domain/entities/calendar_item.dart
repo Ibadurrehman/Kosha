@@ -1,14 +1,16 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../bills/domain/entities/bill.dart';
+import '../../../documents/domain/entities/document.dart';
 import '../../../tasks/domain/entities/task.dart';
 import 'event.dart';
 
 part 'calendar_item.freezed.dart';
 
-/// What kind of record a calendar row points back to — Task, Event or Bill
-/// today; renewals and group trips join in later phases (section 6.4).
-enum CalendarItemKind { task, event, bill }
+/// What kind of record a calendar row points back to — Task, Event, Bill or
+/// a document expiry; renewals and group trips join in later phases
+/// (section 6.4). §5.2's day-dot tones read off this.
+enum CalendarItemKind { task, event, bill, documentExpiry }
 
 /// One task or event, flattened to what the Calendar screen needs to draw:
 /// a day to group by, an optional time to sort and show, a title, and enough
@@ -43,6 +45,15 @@ CalendarItem calendarItemFromBill(Bill bill) => CalendarItem(
       kind: CalendarItemKind.bill,
       title: bill.name,
       date: bill.nextDue!,
+    );
+
+/// A document expiry sits on its expiry day with no time, the way a bill sits
+/// on its due date: the passport stops being valid that day, not at an hour.
+CalendarItem calendarItemFromDocument(Document document) => CalendarItem(
+      id: document.id,
+      kind: CalendarItemKind.documentExpiry,
+      title: document.name,
+      date: document.expiresOn!,
     );
 
 CalendarItem calendarItemFromEvent(Event event) => CalendarItem(

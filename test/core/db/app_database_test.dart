@@ -29,13 +29,13 @@ void main() {
     expect(result.read<int>('foreign_keys'), 1);
   });
 
-  test('schema version is 12', () {
+  test('schema version is 13', () {
     // v1 settings, v2 tasks, v3 activity history, v4 profiles, v5 dashboard
     // sections, v6 events, v7 notifications, v8 task search, v9 transactions,
-    // v10 categories, v11 bills + payments, v12 spaces. Bump this with every
-    // migration so the upgrade path in AppDatabase.migration is never skipped
-    // by accident.
-    expect(db.schemaVersion, 12);
+    // v10 categories, v11 bills + payments, v12 spaces, v13 documents +
+    // attachments. Bump this with every migration so the upgrade path in
+    // AppDatabase.migration is never skipped by accident.
+    expect(db.schemaVersion, 13);
   });
 
   test('a fresh install can insert a profile and a dashboard section',
