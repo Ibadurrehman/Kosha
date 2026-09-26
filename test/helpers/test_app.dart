@@ -16,6 +16,7 @@ import 'package:kosha/features/finance/data/transaction_category_repository_impl
 import 'package:kosha/features/finance/data/transaction_repository_impl.dart';
 import 'package:kosha/features/home_space/data/home_management_repository_impl.dart';
 import 'package:kosha/features/onboarding/data/profile_repository_impl.dart';
+import 'package:kosha/features/spaces/data/record_repository_impl.dart';
 import 'package:kosha/features/spaces/data/space_repository_impl.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
 import 'package:kosha/features/vehicle/data/vehicle_repository_impl.dart';
@@ -136,6 +137,20 @@ DriftHomeManagementRepository testHomeManagementRepository(
       FixedClock(now ?? testNow),
       scheduler ?? const NoopReminderScheduler(),
       testSpaceRepository(db, now: now),
+    );
+
+/// A custom-records repository on [db]. Needs no space repository: a record
+/// template names a space only when the user puts it in one, and nothing in
+/// v1's screens does.
+DriftRecordRepository testRecordRepository(
+  AppDatabase db, {
+  DateTime? now,
+  ReminderScheduler? scheduler,
+}) =>
+    DriftRecordRepository(
+      db,
+      FixedClock(now ?? testNow),
+      scheduler ?? const NoopReminderScheduler(),
     );
 
 /// Wraps [app] in a scope with a throwaway database, a fixed clock and no real

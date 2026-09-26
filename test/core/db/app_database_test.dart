@@ -29,15 +29,15 @@ void main() {
     expect(result.read<int>('foreign_keys'), 1);
   });
 
-  test('schema version is 15', () {
+  test('schema version is 16', () {
     // v1 settings, v2 tasks, v3 activity history, v4 profiles, v5 dashboard
     // sections, v6 events, v7 notifications, v8 task search, v9 transactions,
     // v10 categories, v11 bills + payments, v12 spaces, v13 documents +
     // attachments, v14 vehicles + renewals + service records + fuel logs,
-    // v15 home utilities + maintenance jobs + appliances. Bump this with
-    // every migration so the upgrade path in AppDatabase.migration is never
-    // skipped by accident.
-    expect(db.schemaVersion, 15);
+    // v15 home utilities + maintenance jobs + appliances, v16 record
+    // templates + custom records. Bump this with every migration so the
+    // upgrade path in AppDatabase.migration is never skipped by accident.
+    expect(db.schemaVersion, 16);
   });
 
   test('a fresh install can insert a profile and a dashboard section',

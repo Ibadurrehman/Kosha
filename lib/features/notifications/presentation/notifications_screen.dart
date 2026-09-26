@@ -23,6 +23,7 @@ IconData _iconFor(ReminderKind kind) => switch (kind) {
       ReminderKind.document => Symbols.folder_shared_rounded,
       ReminderKind.vehicleRenewal => Symbols.directions_car_rounded,
       ReminderKind.appliance => Symbols.home_repair_service_rounded,
+      ReminderKind.customRecord => Symbols.dataset_rounded,
       ReminderKind.general => Symbols.notifications_rounded,
     };
 

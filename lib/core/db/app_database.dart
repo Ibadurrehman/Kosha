@@ -19,6 +19,7 @@ import '../../features/home_space/data/home_management_table.dart';
 import '../../features/home_space/domain/entities/maintenance_job.dart';
 import '../../features/notifications/data/notification_table.dart';
 import '../../features/onboarding/data/profile_table.dart';
+import '../../features/spaces/data/record_table.dart';
 import '../../features/spaces/data/space_table.dart';
 import '../../features/spaces/domain/entities/space.dart';
 import '../../features/tasks/data/activity_table.dart';
@@ -69,6 +70,8 @@ class Settings extends Table {
     HomeUtilities,
     MaintenanceJobs,
     Appliances,
+    RecordTemplates,
+    CustomRecords,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -78,7 +81,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -205,6 +208,17 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(appliances);
             await m.createIndex(appliancesWarranty);
             await m.createIndex(appliancesSpace);
+          }
+          // v16 (Phase 3 week 4): user-defined record types and their rows.
+          // Nothing is backfilled and nothing is seeded -- unlike Spaces,
+          // there is no such thing as a system record type: every template
+          // here is one the user built.
+          if (from < 16) {
+            await m.createTable(recordTemplates);
+            await m.createIndex(recordTemplatesSpace);
+            await m.createTable(customRecords);
+            await m.createIndex(customRecordsTemplate);
+            await m.createIndex(customRecordsRenewal);
           }
         },
         beforeOpen: (details) async {
