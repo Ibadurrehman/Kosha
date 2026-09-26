@@ -1112,11 +1112,12 @@ Against the §12 table's own exit criteria for this phase:
 |---|---|
 | Ledger unit tests pass | **Met.** 20 tests against Appendix B's seed trip, including its exact three transfers. |
 | A user-created space shows linked items | **Met** since week 1. |
-| Scan → PDF → expiry reminder works on a physical device | **Never run.** No part of weeks 2–4 has been looked at on a real screen. |
+| Scan → PDF → expiry reminder works on a physical device | **Partly met.** Weeks 2–4 were screenshotted on a real 411×914 phone surface on 27 Sep (§12.5.5), which closes the "nobody has looked at it" half. The scanner leg itself has still never run: it needs `DocumentCapture` on a physical handset, and only an emulator exists on this machine. |
 
-That last row is the whole of what is left, and it is not small: four weeks of UI are
-verified by widget tests alone. It is the same gap §12.3.2 records for Phase 2, now four
-weeks wider. **Phase 3 stays open until the device pass runs.**
+That last row is the whole of what is left. The visual half of it ran on 27 Sep and is
+written up in §12.5.5, together with eight small defects it found and three false alarms
+it did not. What remains is narrow and specific: **scan → PDF → expiry reminder on a
+physical handset. Phase 3 stays open until that runs.**
 
 *On the test count:* the running totals in the week 2 and 3 commit messages (rising to "604
 total") were tallied by adding each commit's new tests to the previous figure rather than
@@ -1350,6 +1351,98 @@ What week 4 built — custom records (schema v16) and Groups (schema v17):
     so a reinstall or an OS upgrade that drops scheduled notifications loses them silently.
     Four features now share this gap; it should be one pass, not four.
 
+### 12.5.5 Live UI verification (27 Sep 2026)
+
+**The screenshot pass that §12.3.2 left unfinished for Phase 2 has now run, and it
+covered Phase 3's weeks 2–4 as well.** 25 screens at a real 411×914 dp phone size on the
+API 36 emulator, via the throwaway `integration_test/zz_live_ui_check.dart` §15 asks for.
+Two of Phase 3's three exit criteria are confirmed on a real screen; the third still has
+not run (see the end of this section).
+
+**The ledger is right on a real screen.** Split & settle shows You +₹8,400, Aarav +₹1,000,
+Meera −₹3,800, Rohan −₹5,600, settling as Meera→You ₹3,800, Rohan→You ₹4,600,
+Rohan→Aarav ₹1,000 — Appendix B's figures exactly, in the member order D11 records.
+Vehicle overview and renewals, home management, documents, custom records, the template
+builder, the Spaces grid, the Goa trip card and the shared expense sheet all render with
+no overflow and no clipped text.
+
+**Three things looked like defects in a screenshot and were not.** Each is written down
+because the next person to run this pass will see them again:
+
+- **Bill detail's "Payment history" renders blank.** The data is fine — a direct test of
+  `watchPayments` after `markPaid(logExpense: false)` emits one receipt, and
+  `bill_detail_screen_test.dart` asserts the row in a widget test. On the integration
+  harness the provider is still in its `loading` branch when the shot is taken, and that
+  branch is a bare `SizedBox(height: 40)`. Adding a 500 ms `pump` before the screenshot
+  did not change it. Do not chase this as a bug.
+- **The `link_off` icon on a Home-management utility row** is an `IconButton` with
+  `tooltip: 'Remove'`, not a broken-link indicator.
+- **The Spaces grid appearing to hold only two spaces** was the page parked at its bottom
+  by `scrollUntilVisible`. Six spaces are active (Finance, Documents, Shopping, Ideas,
+  Health, Travel) and four archived, which is what §12.5.1 describes. The script now takes
+  a `spaces_grid_top` shot before scrolling so the first row is actually looked at.
+
+**What the pass found that widget tests had not:**
+
+- **The record editor's title is ungrammatical: "New my insurance record."** The template
+  name is lowercased mid-sentence. It should read "New My Insurance record", or drop the
+  name.
+- **A record has two renewal dates on screen, side by side.** The template carries a
+  `Renewal date` field (Appendix B specifies one for My Insurance) and `CustomRecord` has
+  its own `renewal_date` column for the reminder (§5.1), so the editor shows "Renewal date"
+  and "Renews on (optional)" stacked. Nothing tells the user which one drives the reminder.
+  This is a design decision, not a typo — see **D12**.
+- **The shared expense sheet has no pinned action bar.** On a 411×914 phone the sheet opens
+  with "Save and split" below the fold, so the primary action is invisible until the user
+  scrolls. Every other sheet in the app (pay bill, add service, add fuel, add record) pins
+  its action row to the bottom. This is the same fact §12.5.4 recorded as a *test* nuisance
+  ("its test has to `ensureVisible` the Save button first") without noticing it is a real
+  one for the user.
+- **Group spend is invisible to the space that holds it.** The Travel space's tile reads
+  "Nothing yet" and its Money section reads "Nothing spent against this space yet", while
+  the Goa trip card in the middle of that same screen reads "₹21,800 spent". Shared
+  expenses are not `Transaction`s unless linked, so both numbers are literally correct and
+  the screen still contradicts itself.
+- **Settle-up rows are visually unbalanced.** "Pay" renders as a large filled block against
+  a small "Remind" text link, because of the `minimumSize: Size.fromHeight(...)` the theme
+  gives `FilledButton` — the trait §12.5.4 already records.
+- **Stacked member avatars clip their own initials.** "AS" and "MJ" are partly covered by
+  the avatar overlapping them, which defeats the control.
+- **Two placeholders suggest existing data.** The add-member field hints "Aarav Sharma",
+  who is already in the group, and the record editor's title hints an existing record's
+  title — neither uses the "e.g." the vehicle sheets use.
+- **Document detail has no share action**, though Appendix A specifies "back, category,
+  share" for it.
+
+None of these are blocking; all are small and local. They belong in Phase 4's polish pass
+or Phase 6's accessibility/polish audit, except D12, which needs an owner first.
+
+**The third exit criterion still has not run.** "Scan → PDF → expiry reminder works on a
+physical device" needs `DocumentCapture`, and the check script screenshots documents
+without ever exercising the scanner. Only the `Realme_Phone` emulator is available on this
+machine, and `cunning_document_scanner` requesting camera permission against a virtual
+camera is exactly the leg an emulator tests least convincingly. **Phase 3 stays open until
+this runs on a real handset** — it is now the only thing left in it.
+
+**Harness notes for the next run,** on top of the two §12.3.2 already records:
+
+- **`flutter test integration_test/…` can fail before any test runs** with "Failed to start
+  Dart Development Service" when DDS instances from an earlier run still hold their ports.
+  It reports as `Some tests failed` with a named failing test, which looks like a test
+  failure and is not. Retry once the stale `dart.exe development-service` processes exit.
+- **The run always ends `did not complete` / exit 79**, because the deliberate
+  `Future.delayed` that holds the app open for `adb pull` outlives what the harness will
+  wait for. The screenshots are already written by then. Judge the run by the pulled files,
+  not the exit code — and note that a backgrounded `flutter test` whose exit code is echoed
+  to stdout reports the *echo's* status, not the test's.
+- **`scrollUntilVisible` does nothing when the target is already in the tree but off
+  screen**, which is the normal case for a non-lazy column. The tap then misses with a
+  `warnIfMissed` warning and the screenshot silently captures the wrong screen — this is
+  what made the first run's `shared_expense_sheet` a picture of the settle screen. Follow
+  every scroll with `tester.ensureVisible`, or drive the sheet from a control that sits
+  mid-screen.
+
+
 ---
 
 ## 13. Gaps in the prototype and proposed resolutions
@@ -1455,6 +1548,7 @@ Coverage goal: 80 % on `domain/` and `data/`, no target on `presentation/` beyon
 | D9 | Exact alarms on Android | Opt-in setting vs never | **Decided: opt-in setting**, off by default (ADR 0005) | Done |
 | D10 | Multiple vehicles / multiple profiles | Model supports; UI single in v1 | **Decided: model multi, UI single**, taken in Phase 3 week 3 — `Vehicles` holds any number of rows, `VehicleRepository.watchPrimary` exposes only the oldest live one (§12.5) | Done |
 | D11 | Ledger ordering: whose order the settle-up transfers follow | Member order (the prototype's `ledger()`, and the transfers Appendix B documents) vs largest-debtor-pays-largest-creditor (§6.14's own prose) | **Built as member order** — the acceptance criterion says to port the prototype, and Appendix B's numbers agree with it against one line of §6.14. Both give 3 exact transfers here; minimising transfers is NP-hard, so neither promises a true minimum. Confirm, or say the word and §6.14's prose becomes the spec and Appendix B's expected transfers change | Confirm before Phase 5 |
+| D12 | Which renewal date a custom record actually uses | The template's own `Renewal date` field vs `CustomRecord.renewal_date` (the column the reminder reads) | **Drop one.** Appendix B's My Insurance template lists "Renewal date" as a field, and §5.1 gives the entity its own `renewal_date`; the editor renders both, stacked, with nothing saying which one reminds. Recommend keeping the column and having a `date` field whose key is the renewal one *write* it, so a template can name the field whatever it likes | Phase 4 |
 
 ---
 
