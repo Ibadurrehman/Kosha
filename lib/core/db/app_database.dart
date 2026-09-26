@@ -15,6 +15,8 @@ import '../../features/finance/data/transaction_table.dart';
 import '../../features/finance/domain/entities/transaction.dart';
 import '../../features/finance/domain/entities/transaction_category.dart';
 import '../../features/home/data/dashboard_section_table.dart';
+import '../../features/home_space/data/home_management_table.dart';
+import '../../features/home_space/domain/entities/maintenance_job.dart';
 import '../../features/notifications/data/notification_table.dart';
 import '../../features/onboarding/data/profile_table.dart';
 import '../../features/spaces/data/space_table.dart';
@@ -64,6 +66,9 @@ class Settings extends Table {
     VehicleRenewals,
     ServiceRecords,
     FuelLogs,
+    HomeUtilities,
+    MaintenanceJobs,
+    Appliances,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -73,7 +78,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -186,6 +191,20 @@ class AppDatabase extends _$AppDatabase {
             await m.createIndex(serviceRecordsVehicle);
             await m.createTable(fuelLogs);
             await m.createIndex(fuelLogsVehicle);
+          }
+          // v15 (Phase 3 week 3): Home management -- utility links,
+          // maintenance jobs and appliances. Nothing is backfilled; none of
+          // these have existed under any other shape before now.
+          if (from < 15) {
+            await m.createTable(homeUtilities);
+            await m.createIndex(homeUtilitiesBill);
+            await m.createIndex(homeUtilitiesSpace);
+            await m.createTable(maintenanceJobs);
+            await m.createIndex(maintenanceJobsDue);
+            await m.createIndex(maintenanceJobsSpace);
+            await m.createTable(appliances);
+            await m.createIndex(appliancesWarranty);
+            await m.createIndex(appliancesSpace);
           }
         },
         beforeOpen: (details) async {

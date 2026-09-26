@@ -14,6 +14,7 @@ import 'package:kosha/features/bills/data/bill_repository_impl.dart';
 import 'package:kosha/features/documents/data/document_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_category_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_repository_impl.dart';
+import 'package:kosha/features/home_space/data/home_management_repository_impl.dart';
 import 'package:kosha/features/onboarding/data/profile_repository_impl.dart';
 import 'package:kosha/features/spaces/data/space_repository_impl.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
@@ -116,6 +117,21 @@ DriftVehicleRepository testVehicleRepository(
   ReminderScheduler? scheduler,
 }) =>
     DriftVehicleRepository(
+      db,
+      FixedClock(now ?? testNow),
+      scheduler ?? const NoopReminderScheduler(),
+      testSpaceRepository(db, now: now),
+    );
+
+/// A Home management repository on [db]. Shares the [SpaceRepository] Spaces
+/// uses, so a created utility/job/appliance lands in the same Home system
+/// space a test's other reads see.
+DriftHomeManagementRepository testHomeManagementRepository(
+  AppDatabase db, {
+  DateTime? now,
+  ReminderScheduler? scheduler,
+}) =>
+    DriftHomeManagementRepository(
       db,
       FixedClock(now ?? testNow),
       scheduler ?? const NoopReminderScheduler(),

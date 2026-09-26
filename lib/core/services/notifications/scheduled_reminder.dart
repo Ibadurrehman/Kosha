@@ -15,7 +15,8 @@ enum ReminderKind {
     'kosha_vehicle',
     'Vehicle',
     'Insurance, PUC and other renewals coming due',
-  );
+  ),
+  appliance('kosha_appliances', 'Appliances', 'Appliance warranties expiring');
 
   const ReminderKind(this.channelId, this.channelName, this.channelDescription);
 

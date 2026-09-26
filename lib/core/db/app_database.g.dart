@@ -10787,6 +10787,1867 @@ class FuelLogsCompanion extends UpdateCompanion<FuelLogRow> {
   }
 }
 
+class $HomeUtilitiesTable extends HomeUtilities
+    with TableInfo<$HomeUtilitiesTable, HomeUtilityRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HomeUtilitiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _iconKeyMeta = const VerificationMeta(
+    'iconKey',
+  );
+  @override
+  late final GeneratedColumn<String> iconKey = GeneratedColumn<String>(
+    'icon_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _billIdMeta = const VerificationMeta('billId');
+  @override
+  late final GeneratedColumn<String> billId = GeneratedColumn<String>(
+    'bill_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES bills (id)',
+    ),
+  );
+  static const VerificationMeta _spaceIdMeta = const VerificationMeta(
+    'spaceId',
+  );
+  @override
+  late final GeneratedColumn<String> spaceId = GeneratedColumn<String>(
+    'space_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    iconKey,
+    billId,
+    spaceId,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'home_utilities';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HomeUtilityRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('icon_key')) {
+      context.handle(
+        _iconKeyMeta,
+        iconKey.isAcceptableOrUnknown(data['icon_key']!, _iconKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_iconKeyMeta);
+    }
+    if (data.containsKey('bill_id')) {
+      context.handle(
+        _billIdMeta,
+        billId.isAcceptableOrUnknown(data['bill_id']!, _billIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_billIdMeta);
+    }
+    if (data.containsKey('space_id')) {
+      context.handle(
+        _spaceIdMeta,
+        spaceId.isAcceptableOrUnknown(data['space_id']!, _spaceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_spaceIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  HomeUtilityRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HomeUtilityRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      iconKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_key'],
+      )!,
+      billId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bill_id'],
+      )!,
+      spaceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}space_id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $HomeUtilitiesTable createAlias(String alias) {
+    return $HomeUtilitiesTable(attachedDatabase, alias);
+  }
+}
+
+class HomeUtilityRow extends DataClass implements Insertable<HomeUtilityRow> {
+  final String id;
+  final String name;
+  final String iconKey;
+  final String billId;
+  final String spaceId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const HomeUtilityRow({
+    required this.id,
+    required this.name,
+    required this.iconKey,
+    required this.billId,
+    required this.spaceId,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['icon_key'] = Variable<String>(iconKey);
+    map['bill_id'] = Variable<String>(billId);
+    map['space_id'] = Variable<String>(spaceId);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  HomeUtilitiesCompanion toCompanion(bool nullToAbsent) {
+    return HomeUtilitiesCompanion(
+      id: Value(id),
+      name: Value(name),
+      iconKey: Value(iconKey),
+      billId: Value(billId),
+      spaceId: Value(spaceId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory HomeUtilityRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HomeUtilityRow(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      iconKey: serializer.fromJson<String>(json['iconKey']),
+      billId: serializer.fromJson<String>(json['billId']),
+      spaceId: serializer.fromJson<String>(json['spaceId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'iconKey': serializer.toJson<String>(iconKey),
+      'billId': serializer.toJson<String>(billId),
+      'spaceId': serializer.toJson<String>(spaceId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  HomeUtilityRow copyWith({
+    String? id,
+    String? name,
+    String? iconKey,
+    String? billId,
+    String? spaceId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => HomeUtilityRow(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    iconKey: iconKey ?? this.iconKey,
+    billId: billId ?? this.billId,
+    spaceId: spaceId ?? this.spaceId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  HomeUtilityRow copyWithCompanion(HomeUtilitiesCompanion data) {
+    return HomeUtilityRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      iconKey: data.iconKey.present ? data.iconKey.value : this.iconKey,
+      billId: data.billId.present ? data.billId.value : this.billId,
+      spaceId: data.spaceId.present ? data.spaceId.value : this.spaceId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HomeUtilityRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('iconKey: $iconKey, ')
+          ..write('billId: $billId, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, iconKey, billId, spaceId, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HomeUtilityRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.iconKey == this.iconKey &&
+          other.billId == this.billId &&
+          other.spaceId == this.spaceId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class HomeUtilitiesCompanion extends UpdateCompanion<HomeUtilityRow> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> iconKey;
+  final Value<String> billId;
+  final Value<String> spaceId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const HomeUtilitiesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.iconKey = const Value.absent(),
+    this.billId = const Value.absent(),
+    this.spaceId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HomeUtilitiesCompanion.insert({
+    required String id,
+    required String name,
+    required String iconKey,
+    required String billId,
+    required String spaceId,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       iconKey = Value(iconKey),
+       billId = Value(billId),
+       spaceId = Value(spaceId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<HomeUtilityRow> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? iconKey,
+    Expression<String>? billId,
+    Expression<String>? spaceId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (iconKey != null) 'icon_key': iconKey,
+      if (billId != null) 'bill_id': billId,
+      if (spaceId != null) 'space_id': spaceId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  HomeUtilitiesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? iconKey,
+    Value<String>? billId,
+    Value<String>? spaceId,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return HomeUtilitiesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      iconKey: iconKey ?? this.iconKey,
+      billId: billId ?? this.billId,
+      spaceId: spaceId ?? this.spaceId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (iconKey.present) {
+      map['icon_key'] = Variable<String>(iconKey.value);
+    }
+    if (billId.present) {
+      map['bill_id'] = Variable<String>(billId.value);
+    }
+    if (spaceId.present) {
+      map['space_id'] = Variable<String>(spaceId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HomeUtilitiesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('iconKey: $iconKey, ')
+          ..write('billId: $billId, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MaintenanceJobsTable extends MaintenanceJobs
+    with TableInfo<$MaintenanceJobsTable, MaintenanceJobRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MaintenanceJobsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<MaintenanceJobStatus, int>
+  status = GeneratedColumn<int>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  ).withConverter<MaintenanceJobStatus>($MaintenanceJobsTable.$converterstatus);
+  static const VerificationMeta _dueDateMeta = const VerificationMeta(
+    'dueDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dueDate = GeneratedColumn<DateTime>(
+    'due_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _costMinorMeta = const VerificationMeta(
+    'costMinor',
+  );
+  @override
+  late final GeneratedColumn<int> costMinor = GeneratedColumn<int>(
+    'cost_minor',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _vendorMeta = const VerificationMeta('vendor');
+  @override
+  late final GeneratedColumn<String> vendor = GeneratedColumn<String>(
+    'vendor',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
+  @override
+  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
+    'task_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _spaceIdMeta = const VerificationMeta(
+    'spaceId',
+  );
+  @override
+  late final GeneratedColumn<String> spaceId = GeneratedColumn<String>(
+    'space_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    status,
+    dueDate,
+    costMinor,
+    vendor,
+    notes,
+    taskId,
+    spaceId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'maintenance_jobs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MaintenanceJobRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('due_date')) {
+      context.handle(
+        _dueDateMeta,
+        dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta),
+      );
+    }
+    if (data.containsKey('cost_minor')) {
+      context.handle(
+        _costMinorMeta,
+        costMinor.isAcceptableOrUnknown(data['cost_minor']!, _costMinorMeta),
+      );
+    }
+    if (data.containsKey('vendor')) {
+      context.handle(
+        _vendorMeta,
+        vendor.isAcceptableOrUnknown(data['vendor']!, _vendorMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('task_id')) {
+      context.handle(
+        _taskIdMeta,
+        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
+      );
+    }
+    if (data.containsKey('space_id')) {
+      context.handle(
+        _spaceIdMeta,
+        spaceId.isAcceptableOrUnknown(data['space_id']!, _spaceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_spaceIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MaintenanceJobRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MaintenanceJobRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      status: $MaintenanceJobsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      dueDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}due_date'],
+      ),
+      costMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}cost_minor'],
+      ),
+      vendor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vendor'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      taskId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}task_id'],
+      ),
+      spaceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}space_id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $MaintenanceJobsTable createAlias(String alias) {
+    return $MaintenanceJobsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<MaintenanceJobStatus, int, int> $converterstatus =
+      const EnumIndexConverter<MaintenanceJobStatus>(
+        MaintenanceJobStatus.values,
+      );
+}
+
+class MaintenanceJobRow extends DataClass
+    implements Insertable<MaintenanceJobRow> {
+  final String id;
+  final String title;
+  final MaintenanceJobStatus status;
+  final DateTime? dueDate;
+  final int? costMinor;
+  final String? vendor;
+  final String? notes;
+
+  /// The task this job was promoted into, if any — a plain nullable link
+  /// with no foreign key, the same shape `Payments.transactionId` uses,
+  /// since the task can be edited or deleted independently from that point.
+  final String? taskId;
+  final String spaceId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Soft delete, so the toast's undo can bring the job back — the same
+  /// shape `Tasks`/`Bills` use.
+  final DateTime? deletedAt;
+  const MaintenanceJobRow({
+    required this.id,
+    required this.title,
+    required this.status,
+    this.dueDate,
+    this.costMinor,
+    this.vendor,
+    this.notes,
+    this.taskId,
+    required this.spaceId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    {
+      map['status'] = Variable<int>(
+        $MaintenanceJobsTable.$converterstatus.toSql(status),
+      );
+    }
+    if (!nullToAbsent || dueDate != null) {
+      map['due_date'] = Variable<DateTime>(dueDate);
+    }
+    if (!nullToAbsent || costMinor != null) {
+      map['cost_minor'] = Variable<int>(costMinor);
+    }
+    if (!nullToAbsent || vendor != null) {
+      map['vendor'] = Variable<String>(vendor);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || taskId != null) {
+      map['task_id'] = Variable<String>(taskId);
+    }
+    map['space_id'] = Variable<String>(spaceId);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  MaintenanceJobsCompanion toCompanion(bool nullToAbsent) {
+    return MaintenanceJobsCompanion(
+      id: Value(id),
+      title: Value(title),
+      status: Value(status),
+      dueDate: dueDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dueDate),
+      costMinor: costMinor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(costMinor),
+      vendor: vendor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vendor),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      taskId: taskId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(taskId),
+      spaceId: Value(spaceId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory MaintenanceJobRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MaintenanceJobRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      status: $MaintenanceJobsTable.$converterstatus.fromJson(
+        serializer.fromJson<int>(json['status']),
+      ),
+      dueDate: serializer.fromJson<DateTime?>(json['dueDate']),
+      costMinor: serializer.fromJson<int?>(json['costMinor']),
+      vendor: serializer.fromJson<String?>(json['vendor']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      taskId: serializer.fromJson<String?>(json['taskId']),
+      spaceId: serializer.fromJson<String>(json['spaceId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'status': serializer.toJson<int>(
+        $MaintenanceJobsTable.$converterstatus.toJson(status),
+      ),
+      'dueDate': serializer.toJson<DateTime?>(dueDate),
+      'costMinor': serializer.toJson<int?>(costMinor),
+      'vendor': serializer.toJson<String?>(vendor),
+      'notes': serializer.toJson<String?>(notes),
+      'taskId': serializer.toJson<String?>(taskId),
+      'spaceId': serializer.toJson<String>(spaceId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  MaintenanceJobRow copyWith({
+    String? id,
+    String? title,
+    MaintenanceJobStatus? status,
+    Value<DateTime?> dueDate = const Value.absent(),
+    Value<int?> costMinor = const Value.absent(),
+    Value<String?> vendor = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    Value<String?> taskId = const Value.absent(),
+    String? spaceId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => MaintenanceJobRow(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    status: status ?? this.status,
+    dueDate: dueDate.present ? dueDate.value : this.dueDate,
+    costMinor: costMinor.present ? costMinor.value : this.costMinor,
+    vendor: vendor.present ? vendor.value : this.vendor,
+    notes: notes.present ? notes.value : this.notes,
+    taskId: taskId.present ? taskId.value : this.taskId,
+    spaceId: spaceId ?? this.spaceId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  MaintenanceJobRow copyWithCompanion(MaintenanceJobsCompanion data) {
+    return MaintenanceJobRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      status: data.status.present ? data.status.value : this.status,
+      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+      costMinor: data.costMinor.present ? data.costMinor.value : this.costMinor,
+      vendor: data.vendor.present ? data.vendor.value : this.vendor,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      taskId: data.taskId.present ? data.taskId.value : this.taskId,
+      spaceId: data.spaceId.present ? data.spaceId.value : this.spaceId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MaintenanceJobRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('status: $status, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('costMinor: $costMinor, ')
+          ..write('vendor: $vendor, ')
+          ..write('notes: $notes, ')
+          ..write('taskId: $taskId, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    status,
+    dueDate,
+    costMinor,
+    vendor,
+    notes,
+    taskId,
+    spaceId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MaintenanceJobRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.status == this.status &&
+          other.dueDate == this.dueDate &&
+          other.costMinor == this.costMinor &&
+          other.vendor == this.vendor &&
+          other.notes == this.notes &&
+          other.taskId == this.taskId &&
+          other.spaceId == this.spaceId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class MaintenanceJobsCompanion extends UpdateCompanion<MaintenanceJobRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<MaintenanceJobStatus> status;
+  final Value<DateTime?> dueDate;
+  final Value<int?> costMinor;
+  final Value<String?> vendor;
+  final Value<String?> notes;
+  final Value<String?> taskId;
+  final Value<String> spaceId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const MaintenanceJobsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.status = const Value.absent(),
+    this.dueDate = const Value.absent(),
+    this.costMinor = const Value.absent(),
+    this.vendor = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.taskId = const Value.absent(),
+    this.spaceId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MaintenanceJobsCompanion.insert({
+    required String id,
+    required String title,
+    required MaintenanceJobStatus status,
+    this.dueDate = const Value.absent(),
+    this.costMinor = const Value.absent(),
+    this.vendor = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.taskId = const Value.absent(),
+    required String spaceId,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       status = Value(status),
+       spaceId = Value(spaceId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<MaintenanceJobRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<int>? status,
+    Expression<DateTime>? dueDate,
+    Expression<int>? costMinor,
+    Expression<String>? vendor,
+    Expression<String>? notes,
+    Expression<String>? taskId,
+    Expression<String>? spaceId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (status != null) 'status': status,
+      if (dueDate != null) 'due_date': dueDate,
+      if (costMinor != null) 'cost_minor': costMinor,
+      if (vendor != null) 'vendor': vendor,
+      if (notes != null) 'notes': notes,
+      if (taskId != null) 'task_id': taskId,
+      if (spaceId != null) 'space_id': spaceId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MaintenanceJobsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? title,
+    Value<MaintenanceJobStatus>? status,
+    Value<DateTime?>? dueDate,
+    Value<int?>? costMinor,
+    Value<String?>? vendor,
+    Value<String?>? notes,
+    Value<String?>? taskId,
+    Value<String>? spaceId,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return MaintenanceJobsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      status: status ?? this.status,
+      dueDate: dueDate ?? this.dueDate,
+      costMinor: costMinor ?? this.costMinor,
+      vendor: vendor ?? this.vendor,
+      notes: notes ?? this.notes,
+      taskId: taskId ?? this.taskId,
+      spaceId: spaceId ?? this.spaceId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<int>(
+        $MaintenanceJobsTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (dueDate.present) {
+      map['due_date'] = Variable<DateTime>(dueDate.value);
+    }
+    if (costMinor.present) {
+      map['cost_minor'] = Variable<int>(costMinor.value);
+    }
+    if (vendor.present) {
+      map['vendor'] = Variable<String>(vendor.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (taskId.present) {
+      map['task_id'] = Variable<String>(taskId.value);
+    }
+    if (spaceId.present) {
+      map['space_id'] = Variable<String>(spaceId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MaintenanceJobsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('status: $status, ')
+          ..write('dueDate: $dueDate, ')
+          ..write('costMinor: $costMinor, ')
+          ..write('vendor: $vendor, ')
+          ..write('notes: $notes, ')
+          ..write('taskId: $taskId, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AppliancesTable extends Appliances
+    with TableInfo<$AppliancesTable, ApplianceRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AppliancesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _makeModelMeta = const VerificationMeta(
+    'makeModel',
+  );
+  @override
+  late final GeneratedColumn<String> makeModel = GeneratedColumn<String>(
+    'make_model',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _purchasedOnMeta = const VerificationMeta(
+    'purchasedOn',
+  );
+  @override
+  late final GeneratedColumn<DateTime> purchasedOn = GeneratedColumn<DateTime>(
+    'purchased_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _warrantyTillMeta = const VerificationMeta(
+    'warrantyTill',
+  );
+  @override
+  late final GeneratedColumn<DateTime> warrantyTill = GeneratedColumn<DateTime>(
+    'warranty_till',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nextServiceOnMeta = const VerificationMeta(
+    'nextServiceOn',
+  );
+  @override
+  late final GeneratedColumn<DateTime> nextServiceOn =
+      GeneratedColumn<DateTime>(
+        'next_service_on',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _documentIdMeta = const VerificationMeta(
+    'documentId',
+  );
+  @override
+  late final GeneratedColumn<String> documentId = GeneratedColumn<String>(
+    'document_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _spaceIdMeta = const VerificationMeta(
+    'spaceId',
+  );
+  @override
+  late final GeneratedColumn<String> spaceId = GeneratedColumn<String>(
+    'space_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    makeModel,
+    purchasedOn,
+    warrantyTill,
+    nextServiceOn,
+    documentId,
+    spaceId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'appliances';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ApplianceRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('make_model')) {
+      context.handle(
+        _makeModelMeta,
+        makeModel.isAcceptableOrUnknown(data['make_model']!, _makeModelMeta),
+      );
+    }
+    if (data.containsKey('purchased_on')) {
+      context.handle(
+        _purchasedOnMeta,
+        purchasedOn.isAcceptableOrUnknown(
+          data['purchased_on']!,
+          _purchasedOnMeta,
+        ),
+      );
+    }
+    if (data.containsKey('warranty_till')) {
+      context.handle(
+        _warrantyTillMeta,
+        warrantyTill.isAcceptableOrUnknown(
+          data['warranty_till']!,
+          _warrantyTillMeta,
+        ),
+      );
+    }
+    if (data.containsKey('next_service_on')) {
+      context.handle(
+        _nextServiceOnMeta,
+        nextServiceOn.isAcceptableOrUnknown(
+          data['next_service_on']!,
+          _nextServiceOnMeta,
+        ),
+      );
+    }
+    if (data.containsKey('document_id')) {
+      context.handle(
+        _documentIdMeta,
+        documentId.isAcceptableOrUnknown(data['document_id']!, _documentIdMeta),
+      );
+    }
+    if (data.containsKey('space_id')) {
+      context.handle(
+        _spaceIdMeta,
+        spaceId.isAcceptableOrUnknown(data['space_id']!, _spaceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_spaceIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ApplianceRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ApplianceRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      makeModel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}make_model'],
+      ),
+      purchasedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}purchased_on'],
+      ),
+      warrantyTill: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}warranty_till'],
+      ),
+      nextServiceOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}next_service_on'],
+      ),
+      documentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_id'],
+      ),
+      spaceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}space_id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $AppliancesTable createAlias(String alias) {
+    return $AppliancesTable(attachedDatabase, alias);
+  }
+}
+
+class ApplianceRow extends DataClass implements Insertable<ApplianceRow> {
+  final String id;
+  final String name;
+  final String? makeModel;
+  final DateTime? purchasedOn;
+
+  /// Null for something with no warranty left to track. Indexed because Home's
+  /// Needs attention filters on it by range, the same reason
+  /// `Documents.expiresOn` is indexed.
+  final DateTime? warrantyTill;
+  final DateTime? nextServiceOn;
+
+  /// The invoice, if the user filed one under Documents. A plain nullable
+  /// link with no foreign key, the same shape `VehicleRenewals.documentId`
+  /// uses.
+  final String? documentId;
+  final String spaceId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const ApplianceRow({
+    required this.id,
+    required this.name,
+    this.makeModel,
+    this.purchasedOn,
+    this.warrantyTill,
+    this.nextServiceOn,
+    this.documentId,
+    required this.spaceId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || makeModel != null) {
+      map['make_model'] = Variable<String>(makeModel);
+    }
+    if (!nullToAbsent || purchasedOn != null) {
+      map['purchased_on'] = Variable<DateTime>(purchasedOn);
+    }
+    if (!nullToAbsent || warrantyTill != null) {
+      map['warranty_till'] = Variable<DateTime>(warrantyTill);
+    }
+    if (!nullToAbsent || nextServiceOn != null) {
+      map['next_service_on'] = Variable<DateTime>(nextServiceOn);
+    }
+    if (!nullToAbsent || documentId != null) {
+      map['document_id'] = Variable<String>(documentId);
+    }
+    map['space_id'] = Variable<String>(spaceId);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  AppliancesCompanion toCompanion(bool nullToAbsent) {
+    return AppliancesCompanion(
+      id: Value(id),
+      name: Value(name),
+      makeModel: makeModel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(makeModel),
+      purchasedOn: purchasedOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchasedOn),
+      warrantyTill: warrantyTill == null && nullToAbsent
+          ? const Value.absent()
+          : Value(warrantyTill),
+      nextServiceOn: nextServiceOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextServiceOn),
+      documentId: documentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(documentId),
+      spaceId: Value(spaceId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory ApplianceRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ApplianceRow(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      makeModel: serializer.fromJson<String?>(json['makeModel']),
+      purchasedOn: serializer.fromJson<DateTime?>(json['purchasedOn']),
+      warrantyTill: serializer.fromJson<DateTime?>(json['warrantyTill']),
+      nextServiceOn: serializer.fromJson<DateTime?>(json['nextServiceOn']),
+      documentId: serializer.fromJson<String?>(json['documentId']),
+      spaceId: serializer.fromJson<String>(json['spaceId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'makeModel': serializer.toJson<String?>(makeModel),
+      'purchasedOn': serializer.toJson<DateTime?>(purchasedOn),
+      'warrantyTill': serializer.toJson<DateTime?>(warrantyTill),
+      'nextServiceOn': serializer.toJson<DateTime?>(nextServiceOn),
+      'documentId': serializer.toJson<String?>(documentId),
+      'spaceId': serializer.toJson<String>(spaceId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  ApplianceRow copyWith({
+    String? id,
+    String? name,
+    Value<String?> makeModel = const Value.absent(),
+    Value<DateTime?> purchasedOn = const Value.absent(),
+    Value<DateTime?> warrantyTill = const Value.absent(),
+    Value<DateTime?> nextServiceOn = const Value.absent(),
+    Value<String?> documentId = const Value.absent(),
+    String? spaceId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => ApplianceRow(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    makeModel: makeModel.present ? makeModel.value : this.makeModel,
+    purchasedOn: purchasedOn.present ? purchasedOn.value : this.purchasedOn,
+    warrantyTill: warrantyTill.present ? warrantyTill.value : this.warrantyTill,
+    nextServiceOn: nextServiceOn.present
+        ? nextServiceOn.value
+        : this.nextServiceOn,
+    documentId: documentId.present ? documentId.value : this.documentId,
+    spaceId: spaceId ?? this.spaceId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  ApplianceRow copyWithCompanion(AppliancesCompanion data) {
+    return ApplianceRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      makeModel: data.makeModel.present ? data.makeModel.value : this.makeModel,
+      purchasedOn: data.purchasedOn.present
+          ? data.purchasedOn.value
+          : this.purchasedOn,
+      warrantyTill: data.warrantyTill.present
+          ? data.warrantyTill.value
+          : this.warrantyTill,
+      nextServiceOn: data.nextServiceOn.present
+          ? data.nextServiceOn.value
+          : this.nextServiceOn,
+      documentId: data.documentId.present
+          ? data.documentId.value
+          : this.documentId,
+      spaceId: data.spaceId.present ? data.spaceId.value : this.spaceId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ApplianceRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('makeModel: $makeModel, ')
+          ..write('purchasedOn: $purchasedOn, ')
+          ..write('warrantyTill: $warrantyTill, ')
+          ..write('nextServiceOn: $nextServiceOn, ')
+          ..write('documentId: $documentId, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    makeModel,
+    purchasedOn,
+    warrantyTill,
+    nextServiceOn,
+    documentId,
+    spaceId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ApplianceRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.makeModel == this.makeModel &&
+          other.purchasedOn == this.purchasedOn &&
+          other.warrantyTill == this.warrantyTill &&
+          other.nextServiceOn == this.nextServiceOn &&
+          other.documentId == this.documentId &&
+          other.spaceId == this.spaceId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class AppliancesCompanion extends UpdateCompanion<ApplianceRow> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String?> makeModel;
+  final Value<DateTime?> purchasedOn;
+  final Value<DateTime?> warrantyTill;
+  final Value<DateTime?> nextServiceOn;
+  final Value<String?> documentId;
+  final Value<String> spaceId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const AppliancesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.makeModel = const Value.absent(),
+    this.purchasedOn = const Value.absent(),
+    this.warrantyTill = const Value.absent(),
+    this.nextServiceOn = const Value.absent(),
+    this.documentId = const Value.absent(),
+    this.spaceId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AppliancesCompanion.insert({
+    required String id,
+    required String name,
+    this.makeModel = const Value.absent(),
+    this.purchasedOn = const Value.absent(),
+    this.warrantyTill = const Value.absent(),
+    this.nextServiceOn = const Value.absent(),
+    this.documentId = const Value.absent(),
+    required String spaceId,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       spaceId = Value(spaceId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<ApplianceRow> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? makeModel,
+    Expression<DateTime>? purchasedOn,
+    Expression<DateTime>? warrantyTill,
+    Expression<DateTime>? nextServiceOn,
+    Expression<String>? documentId,
+    Expression<String>? spaceId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (makeModel != null) 'make_model': makeModel,
+      if (purchasedOn != null) 'purchased_on': purchasedOn,
+      if (warrantyTill != null) 'warranty_till': warrantyTill,
+      if (nextServiceOn != null) 'next_service_on': nextServiceOn,
+      if (documentId != null) 'document_id': documentId,
+      if (spaceId != null) 'space_id': spaceId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AppliancesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String?>? makeModel,
+    Value<DateTime?>? purchasedOn,
+    Value<DateTime?>? warrantyTill,
+    Value<DateTime?>? nextServiceOn,
+    Value<String?>? documentId,
+    Value<String>? spaceId,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return AppliancesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      makeModel: makeModel ?? this.makeModel,
+      purchasedOn: purchasedOn ?? this.purchasedOn,
+      warrantyTill: warrantyTill ?? this.warrantyTill,
+      nextServiceOn: nextServiceOn ?? this.nextServiceOn,
+      documentId: documentId ?? this.documentId,
+      spaceId: spaceId ?? this.spaceId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (makeModel.present) {
+      map['make_model'] = Variable<String>(makeModel.value);
+    }
+    if (purchasedOn.present) {
+      map['purchased_on'] = Variable<DateTime>(purchasedOn.value);
+    }
+    if (warrantyTill.present) {
+      map['warranty_till'] = Variable<DateTime>(warrantyTill.value);
+    }
+    if (nextServiceOn.present) {
+      map['next_service_on'] = Variable<DateTime>(nextServiceOn.value);
+    }
+    if (documentId.present) {
+      map['document_id'] = Variable<String>(documentId.value);
+    }
+    if (spaceId.present) {
+      map['space_id'] = Variable<String>(spaceId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AppliancesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('makeModel: $makeModel, ')
+          ..write('purchasedOn: $purchasedOn, ')
+          ..write('warrantyTill: $warrantyTill, ')
+          ..write('nextServiceOn: $nextServiceOn, ')
+          ..write('documentId: $documentId, ')
+          ..write('spaceId: $spaceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -10814,6 +12675,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $ServiceRecordsTable serviceRecords = $ServiceRecordsTable(this);
   late final $FuelLogsTable fuelLogs = $FuelLogsTable(this);
+  late final $HomeUtilitiesTable homeUtilities = $HomeUtilitiesTable(this);
+  late final $MaintenanceJobsTable maintenanceJobs = $MaintenanceJobsTable(
+    this,
+  );
+  late final $AppliancesTable appliances = $AppliancesTable(this);
   late final Index tasksBucket = Index(
     'tasks_bucket',
     'CREATE INDEX tasks_bucket ON tasks (done, due_date)',
@@ -10906,6 +12772,30 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'fuel_logs_vehicle',
     'CREATE INDEX fuel_logs_vehicle ON fuel_logs (vehicle_id, date)',
   );
+  late final Index homeUtilitiesBill = Index(
+    'home_utilities_bill',
+    'CREATE UNIQUE INDEX home_utilities_bill ON home_utilities (bill_id)',
+  );
+  late final Index homeUtilitiesSpace = Index(
+    'home_utilities_space',
+    'CREATE INDEX home_utilities_space ON home_utilities (space_id)',
+  );
+  late final Index maintenanceJobsDue = Index(
+    'maintenance_jobs_due',
+    'CREATE INDEX maintenance_jobs_due ON maintenance_jobs (due_date)',
+  );
+  late final Index maintenanceJobsSpace = Index(
+    'maintenance_jobs_space',
+    'CREATE INDEX maintenance_jobs_space ON maintenance_jobs (space_id)',
+  );
+  late final Index appliancesWarranty = Index(
+    'appliances_warranty',
+    'CREATE INDEX appliances_warranty ON appliances (warranty_till)',
+  );
+  late final Index appliancesSpace = Index(
+    'appliances_space',
+    'CREATE INDEX appliances_space ON appliances (space_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10929,6 +12819,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     vehicleRenewals,
     serviceRecords,
     fuelLogs,
+    homeUtilities,
+    maintenanceJobs,
+    appliances,
     tasksBucket,
     tasksSpace,
     activityOwner,
@@ -10952,6 +12845,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     vehicleRenewalsVehicleKind,
     serviceRecordsVehicle,
     fuelLogsVehicle,
+    homeUtilitiesBill,
+    homeUtilitiesSpace,
+    maintenanceJobsDue,
+    maintenanceJobsSpace,
+    appliancesWarranty,
+    appliancesSpace,
   ];
 }
 
@@ -13699,6 +15598,24 @@ final class $$BillsTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$HomeUtilitiesTable, List<HomeUtilityRow>>
+  _homeUtilitiesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.homeUtilities,
+    aliasName: 'bills__id__home_utilities__bill_id',
+  );
+
+  $$HomeUtilitiesTableProcessedTableManager get homeUtilitiesRefs {
+    final manager = $$HomeUtilitiesTableTableManager(
+      $_db,
+      $_db.homeUtilities,
+    ).filter((f) => f.billId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_homeUtilitiesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$BillsTableFilterComposer extends Composer<_$AppDatabase, $BillsTable> {
@@ -13806,6 +15723,31 @@ class $$BillsTableFilterComposer extends Composer<_$AppDatabase, $BillsTable> {
           }) => $$PaymentsTableFilterComposer(
             $db: $db,
             $table: $db.payments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> homeUtilitiesRefs(
+    Expression<bool> Function($$HomeUtilitiesTableFilterComposer f) f,
+  ) {
+    final $$HomeUtilitiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.homeUtilities,
+      getReferencedColumn: (t) => t.billId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HomeUtilitiesTableFilterComposer(
+            $db: $db,
+            $table: $db.homeUtilities,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -13997,6 +15939,31 @@ class $$BillsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> homeUtilitiesRefs<T extends Object>(
+    Expression<T> Function($$HomeUtilitiesTableAnnotationComposer a) f,
+  ) {
+    final $$HomeUtilitiesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.homeUtilities,
+      getReferencedColumn: (t) => t.billId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$HomeUtilitiesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.homeUtilities,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BillsTableTableManager
@@ -14012,7 +15979,7 @@ class $$BillsTableTableManager
           $$BillsTableUpdateCompanionBuilder,
           (BillRow, $$BillsTableReferences),
           BillRow,
-          PrefetchHooks Function({bool paymentsRefs})
+          PrefetchHooks Function({bool paymentsRefs, bool homeUtilitiesRefs})
         > {
   $$BillsTableTableManager(_$AppDatabase db, $BillsTable table)
     : super(
@@ -14109,28 +16076,63 @@ class $$BillsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({paymentsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (paymentsRefs) db.payments],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (paymentsRefs)
-                    await $_getPrefetchedData<BillRow, $BillsTable, PaymentRow>(
-                      currentTable: table,
-                      referencedTable: $$BillsTableReferences
-                          ._paymentsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$BillsTableReferences(db, table, p0).paymentsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.billId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({paymentsRefs = false, homeUtilitiesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (paymentsRefs) db.payments,
+                    if (homeUtilitiesRefs) db.homeUtilities,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (paymentsRefs)
+                        await $_getPrefetchedData<
+                          BillRow,
+                          $BillsTable,
+                          PaymentRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BillsTableReferences
+                              ._paymentsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BillsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).paymentsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.billId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (homeUtilitiesRefs)
+                        await $_getPrefetchedData<
+                          BillRow,
+                          $BillsTable,
+                          HomeUtilityRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BillsTableReferences
+                              ._homeUtilitiesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BillsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).homeUtilitiesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.billId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -14147,7 +16149,7 @@ typedef $$BillsTableProcessedTableManager =
       $$BillsTableUpdateCompanionBuilder,
       (BillRow, $$BillsTableReferences),
       BillRow,
-      PrefetchHooks Function({bool paymentsRefs})
+      PrefetchHooks Function({bool paymentsRefs, bool homeUtilitiesRefs})
     >;
 typedef $$PaymentsTableCreateCompanionBuilder =
     PaymentsCompanion Function({
@@ -17184,6 +19186,1049 @@ typedef $$FuelLogsTableProcessedTableManager =
       FuelLogRow,
       PrefetchHooks Function({bool vehicleId})
     >;
+typedef $$HomeUtilitiesTableCreateCompanionBuilder =
+    HomeUtilitiesCompanion Function({
+      required String id,
+      required String name,
+      required String iconKey,
+      required String billId,
+      required String spaceId,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$HomeUtilitiesTableUpdateCompanionBuilder =
+    HomeUtilitiesCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> iconKey,
+      Value<String> billId,
+      Value<String> spaceId,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$HomeUtilitiesTableReferences
+    extends BaseReferences<_$AppDatabase, $HomeUtilitiesTable, HomeUtilityRow> {
+  $$HomeUtilitiesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BillsTable _billIdTable(_$AppDatabase db) =>
+      db.bills.createAlias('home_utilities__bill_id__bills__id');
+
+  $$BillsTableProcessedTableManager get billId {
+    final $_column = $_itemColumn<String>('bill_id')!;
+
+    final manager = $$BillsTableTableManager(
+      $_db,
+      $_db.bills,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_billIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$HomeUtilitiesTableFilterComposer
+    extends Composer<_$AppDatabase, $HomeUtilitiesTable> {
+  $$HomeUtilitiesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BillsTableFilterComposer get billId {
+    final $$BillsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.billId,
+      referencedTable: $db.bills,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BillsTableFilterComposer(
+            $db: $db,
+            $table: $db.bills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$HomeUtilitiesTableOrderingComposer
+    extends Composer<_$AppDatabase, $HomeUtilitiesTable> {
+  $$HomeUtilitiesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BillsTableOrderingComposer get billId {
+    final $$BillsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.billId,
+      referencedTable: $db.bills,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BillsTableOrderingComposer(
+            $db: $db,
+            $table: $db.bills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$HomeUtilitiesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HomeUtilitiesTable> {
+  $$HomeUtilitiesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get iconKey =>
+      $composableBuilder(column: $table.iconKey, builder: (column) => column);
+
+  GeneratedColumn<String> get spaceId =>
+      $composableBuilder(column: $table.spaceId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$BillsTableAnnotationComposer get billId {
+    final $$BillsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.billId,
+      referencedTable: $db.bills,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BillsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$HomeUtilitiesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $HomeUtilitiesTable,
+          HomeUtilityRow,
+          $$HomeUtilitiesTableFilterComposer,
+          $$HomeUtilitiesTableOrderingComposer,
+          $$HomeUtilitiesTableAnnotationComposer,
+          $$HomeUtilitiesTableCreateCompanionBuilder,
+          $$HomeUtilitiesTableUpdateCompanionBuilder,
+          (HomeUtilityRow, $$HomeUtilitiesTableReferences),
+          HomeUtilityRow,
+          PrefetchHooks Function({bool billId})
+        > {
+  $$HomeUtilitiesTableTableManager(_$AppDatabase db, $HomeUtilitiesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HomeUtilitiesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HomeUtilitiesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HomeUtilitiesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> iconKey = const Value.absent(),
+                Value<String> billId = const Value.absent(),
+                Value<String> spaceId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => HomeUtilitiesCompanion(
+                id: id,
+                name: name,
+                iconKey: iconKey,
+                billId: billId,
+                spaceId: spaceId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String iconKey,
+                required String billId,
+                required String spaceId,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => HomeUtilitiesCompanion.insert(
+                id: id,
+                name: name,
+                iconKey: iconKey,
+                billId: billId,
+                spaceId: spaceId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$HomeUtilitiesTable, HomeUtilityRow>(table),
+                  $$HomeUtilitiesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({billId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (billId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.billId,
+                                referencedTable: $$HomeUtilitiesTableReferences
+                                    ._billIdTable(db),
+                                referencedColumn: $$HomeUtilitiesTableReferences
+                                    ._billIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$HomeUtilitiesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $HomeUtilitiesTable,
+      HomeUtilityRow,
+      $$HomeUtilitiesTableFilterComposer,
+      $$HomeUtilitiesTableOrderingComposer,
+      $$HomeUtilitiesTableAnnotationComposer,
+      $$HomeUtilitiesTableCreateCompanionBuilder,
+      $$HomeUtilitiesTableUpdateCompanionBuilder,
+      (HomeUtilityRow, $$HomeUtilitiesTableReferences),
+      HomeUtilityRow,
+      PrefetchHooks Function({bool billId})
+    >;
+typedef $$MaintenanceJobsTableCreateCompanionBuilder =
+    MaintenanceJobsCompanion Function({
+      required String id,
+      required String title,
+      required MaintenanceJobStatus status,
+      Value<DateTime?> dueDate,
+      Value<int?> costMinor,
+      Value<String?> vendor,
+      Value<String?> notes,
+      Value<String?> taskId,
+      required String spaceId,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$MaintenanceJobsTableUpdateCompanionBuilder =
+    MaintenanceJobsCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<MaintenanceJobStatus> status,
+      Value<DateTime?> dueDate,
+      Value<int?> costMinor,
+      Value<String?> vendor,
+      Value<String?> notes,
+      Value<String?> taskId,
+      Value<String> spaceId,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+class $$MaintenanceJobsTableFilterComposer
+    extends Composer<_$AppDatabase, $MaintenanceJobsTable> {
+  $$MaintenanceJobsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    MaintenanceJobStatus,
+    MaintenanceJobStatus,
+    int
+  >
+  get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dueDate => $composableBuilder(
+    column: $table.dueDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get costMinor => $composableBuilder(
+    column: $table.costMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vendor => $composableBuilder(
+    column: $table.vendor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get taskId => $composableBuilder(
+    column: $table.taskId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MaintenanceJobsTableOrderingComposer
+    extends Composer<_$AppDatabase, $MaintenanceJobsTable> {
+  $$MaintenanceJobsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dueDate => $composableBuilder(
+    column: $table.dueDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get costMinor => $composableBuilder(
+    column: $table.costMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vendor => $composableBuilder(
+    column: $table.vendor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get taskId => $composableBuilder(
+    column: $table.taskId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MaintenanceJobsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MaintenanceJobsTable> {
+  $$MaintenanceJobsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<MaintenanceJobStatus, int> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dueDate =>
+      $composableBuilder(column: $table.dueDate, builder: (column) => column);
+
+  GeneratedColumn<int> get costMinor =>
+      $composableBuilder(column: $table.costMinor, builder: (column) => column);
+
+  GeneratedColumn<String> get vendor =>
+      $composableBuilder(column: $table.vendor, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get taskId =>
+      $composableBuilder(column: $table.taskId, builder: (column) => column);
+
+  GeneratedColumn<String> get spaceId =>
+      $composableBuilder(column: $table.spaceId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$MaintenanceJobsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MaintenanceJobsTable,
+          MaintenanceJobRow,
+          $$MaintenanceJobsTableFilterComposer,
+          $$MaintenanceJobsTableOrderingComposer,
+          $$MaintenanceJobsTableAnnotationComposer,
+          $$MaintenanceJobsTableCreateCompanionBuilder,
+          $$MaintenanceJobsTableUpdateCompanionBuilder,
+          (
+            MaintenanceJobRow,
+            BaseReferences<
+              _$AppDatabase,
+              $MaintenanceJobsTable,
+              MaintenanceJobRow
+            >,
+          ),
+          MaintenanceJobRow,
+          PrefetchHooks Function()
+        > {
+  $$MaintenanceJobsTableTableManager(
+    _$AppDatabase db,
+    $MaintenanceJobsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MaintenanceJobsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MaintenanceJobsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MaintenanceJobsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<MaintenanceJobStatus> status = const Value.absent(),
+                Value<DateTime?> dueDate = const Value.absent(),
+                Value<int?> costMinor = const Value.absent(),
+                Value<String?> vendor = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> taskId = const Value.absent(),
+                Value<String> spaceId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MaintenanceJobsCompanion(
+                id: id,
+                title: title,
+                status: status,
+                dueDate: dueDate,
+                costMinor: costMinor,
+                vendor: vendor,
+                notes: notes,
+                taskId: taskId,
+                spaceId: spaceId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String title,
+                required MaintenanceJobStatus status,
+                Value<DateTime?> dueDate = const Value.absent(),
+                Value<int?> costMinor = const Value.absent(),
+                Value<String?> vendor = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> taskId = const Value.absent(),
+                required String spaceId,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MaintenanceJobsCompanion.insert(
+                id: id,
+                title: title,
+                status: status,
+                dueDate: dueDate,
+                costMinor: costMinor,
+                vendor: vendor,
+                notes: notes,
+                taskId: taskId,
+                spaceId: spaceId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$MaintenanceJobsTable, MaintenanceJobRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $MaintenanceJobsTable,
+                    MaintenanceJobRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MaintenanceJobsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MaintenanceJobsTable,
+      MaintenanceJobRow,
+      $$MaintenanceJobsTableFilterComposer,
+      $$MaintenanceJobsTableOrderingComposer,
+      $$MaintenanceJobsTableAnnotationComposer,
+      $$MaintenanceJobsTableCreateCompanionBuilder,
+      $$MaintenanceJobsTableUpdateCompanionBuilder,
+      (
+        MaintenanceJobRow,
+        BaseReferences<_$AppDatabase, $MaintenanceJobsTable, MaintenanceJobRow>,
+      ),
+      MaintenanceJobRow,
+      PrefetchHooks Function()
+    >;
+typedef $$AppliancesTableCreateCompanionBuilder =
+    AppliancesCompanion Function({
+      required String id,
+      required String name,
+      Value<String?> makeModel,
+      Value<DateTime?> purchasedOn,
+      Value<DateTime?> warrantyTill,
+      Value<DateTime?> nextServiceOn,
+      Value<String?> documentId,
+      required String spaceId,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$AppliancesTableUpdateCompanionBuilder =
+    AppliancesCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String?> makeModel,
+      Value<DateTime?> purchasedOn,
+      Value<DateTime?> warrantyTill,
+      Value<DateTime?> nextServiceOn,
+      Value<String?> documentId,
+      Value<String> spaceId,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+class $$AppliancesTableFilterComposer
+    extends Composer<_$AppDatabase, $AppliancesTable> {
+  $$AppliancesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get makeModel => $composableBuilder(
+    column: $table.makeModel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get purchasedOn => $composableBuilder(
+    column: $table.purchasedOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get warrantyTill => $composableBuilder(
+    column: $table.warrantyTill,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get nextServiceOn => $composableBuilder(
+    column: $table.nextServiceOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AppliancesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AppliancesTable> {
+  $$AppliancesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get makeModel => $composableBuilder(
+    column: $table.makeModel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get purchasedOn => $composableBuilder(
+    column: $table.purchasedOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get warrantyTill => $composableBuilder(
+    column: $table.warrantyTill,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get nextServiceOn => $composableBuilder(
+    column: $table.nextServiceOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get spaceId => $composableBuilder(
+    column: $table.spaceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AppliancesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AppliancesTable> {
+  $$AppliancesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get makeModel =>
+      $composableBuilder(column: $table.makeModel, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get purchasedOn => $composableBuilder(
+    column: $table.purchasedOn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get warrantyTill => $composableBuilder(
+    column: $table.warrantyTill,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get nextServiceOn => $composableBuilder(
+    column: $table.nextServiceOn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get documentId => $composableBuilder(
+    column: $table.documentId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get spaceId =>
+      $composableBuilder(column: $table.spaceId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$AppliancesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AppliancesTable,
+          ApplianceRow,
+          $$AppliancesTableFilterComposer,
+          $$AppliancesTableOrderingComposer,
+          $$AppliancesTableAnnotationComposer,
+          $$AppliancesTableCreateCompanionBuilder,
+          $$AppliancesTableUpdateCompanionBuilder,
+          (
+            ApplianceRow,
+            BaseReferences<_$AppDatabase, $AppliancesTable, ApplianceRow>,
+          ),
+          ApplianceRow,
+          PrefetchHooks Function()
+        > {
+  $$AppliancesTableTableManager(_$AppDatabase db, $AppliancesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AppliancesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AppliancesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AppliancesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> makeModel = const Value.absent(),
+                Value<DateTime?> purchasedOn = const Value.absent(),
+                Value<DateTime?> warrantyTill = const Value.absent(),
+                Value<DateTime?> nextServiceOn = const Value.absent(),
+                Value<String?> documentId = const Value.absent(),
+                Value<String> spaceId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AppliancesCompanion(
+                id: id,
+                name: name,
+                makeModel: makeModel,
+                purchasedOn: purchasedOn,
+                warrantyTill: warrantyTill,
+                nextServiceOn: nextServiceOn,
+                documentId: documentId,
+                spaceId: spaceId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                Value<String?> makeModel = const Value.absent(),
+                Value<DateTime?> purchasedOn = const Value.absent(),
+                Value<DateTime?> warrantyTill = const Value.absent(),
+                Value<DateTime?> nextServiceOn = const Value.absent(),
+                Value<String?> documentId = const Value.absent(),
+                required String spaceId,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AppliancesCompanion.insert(
+                id: id,
+                name: name,
+                makeModel: makeModel,
+                purchasedOn: purchasedOn,
+                warrantyTill: warrantyTill,
+                nextServiceOn: nextServiceOn,
+                documentId: documentId,
+                spaceId: spaceId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AppliancesTable, ApplianceRow>(table),
+                  BaseReferences<_$AppDatabase, $AppliancesTable, ApplianceRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AppliancesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AppliancesTable,
+      ApplianceRow,
+      $$AppliancesTableFilterComposer,
+      $$AppliancesTableOrderingComposer,
+      $$AppliancesTableAnnotationComposer,
+      $$AppliancesTableCreateCompanionBuilder,
+      $$AppliancesTableUpdateCompanionBuilder,
+      (
+        ApplianceRow,
+        BaseReferences<_$AppDatabase, $AppliancesTable, ApplianceRow>,
+      ),
+      ApplianceRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -17224,4 +20269,10 @@ class $AppDatabaseManager {
       $$ServiceRecordsTableTableManager(_db, _db.serviceRecords);
   $$FuelLogsTableTableManager get fuelLogs =>
       $$FuelLogsTableTableManager(_db, _db.fuelLogs);
+  $$HomeUtilitiesTableTableManager get homeUtilities =>
+      $$HomeUtilitiesTableTableManager(_db, _db.homeUtilities);
+  $$MaintenanceJobsTableTableManager get maintenanceJobs =>
+      $$MaintenanceJobsTableTableManager(_db, _db.maintenanceJobs);
+  $$AppliancesTableTableManager get appliances =>
+      $$AppliancesTableTableManager(_db, _db.appliances);
 }
