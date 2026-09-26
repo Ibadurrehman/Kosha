@@ -86,6 +86,7 @@ class DriftVehicleRepository implements VehicleRepository {
     String? registration,
     int? odometerKm,
     DateTime? purchaseDate,
+    bool clearPurchaseDate = false,
   }) async {
     await (_db.update(_db.vehicles)..where((v) => v.id.equals(id))).write(
       VehiclesCompanion(
@@ -97,9 +98,9 @@ class DriftVehicleRepository implements VehicleRepository {
             : Value(registration),
         odometerKm:
             odometerKm == null ? const Value.absent() : Value(odometerKm),
-        purchaseDate: purchaseDate == null
-            ? const Value.absent()
-            : Value(purchaseDate),
+        purchaseDate: clearPurchaseDate
+            ? const Value(null)
+            : (purchaseDate == null ? const Value.absent() : Value(purchaseDate)),
         updatedAt: Value(_clock.now()),
       ),
     );

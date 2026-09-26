@@ -105,6 +105,26 @@ void main() {
       expect(edited.name, 'My Honda City');
       expect(edited.makeModel, 'Honda City');
     });
+
+    test('clearing the purchase date needs the sentinel', () async {
+      final vehicle = await repository.create(
+        NewVehicle(
+          name: 'My Honda City',
+          makeModel: 'Honda City',
+          registration: 'MH 02 CJ 4471',
+          purchaseDate: DateTime(2024, 1, 1),
+        ),
+      );
+
+      final untouched = await repository.edit(vehicle.id, odometerKm: 100);
+      expect(untouched.purchaseDate, DateTime(2024, 1, 1));
+
+      final cleared = await repository.edit(
+        vehicle.id,
+        clearPurchaseDate: true,
+      );
+      expect(cleared.purchaseDate, isNull);
+    });
   });
 
   group('delete and restore', () {

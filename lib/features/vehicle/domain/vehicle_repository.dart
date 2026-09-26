@@ -24,8 +24,12 @@ abstract interface class VehicleRepository {
   Future<Vehicle> create(NewVehicle draft);
 
   /// Applies an edit. Every argument is optional; omitting one leaves that
-  /// field alone. `purchaseDate` cannot be cleared through this method — no
-  /// surface removes it once set.
+  /// field alone.
+  ///
+  /// `purchaseDate` takes a sentinel to clear it rather than reading null as
+  /// "remove it" — the same reasoning `DocumentRepository.edit`'s
+  /// `clearExpiry` gives, since null already means "unchanged" for every
+  /// other field here.
   Future<Vehicle> edit(
     String id, {
     String? name,
@@ -33,6 +37,7 @@ abstract interface class VehicleRepository {
     String? registration,
     int? odometerKm,
     DateTime? purchaseDate,
+    bool clearPurchaseDate = false,
   });
 
   /// Marks the vehicle deleted and cancels every renewal reminder it holds.

@@ -33,6 +33,9 @@ import '../../features/states_gallery/presentation/states_gallery_screen.dart';
 import '../../features/tasks/presentation/task_detail_screen.dart';
 import '../../features/tasks/presentation/task_edit_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
+import '../../features/vehicle/presentation/vehicle_edit_screen.dart';
+import '../../features/vehicle/presentation/vehicle_renewals_screen.dart';
+import '../../features/vehicle/presentation/vehicle_screen.dart';
 import '../config/app_config.dart';
 import 'go_router_refresh_stream.dart';
 import 'kosha_shell.dart';
@@ -62,6 +65,13 @@ abstract final class Routes {
   /// with `/spaces/:id` would be matched by route order rather than by intent.
   static const documents = '/documents';
   static const documentsArchive = '/documents/archive';
+  /// Vehicle sits in the Spaces branch for the same reason Documents does —
+  /// see [documents]'s doc comment. v1 manages exactly one vehicle, so
+  /// nothing here carries an id (`VehicleScreen` and its two sub-screens all
+  /// read `primaryVehicleProvider` themselves).
+  static const vehicle = '/vehicle';
+  static const vehicleEdit = '/vehicle/edit';
+  static const vehicleRenewals = '/vehicle/renewals';
   static const profile = '/more/profile';
   static const settings = '/more/settings';
 
@@ -265,6 +275,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     builder: (_, state) => SpaceDetailScreen(
                       spaceId: state.pathParameters['id']!,
                     ),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: Routes.vehicle,
+                builder: (_, _) => const VehicleScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    builder: (_, _) => const VehicleEditScreen(),
+                  ),
+                  GoRoute(
+                    path: 'renewals',
+                    builder: (_, _) => const VehicleRenewalsScreen(),
                   ),
                 ],
               ),
