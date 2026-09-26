@@ -14,6 +14,11 @@ import '../../features/finance/data/transaction_table.dart';
 // imports, so they must be imported here even though this file never names them.
 import '../../features/finance/domain/entities/transaction.dart';
 import '../../features/finance/domain/entities/transaction_category.dart';
+import '../../features/groups/data/group_table.dart';
+import '../../features/groups/domain/entities/group.dart';
+import '../../features/groups/domain/entities/group_member.dart';
+import '../../features/groups/domain/entities/settlement.dart';
+import '../../features/groups/domain/entities/shared_expense.dart';
 import '../../features/home/data/dashboard_section_table.dart';
 import '../../features/home_space/data/home_management_table.dart';
 import '../../features/home_space/domain/entities/maintenance_job.dart';
@@ -72,6 +77,11 @@ class Settings extends Table {
     Appliances,
     RecordTemplates,
     CustomRecords,
+    Groups,
+    GroupMembers,
+    SharedExpenses,
+    ExpenseShares,
+    Settlements,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -81,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -219,6 +229,24 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(customRecords);
             await m.createIndex(customRecordsTemplate);
             await m.createIndex(customRecordsRenewal);
+          }
+          // v17 (Phase 3 week 4): shared-expense groups. Five tables because
+          // a split is five facts -- who is in the group, what was spent, who
+          // paid it, what each person's share of it was, and who has since
+          // paid whom. Shares are rows rather than a division done at read
+          // time, which is what lets the ledger balance to the paisa.
+          if (from < 17) {
+            await m.createTable(groups);
+            await m.createIndex(groupsSpace);
+            await m.createTable(groupMembers);
+            await m.createIndex(groupMembersGroup);
+            await m.createTable(sharedExpenses);
+            await m.createIndex(sharedExpensesGroup);
+            await m.createTable(expenseShares);
+            await m.createIndex(expenseSharesExpense);
+            await m.createIndex(expenseSharesMember);
+            await m.createTable(settlements);
+            await m.createIndex(settlementsGroup);
           }
         },
         beforeOpen: (details) async {

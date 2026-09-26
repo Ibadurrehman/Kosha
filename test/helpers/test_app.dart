@@ -14,6 +14,7 @@ import 'package:kosha/features/bills/data/bill_repository_impl.dart';
 import 'package:kosha/features/documents/data/document_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_category_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_repository_impl.dart';
+import 'package:kosha/features/groups/data/group_repository_impl.dart';
 import 'package:kosha/features/home_space/data/home_management_repository_impl.dart';
 import 'package:kosha/features/onboarding/data/profile_repository_impl.dart';
 import 'package:kosha/features/spaces/data/record_repository_impl.dart';
@@ -151,6 +152,15 @@ DriftRecordRepository testRecordRepository(
       db,
       FixedClock(now ?? testNow),
       scheduler ?? const NoopReminderScheduler(),
+    );
+
+/// A groups repository on [db]. Shares the profile repository, because
+/// creating a group puts the user in it as the organiser.
+DriftGroupRepository testGroupRepository(AppDatabase db, {DateTime? now}) =>
+    DriftGroupRepository(
+      db,
+      FixedClock(now ?? testNow),
+      testProfileRepository(db, now: now),
     );
 
 /// Wraps [app] in a scope with a throwaway database, a fixed clock and no real
