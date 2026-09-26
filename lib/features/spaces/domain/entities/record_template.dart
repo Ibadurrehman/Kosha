@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 part 'record_template.freezed.dart';
 
@@ -103,6 +104,13 @@ class NewRecordTemplate {
   final List<RecordField> fields;
   final String? spaceId;
 }
+
+/// A key for a field the builder has just added.
+///
+/// Random rather than a slug of the label: two fields can carry the same
+/// label, and a key is the one thing about a field that must never collide or
+/// change — [RecordField.key]'s doc comment says why.
+String newRecordFieldKey() => const Uuid().v4();
 
 /// The template's `fields` column: a JSON array of `{key,label,type,required}`
 /// exactly as section 5.1 specifies it.

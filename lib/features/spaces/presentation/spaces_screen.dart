@@ -15,6 +15,7 @@ import '../domain/entities/space.dart';
 import '../domain/entities/space_summary.dart';
 import 'controllers/space_providers.dart';
 import 'space_icons.dart';
+import 'widgets/custom_records_card.dart';
 import 'widgets/new_space_sheet.dart';
 import 'widgets/space_tile.dart';
 
@@ -97,6 +98,7 @@ class SpacesScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            const SliverToBoxAdapter(child: CustomRecordsCard()),
             SliverToBoxAdapter(
               child: _ArchivedFooter(
                 spaces: archived.value ?? const [],

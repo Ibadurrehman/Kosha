@@ -28,6 +28,8 @@ import '../../features/onboarding/presentation/onboarding_welcome_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/settings/presentation/profile_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/spaces/presentation/custom_records_screen.dart';
+import '../../features/spaces/presentation/record_template_builder_screen.dart';
 import '../../features/spaces/presentation/space_detail_screen.dart';
 import '../../features/spaces/presentation/spaces_screen.dart';
 import '../../features/states_gallery/presentation/states_gallery_screen.dart';
@@ -77,6 +79,11 @@ abstract final class Routes {
   /// and Vehicle do. Its own screen already assumed this literal path — see
   /// `appliance_reminder.dart`'s `route` field.
   static const homeManagement = '/home-management';
+  /// Custom records sit in the Spaces branch for the same reason Documents,
+  /// Vehicle and Home management do. `record_reminder.dart` already assumed
+  /// this literal path -- see its `route` field.
+  static const records = '/records';
+  static const newRecordTemplate = '/records/new';
   static const profile = '/more/profile';
   static const settings = '/more/settings';
 
@@ -103,6 +110,11 @@ abstract final class Routes {
   static String documentDetail(String id) => '$documents/$id';
 
   static String documentEdit(String id) => '$documents/$id/edit';
+
+  static String customRecords(String templateId) => '$records/$templateId';
+
+  static String recordTemplateFields(String templateId) =>
+      '$records/$templateId/fields';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -300,6 +312,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: Routes.homeManagement,
                 builder: (_, _) => const HomeManagementScreen(),
+              ),
+              // Custom records are three sibling routes rather than children
+              // of a redirect-only `/records`: go_router walks *every* match
+              // in the stack looking for a route-level redirect, so a parent
+              // that redirected to the grid would take its own children with
+              // it. Nothing lives at `/records` itself -- the Spaces grid's
+              // card is the list of record types.
+              //
+              // "new" is declared before ":id" so the literal wins; go_router
+              // matches in order, and "new" is a screen, not a record type.
+              GoRoute(
+                path: Routes.newRecordTemplate,
+                builder: (_, _) => const RecordTemplateBuilderScreen(),
+              ),
+              GoRoute(
+                path: '${Routes.records}/:id',
+                builder: (_, state) => CustomRecordsScreen(
+                  templateId: state.pathParameters['id']!,
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'fields',
+                    builder: (_, state) => RecordTemplateBuilderScreen(
+                      templateId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
