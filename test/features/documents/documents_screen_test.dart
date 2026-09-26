@@ -73,15 +73,32 @@ void main() {
   /// nothing inside the fake-async zone ever finishes those futures — drift's
   /// in-memory database needs no such help, which is why only the capture
   /// paths use this.
+  /// Runs [action] outside the fake-async zone — `FileService` does real
+  /// `dart:io` work, which never completes inside it — then pumps until
+  /// [until] is true.
+  ///
+  /// A fixed delay used to stand in for [until]. Alone that was enough; under
+  /// a full `flutter test` it was not, roughly three runs in five, and the
+  /// half-finished `writeAsBytes` then held its handle open so `tearDown`'s
+  /// sandbox delete failed with Windows errno 32 — which is the only error
+  /// the run summary showed. Pumping is forbidden inside `runAsync`, so the
+  /// two alternate here; pending I/O keeps progressing across the turns.
   Future<void> withRealIo(
     WidgetTester tester,
-    Future<void> Function() action,
-  ) async {
-    await tester.runAsync(() async {
-      await action();
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-    });
-    await tester.pumpAndSettle();
+    Future<void> Function() action, {
+    required bool Function() until,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    await tester.runAsync(action);
+    final deadline = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(deadline)) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 5)),
+      );
+      await tester.pumpAndSettle();
+      if (until()) return;
+    }
+    fail('the file handler never finished');
   }
 
   group('the list', () {
@@ -238,7 +255,12 @@ void main() {
       await tester.tap(find.text('Add a document'));
       await tester.pumpAndSettle();
 
-      await withRealIo(tester, () => tester.tap(find.text('Upload')));
+      await withRealIo(
+        tester,
+        () => tester.tap(find.text('Upload')),
+        until: () =>
+            find.textContaining('Rent agreement.pdf').evaluate().isNotEmpty,
+      );
 
       expect(capture.pickCalls, 1);
       expect(find.textContaining('Rent agreement.pdf'), findsOneWidget);
@@ -270,9 +292,15 @@ void main() {
       await tester.tap(find.text('Add a document'));
       await tester.pumpAndSettle();
 
-      await withRealIo(tester, () => tester.tap(find.text('Upload')));
+      // Nothing appears on screen to wait for, so wait on the picker having
+      // been asked and come back empty-handed: the assertion below is only
+      // meaningful once that has happened.
+      await withRealIo(
+        tester,
+        () => tester.tap(find.text('Upload')),
+        until: () => capture.pickCalls == 1,
+      );
 
-      expect(capture.pickCalls, 1);
       expect(find.text('Remove'), findsNothing);
       await settleAndDispose(tester);
     });

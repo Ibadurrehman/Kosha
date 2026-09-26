@@ -159,3 +159,78 @@ final class SpaceTransactionsFamily extends $Family
   @override
   String toString() => r'spaceTransactionsProvider';
 }
+
+@ProviderFor(spaceDocuments)
+final spaceDocumentsProvider = SpaceDocumentsFamily._();
+
+final class SpaceDocumentsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Document>>,
+          List<Document>,
+          Stream<List<Document>>
+        >
+    with $FutureModifier<List<Document>>, $StreamProvider<List<Document>> {
+  SpaceDocumentsProvider._({
+    required SpaceDocumentsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'spaceDocumentsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$spaceDocumentsHash();
+
+  @override
+  String toString() {
+    return r'spaceDocumentsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<Document>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<Document>> create(Ref ref) {
+    final argument = this.argument as String;
+    return spaceDocuments(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SpaceDocumentsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$spaceDocumentsHash() => r'a03cfdf7df8f742c3fa1de47e51cdce4178c261a';
+
+final class SpaceDocumentsFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<Document>>, String> {
+  SpaceDocumentsFamily._()
+    : super(
+        retry: null,
+        name: r'spaceDocumentsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SpaceDocumentsProvider call(String spaceId) =>
+      SpaceDocumentsProvider._(argument: spaceId, from: this);
+
+  @override
+  String toString() => r'spaceDocumentsProvider';
+}

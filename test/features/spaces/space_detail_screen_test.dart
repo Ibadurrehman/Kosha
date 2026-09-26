@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kosha/core/db/app_database.dart';
+import 'package:kosha/features/documents/domain/entities/document.dart';
 import 'package:kosha/features/finance/domain/entities/transaction.dart';
 import 'package:kosha/features/finance/presentation/widgets/new_expense_sheet.dart';
 import 'package:kosha/features/spaces/domain/entities/space.dart';
@@ -64,6 +65,45 @@ void main() {
     await settleAndDispose(tester);
   });
 
+  // Documents had no entry point in the whole app until this section existed
+  // — the header offered them, the space could hold them, and nothing showed
+  // them. Found by the Phase 3 device pass (plan §12.5.5).
+  testWidgets('a space holding documents shows them and links onward',
+      (tester) async {
+    final space = await seedStudio(
+      holds: {SpaceHolds.tasks, SpaceHolds.documents},
+    );
+    await testDocumentRepository(db).create(
+      NewDocument(
+        name: 'Studio lease',
+        category: DocumentCategory.property,
+        spaceId: space.id,
+      ),
+    );
+    await testDocumentRepository(db).create(
+      const NewDocument(name: 'Filed elsewhere', category: DocumentCategory.identity),
+    );
+
+    await pumpDetail(tester, space.id);
+
+    expect(find.text('DOCUMENTS'), findsOneWidget);
+    expect(find.text('Studio lease'), findsOneWidget);
+    expect(find.text('Filed elsewhere'), findsNothing);
+    expect(find.text('See all'), findsOneWidget);
+    await settleAndDispose(tester);
+  });
+
+  testWidgets('a space with no documents in it says so', (tester) async {
+    final space = await seedStudio(
+      holds: {SpaceHolds.tasks, SpaceHolds.documents},
+    );
+
+    await pumpDetail(tester, space.id);
+
+    expect(find.text('No documents filed here.'), findsOneWidget);
+    await settleAndDispose(tester);
+  });
+
   testWidgets('a section the space does not hold is not built',
       (tester) async {
     final space = await seedStudio(holds: {SpaceHolds.tasks});
@@ -72,6 +112,7 @@ void main() {
 
     expect(find.text('TASKS'), findsOneWidget);
     expect(find.text('MONEY'), findsNothing);
+    expect(find.text('DOCUMENTS'), findsNothing);
     await settleAndDispose(tester);
   });
 

@@ -1,5 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../documents/data/document_repository_impl.dart';
+import '../../../documents/domain/entities/document.dart';
 import '../../../finance/data/transaction_repository_impl.dart';
 import '../../../finance/domain/entities/transaction.dart';
 import '../../../tasks/data/task_repository_impl.dart';
@@ -20,4 +22,9 @@ Stream<List<Task>> spaceTasks(Ref ref, String spaceId) => ref
 @riverpod
 Stream<List<Transaction>> spaceTransactions(Ref ref, String spaceId) => ref
     .watch(transactionRepositoryProvider)
+    .watchInSpace(spaceId, limit: spaceSectionLimit);
+
+@riverpod
+Stream<List<Document>> spaceDocuments(Ref ref, String spaceId) => ref
+    .watch(documentRepositoryProvider)
     .watchInSpace(spaceId, limit: spaceSectionLimit);

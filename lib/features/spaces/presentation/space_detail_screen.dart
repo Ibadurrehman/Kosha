@@ -12,6 +12,7 @@ import '../../../core/utils/clock.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/state/toast_controller.dart';
 import '../../../shared/widgets/widgets.dart';
+import '../../documents/presentation/widgets/document_tile.dart';
 import '../../finance/presentation/widgets/transaction_row.dart';
 import '../../groups/presentation/widgets/trip_group_card.dart';
 import '../../tasks/presentation/task_actions.dart';
@@ -31,8 +32,9 @@ import 'widgets/new_space_sheet.dart';
 ///
 /// Sections appear in the plan's order — Upcoming / Tasks / Budget /
 /// Documents / Notes / Lists — but only the ones whose tables exist are built.
-/// Documents, Notes and Lists arrive in Phases 3 and 4; a section that could
-/// only ever render an empty state would be a promise the app cannot keep.
+/// Notes and Lists arrive in Phase 4; a section that could only ever render an
+/// empty state would be a promise the app cannot keep — and the header, which
+/// reads the space's own holds, makes that promise out loud.
 class SpaceDetailScreen extends ConsumerWidget {
   const SpaceDetailScreen({super.key, required this.spaceId});
 
@@ -107,6 +109,7 @@ class _SpaceBody extends ConsumerWidget {
             SpaceSummary.empty;
     final tasks = ref.watch(spaceTasksProvider(space.id));
     final transactions = ref.watch(spaceTransactionsProvider(space.id));
+    final documents = ref.watch(spaceDocumentsProvider(space.id));
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -181,6 +184,46 @@ class _SpaceBody extends ConsumerWidget {
                           onTap: () => context.go(
                             Routes.transactionDetail(transaction.id),
                           ),
+                        ),
+                    ],
+                  ),
+          ),
+        ],
+        if (space.holdsKind(SpaceHolds.documents)) ...[
+          const SizedBox(height: KoshaSpace.xxl),
+          SectionLabel(
+            'Documents',
+            // Until this landed, the five Documents screens had no entry point
+            // anywhere in the app: the only routes to them were a notification
+            // tap and Vehicle's "Add document" action.
+            trailing: TextButton(
+              onPressed: () => context.go(Routes.documents),
+              child: const Text('See all'),
+            ),
+          ),
+          documents.when(
+            loading: () => const SkeletonList(rows: 2),
+            error: (_, _) => const _SectionError(),
+            data: (list) => list.isEmpty
+                ? const _SectionEmpty(
+                    text: 'No documents filed here.',
+                  )
+                : GridView.count(
+                    // Inside the screen's own ListView, so it scrolls with the
+                    // page rather than trapping a second scroll gesture.
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: KoshaSpace.md,
+                    crossAxisSpacing: KoshaSpace.md,
+                    childAspectRatio: 1.15,
+                    children: [
+                      for (final document in list)
+                        DocumentTile(
+                          document: document,
+                          today: ref.watch(clockProvider).today(),
+                          onTap: () =>
+                              context.go(Routes.documentDetail(document.id)),
                         ),
                     ],
                   ),

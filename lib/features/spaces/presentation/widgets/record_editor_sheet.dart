@@ -231,7 +231,7 @@ class _RecordEditorSheetState extends ConsumerState<RecordEditorSheet> {
 
     return SheetScaffold(
       title: widget.existing == null
-          ? 'New ${template.name.toLowerCase()} record'
+          ? 'New ${template.name} record'
           : 'Edit record',
       children: [
         TextField(

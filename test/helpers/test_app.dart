@@ -185,9 +185,10 @@ Widget wrapApp(
         scheduler ?? const NoopReminderScheduler(),
       ),
       // Documents reach the camera and the file system through these two.
-      // A test that does not pass either gets services that touch neither:
-      // the capture double backs out of every prompt, and the file service
-      // writes into a throwaway temp directory rather than the real sandbox.
+      // Left out, they stay the real thing — the platform scanner and a
+      // `LocalFileService` writing into the app's own sandbox. A widget test
+      // passes both; the on-device test of the scan flow deliberately passes
+      // only `capture`, so the file half runs for real.
       if (capture != null) documentCaptureProvider.overrideWithValue(capture),
       if (files != null) fileServiceProvider.overrideWithValue(files),
     ],
@@ -228,6 +229,7 @@ Widget wrapPushedScreen(
   Widget screen, {
   required AppDatabase db,
   DateTime? now,
+  ReminderScheduler? scheduler,
   DocumentCapture? capture,
   FileService? files,
 }) {
@@ -252,6 +254,7 @@ Widget wrapPushedScreen(
     ),
     db: db,
     now: now,
+    scheduler: scheduler,
     capture: capture,
     files: files,
   );

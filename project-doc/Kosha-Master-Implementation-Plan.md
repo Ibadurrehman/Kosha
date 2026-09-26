@@ -822,7 +822,7 @@ Assumes one full-time Flutter developer from Phase 0 and a second part-time deve
 | **0 · Foundation** ✅ | 1.5 | Git, repo hygiene (section 10), dependency set, flavors, theme tokens + typography + `ThemeExtension`, shared component library (section 7.4) rendered in the States gallery, go_router shell with 5 empty tabs, Drift database with core tables + migrations framework, Riverpod wiring, CI running analyze/test/golden | App launches to an empty shell in light and dark; golden tests for every shared component pass; `flutter analyze` clean |
 | **1 · Core** ✅ | 4 | Onboarding, Home (all 5 sections), Tasks (CRUD, tabs, complete/undo, reschedule, delete, detail, edit, recurrence, links), Quick-add sheet, Calendar (3 views + Event entity), Notifications inbox + ReminderScheduler, Search (FTS), Settings/Appearance/Customize/Profile | All 12 prototype "wired flows" that involve tasks/search/dark mode work; reminders fire on both platforms; midnight rollover test passes |
 | **2 · Money** ✅ | 3 | Finance dashboard, Add expense keypad, transactions list/detail/edit, categories, income/budget setting, Bills & subscriptions (list, add/edit, detail, mark paid, payments, reminders), Home space utilities link | Add-expense flow matches prototype; overdue bill appears on Home/Calendar/Notifications and clears on payment |
-| **3 · Records & Spaces** ⏳ *(built; device check outstanding — §12.5)* | 4 | Documents (list, add with upload/scan, detail, viewer, replace, archive, reminders), Vehicle (overview, service, fuel, renewals), Home management (jobs, appliances), Spaces (grid, new space, generic space detail aggregator, space settings), Custom records (template builder, record editor), Groups UI with local members (trip card, shared expense sheet, ledger, settle up) | Scan → PDF → expiry reminder works on a physical device; ledger unit tests pass; a user-created space shows linked items |
+| **3 · Records & Spaces** ✅ | 4 | Documents (list, add with upload/scan, detail, viewer, replace, archive, reminders), Vehicle (overview, service, fuel, renewals), Home management (jobs, appliances), Spaces (grid, new space, generic space detail aggregator, space settings), Custom records (template builder, record editor), Groups UI with local members (trip card, shared expense sheet, ledger, settle up) | Scan → PDF → expiry reminder works on a physical device; ledger unit tests pass; a user-created space shows linked items |
 | **4 · Capture & Goals** | 2 | Shopping lists (manage lists, reorder, quick add), Notes (editor, tabs, archive), Ideas (capture, promote), Goals (list, detail, log progress, edit), export/import archive, nightly local backup | Feature-complete v1.0 candidate; internal dogfooding starts |
 | **5 · Accounts & Sharing** | 4 | Supabase project, auth (email OTP/magic link), profile sync, sync queue + worker, shared groups (invite link, join, member sync, shared expenses, settlements, remind push), conflict handling, cloud backup/restore | Two devices share a trip and see each other's expenses within seconds; offline edits reconcile |
 | **6 · Hardening & release** | 2.5 | App lock + biometrics, SQLCipher + attachment encryption, performance pass (large fixtures), accessibility audit, localisation scaffold (arb), crash reporting opt-in, store assets, privacy policy, TestFlight/Play internal testing, release checklist | Store submission for v1.0 (local) or v1.1 (with sharing, if Phase 5 completed first — see section 17) |
@@ -1037,7 +1037,7 @@ and All transactions filtered before the emulator's Gradle builds started wedgin
 that takes ~90 s warm sat for 20+ minutes), so Bills, Bill detail, the payment sheet, the
 category manager and transaction detail have **not** had a screenshot-level look — they are
 covered by the on-device flow test above and by widget tests, but nobody has looked at their
-pixels. Worth finishing at the start of Phase 3, when the machine is fresh. What it did
+pixels. *(Finished 27 Sep 2026 as part of the Phase 3 pass — all five were screenshotted and nothing was wrong with any of them; §12.5.5.)* What it did
 reach found two things no widget test had:
 
 - **A `context.go` to a sibling route silently skips the screen you came from.** Transaction
@@ -1098,13 +1098,12 @@ midnight-rollover coverage. Still not covered anywhere: iOS (no Mac on this mach
 "reminders fire on both platforms" is half-verified), and the visual pass §12.3.2 records
 as unfinished.
 
-### 12.5 Phase 3 · Records & Spaces — built, not yet closed
+### 12.5 Phase 3 · Records & Spaces — complete
 
-**Status (27 Sep 2026): all four weeks are built. The phase cannot be called done, because
-one of its three exit criteria has never been tested.** Schema is at v17. Spaces,
-Documents, Vehicle, Home management, custom records and Groups are all in; 710 tests pass
-with none skipped, `flutter analyze` is clean apart from the untracked scratch file
-`integration_test/zz_live_ui_check.dart`.
+**Status (27 Sep 2026): all four weeks are built, both halves of the device pass have run,
+and the phase is closed.** Schema is at v17. Spaces, Documents, Vehicle, Home management,
+custom records and Groups are all in; 715 tests pass with none skipped and
+`flutter analyze` is clean.
 
 Against the §12 table's own exit criteria for this phase:
 
@@ -1112,12 +1111,17 @@ Against the §12 table's own exit criteria for this phase:
 |---|---|
 | Ledger unit tests pass | **Met.** 20 tests against Appendix B's seed trip, including its exact three transfers. |
 | A user-created space shows linked items | **Met** since week 1. |
-| Scan → PDF → expiry reminder works on a physical device | **Partly met.** Weeks 2–4 were screenshotted on a real 411×914 phone surface on 27 Sep (§12.5.5), which closes the "nobody has looked at it" half. The scanner leg itself has still never run: it needs `DocumentCapture` on a physical handset, and only an emulator exists on this machine. |
+| Scan → PDF → expiry reminder works on a physical device | **Met.** The screens were looked at on a real 411×914 phone surface on 27 Sep (§12.5.5), and the flow itself now runs on the device, in CI, as `integration_test/document_scan_expiry_reminder_test.dart` (§12.5.6). The shutter is the one leg still faked, at the `DocumentCapture` seam. |
 
-That last row is the whole of what is left. The visual half of it ran on 27 Sep and is
-written up in §12.5.5, together with eight small defects it found and three false alarms
-it did not. What remains is narrow and specific: **scan → PDF → expiry reminder on a
-physical handset. Phase 3 stays open until that runs.**
+Both halves of that last row ran on 27 Sep. §12.5.5 is the screenshot pass — eight small
+defects and three false alarms. §12.5.6 is the flow itself, driven end to end, which found
+two more that were neither small nor local: the app had been crashing on every install and
+update since Phase 1, and no Android reminder it ever scheduled could have been delivered.
+
+The device pass was held to the end of the phase rather than run per slice, which is not
+what §15 asks for and is why it had four weeks of UI and two phases of reminder plumbing
+to cover at once. The reading for Phase 4 is that the check belongs at the end of each
+week.
 
 *On the test count:* the running totals in the week 2 and 3 commit messages (rising to "604
 total") were tallied by adding each commit's new tests to the previous figure rather than
@@ -1421,8 +1425,12 @@ or Phase 6's accessibility/polish audit, except D12, which needs an owner first.
 physical device" needs `DocumentCapture`, and the check script screenshots documents
 without ever exercising the scanner. Only the `Realme_Phone` emulator is available on this
 machine, and `cunning_document_scanner` requesting camera permission against a virtual
-camera is exactly the leg an emulator tests least convincingly. **Phase 3 stays open until
-this runs on a real handset** — it is now the only thing left in it.
+camera is exactly the leg an emulator tests least convincingly.
+
+*(Superseded the same day — see §12.5.6. The camera is the only part of that criterion
+that needs a handset, and faking it at the `DocumentCapture` seam leaves the PDF, the
+sandbox write and the OS alarm all real and all testable here. Running it that way is what
+turned up the two Phase 1 defects §12.5.6 records.)*
 
 **Harness notes for the next run,** on top of the two §12.3.2 already records:
 
@@ -1442,6 +1450,93 @@ this runs on a real handset** — it is now the only thing left in it.
   every scroll with `tester.ensureVisible`, or drive the sheet from a control that sits
   mid-screen.
 
+### 12.5.6 The exit criterion, driven on the device (27 Sep 2026)
+
+§12.5.5 looked at the screens. This is the other half: **scan → PDF → expiry reminder**,
+run end to end as `integration_test/document_scan_expiry_reminder_test.dart`, which now
+runs nightly in CI beside the Phase 1 and Phase 2 flows. It passes.
+
+**What is real in it, and what is not.** The test scans two pages, assembles them with the
+real `pdf` package on the device, writes the result into the app's own sandbox through the
+real `LocalFileService` (no temp-directory override), saves the document through the real
+repository, and then asks Android what it is holding: `pendingNotificationRequests` has
+the reminder, with the right id, title, body and deep link. The bytes on disk are compared
+against the assembled PDF, so the sandbox write is checked rather than assumed. The one
+leg still faked is the shutter — `CunningDocumentScanner.getPictures()` opens a native
+activity no test can drive, which is precisely why `DocumentCapture` is an interface — so
+page images are rendered in the test and handed to it there.
+
+§12.5.5 concluded this criterion needed a physical handset and could not run here. That is
+true of the camera and only of the camera. Everything the criterion is actually about —
+that multi-page scanning produces a real PDF, that the PDF survives in the sandbox, that
+an expiry becomes an alarm the operating system is holding — runs on the emulator, and
+running it found two defects that had been shipping since Phase 1. Pointing a phone at a
+piece of paper stays a manual check, and is now the only part that is.
+
+**The app crashed on launch, on every install and every update.** `AndroidManifest.xml`
+declared `flutter_local_notifications`' two receivers under
+`com.dexterous.flutterlocalnotifications.receivers.*` — a package that has never existed
+in the plugin, in v22 or in the v19 this project started on. The boot receiver listens for
+`MY_PACKAGE_REPLACED`, so Android tried to instantiate it the instant the APK landed and
+killed the process with `ClassNotFoundException`. That is what a fresh install does; it is
+also what shipping an update to a user does. The same wrong name on
+`ScheduledNotificationReceiver` is the class `AlarmManager` targets when a reminder comes
+due, so **no scheduled reminder on Android could ever have been delivered**. Phase 1's
+"reminders fire on both platforms" has been reported green since Phase 1 week 2 and was
+true on neither: iOS has no Mac to test on (§12.4), and Android was this. A class named by
+a string is checked by nothing until Android tries to load it, so
+`test/core/services/android_manifest_test.dart` now resolves every declared receiver
+against the plugin version `pub get` actually chose — an upgrade that moves the class
+fails there instead of on a phone.
+
+**Every reminder that survived that would have been scheduled against UTC, or lost.**
+`FlutterTimezone.getLocalTimezone()` returns whatever zone id the device is set to, and
+that is routinely a legacy alias: this emulator says `Asia/Calcutta`, not `Asia/Kolkata`.
+`bootstrap()` loaded `timezone/data/latest`, which carries canonical names only, so the
+lookup threw. The `catch` logged and carried on — leaving `tz.local` unset, so the next
+line threw a `LateInitializationError` out of `schedule()` and the reminder was lost
+entirely. `bootstrap()` loads `latest_all` now (about 190 KB more, and the aliases with
+it), and the `catch` sets UTC so the fallback its own comment promises is real rather than
+a second crash. `test/core/services/timezone_database_test.dart` pins the alias list. For
+an Indian user the difference between the two failure modes is a reminder that never
+arrives and one that arrives five and a half hours late; neither is the 9 am §8.1 asks
+for.
+
+Both of these are the same shape: a string handed to a platform, correct-looking, never
+executed by any test in the suite. Every reminder test in the repo asserts against
+`FakeReminderScheduler`, which is the right thing for testing repositories and says
+nothing about whether the real scheduler works.
+
+**Documents had no entry point anywhere in the app.** Five screens, built in week 2,
+reachable only by tapping a notification or through Vehicle's "Add document" action. The
+Spaces grid's Documents tile opens the space, and space detail — whose header lists
+"Documents" among what the space holds — showed Tasks and Money and stopped. The tell was
+`DocumentRepository.watchInSpace`, written in week 2 and called by nothing. Space detail
+now has the Documents section §6.5's order asks for, with "See all" onto the list. Week
+1's reasoning — "a section that could only ever render an empty state would be a promise
+the app cannot keep" — was right when it was written and stopped being right the moment
+the table landed in week 2; nothing went back for it. §12.5.5 did not catch this because
+the check script pumps `DocumentsScreen` directly, which is also how every widget test
+reaches it.
+
+**Fixed from §12.5.5's list while here:** the record editor's ungrammatical title — it uses
+the type name as the user wrote it now, "New My Insurance record". The clipped member
+initials have a fix of their own in the working tree from that pass (`MemberStack` stepping
+0.78 of a disc instead of 0.68), which the screenshots here confirm. The rest of the list
+still stands for Phase 4's polish pass, and D12 still needs an owner.
+
+**Two harness repairs.** `documents_screen_test.dart`'s `withRealIo` still waited a flat
+50 ms for a real file write — the flake §12.5.2 recorded and §12.5.4 worked around — and
+now polls a real condition instead; it was failing roughly three full-suite runs in five.
+And `wrapApp`'s comment claimed that a test passing neither `capture` nor `files` got
+doubles touching neither camera nor disk. It never did: both providers stay real when left
+out, which is exactly what lets the test above write into the actual sandbox, and the
+comment said the opposite.
+
+**Still open, carried into Phase 4 unchanged:** the four features whose reminders are never
+re-registered on launch (§12.5.4) — which matters more now that it is clear how quietly
+reminder plumbing fails; Phase 3's absence from the FTS index; vehicle and custom-record
+renewals not reaching Home or the Calendar; and iOS, which has still never been run.
 
 ---
 

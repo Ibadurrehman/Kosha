@@ -72,6 +72,20 @@ void main() {
       );
 
   group('record editor', () {
+    // The sheet lowercased the template's name into its own title, so a type
+    // the user called "My Insurance" opened as "New my insurance record".
+    // Found by the Phase 3 device pass (plan §12.5.5).
+    testWidgets('titles itself with the type name the user chose',
+        (tester) async {
+      final template = await insurance();
+
+      await pumpRecords(tester, template.id);
+      await openEditor(tester);
+
+      expect(find.text('New My Insurance record'), findsOneWidget);
+      await settleAndDispose(tester);
+    });
+
     testWidgets('renders one input per template field, in order',
         (tester) async {
       final template = await insurance();

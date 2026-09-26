@@ -90,6 +90,7 @@ jobs:
           script: |
             flutter test integration_test/add_complete_undo_delete_test.dart --dart-define-from-file=config/dev.json
             flutter test integration_test/overdue_bill_pay_clears_test.dart --dart-define-from-file=config/dev.json
+            flutter test integration_test/document_scan_expiry_reminder_test.dart --dart-define-from-file=config/dev.json
 
   ios-nightly:
     name: iOS build (nightly)
