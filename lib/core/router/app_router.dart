@@ -15,6 +15,7 @@ import '../../features/finance/presentation/category_manager_screen.dart';
 import '../../features/finance/presentation/finance_screen.dart';
 import '../../features/finance/presentation/transaction_detail_screen.dart';
 import '../../features/finance/presentation/transaction_edit_screen.dart';
+import '../../features/groups/presentation/split_settle_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/home_space/presentation/home_management_screen.dart';
 import '../../features/more/presentation/more_screen.dart';
@@ -84,6 +85,10 @@ abstract final class Routes {
   /// this literal path -- see its `route` field.
   static const records = '/records';
   static const newRecordTemplate = '/records/new';
+  /// Groups sit in the Spaces branch: a group is reached from the space it
+  /// belongs to, and settling up is that group's own screen rather than the
+  /// space's.
+  static const groups = '/groups';
   static const profile = '/more/profile';
   static const settings = '/more/settings';
 
@@ -115,6 +120,8 @@ abstract final class Routes {
 
   static String recordTemplateFields(String templateId) =>
       '$records/$templateId/fields';
+
+  static String groupSettle(String groupId) => '$groups/$groupId';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -325,6 +332,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: Routes.newRecordTemplate,
                 builder: (_, _) => const RecordTemplateBuilderScreen(),
+              ),
+              GoRoute(
+                path: '${Routes.groups}/:id',
+                builder: (_, state) => SplitSettleScreen(
+                  groupId: state.pathParameters['id']!,
+                ),
               ),
               GoRoute(
                 path: '${Routes.records}/:id',

@@ -13,6 +13,7 @@ import '../../../core/utils/formatters.dart';
 import '../../../shared/state/toast_controller.dart';
 import '../../../shared/widgets/widgets.dart';
 import '../../finance/presentation/widgets/transaction_row.dart';
+import '../../groups/presentation/widgets/trip_group_card.dart';
 import '../../tasks/presentation/task_actions.dart';
 import '../../tasks/presentation/widgets/task_row.dart';
 import '../data/space_repository_impl.dart';
@@ -118,6 +119,11 @@ class _SpaceBody extends ConsumerWidget {
         _Header(space: space),
         const SizedBox(height: KoshaSpace.xl),
         _Stats(summary: summary),
+        // The group card sits above the sections: a space that is splitting
+        // money with people is about that first, and the per-kind sections
+        // below are the space's own items either way.
+        const SizedBox(height: KoshaSpace.xxl),
+        TripGroupCard(spaceId: space.id),
         if (space.holdsKind(SpaceHolds.tasks)) ...[
           const SizedBox(height: KoshaSpace.xxl),
           const SectionLabel('Tasks'),
