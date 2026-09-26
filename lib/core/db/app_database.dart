@@ -23,6 +23,8 @@ import '../../features/tasks/data/activity_table.dart';
 import '../../features/tasks/data/task_table.dart';
 import '../../features/tasks/domain/entities/activity_entry.dart';
 import '../../features/tasks/domain/entities/task.dart';
+import '../../features/vehicle/data/vehicle_table.dart';
+import '../../features/vehicle/domain/entities/vehicle_renewal.dart';
 import '../models/priority.dart';
 import '../services/notifications/scheduled_reminder.dart';
 
@@ -58,6 +60,10 @@ class Settings extends Table {
     Spaces,
     Documents,
     Attachments,
+    Vehicles,
+    VehicleRenewals,
+    ServiceRecords,
+    FuelLogs,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -67,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -167,6 +173,19 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(attachments);
             await m.createIndex(attachmentsOwner);
             await m.createIndex(attachmentsSha);
+          }
+          // v14 (Phase 3 week 3): vehicles, their renewals, service history
+          // and fuel log. Nothing is backfilled — v1's UI only ever shows one
+          // vehicle and none exist until the user adds it.
+          if (from < 14) {
+            await m.createTable(vehicles);
+            await m.createIndex(vehiclesSpace);
+            await m.createTable(vehicleRenewals);
+            await m.createIndex(vehicleRenewalsVehicleKind);
+            await m.createTable(serviceRecords);
+            await m.createIndex(serviceRecordsVehicle);
+            await m.createTable(fuelLogs);
+            await m.createIndex(fuelLogsVehicle);
           }
         },
         beforeOpen: (details) async {

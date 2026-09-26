@@ -17,6 +17,7 @@ import 'package:kosha/features/finance/data/transaction_repository_impl.dart';
 import 'package:kosha/features/onboarding/data/profile_repository_impl.dart';
 import 'package:kosha/features/spaces/data/space_repository_impl.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
+import 'package:kosha/features/vehicle/data/vehicle_repository_impl.dart';
 import 'package:kosha/shared/state/toast_controller.dart';
 import 'package:kosha/shared/widgets/toast_host.dart';
 
@@ -105,6 +106,21 @@ DriftProfileRepository testProfileRepository(AppDatabase db, {DateTime? now}) {
   final clock = FixedClock(now ?? testNow);
   return DriftProfileRepository(db, clock, SettingsStore(db, clock));
 }
+
+/// A vehicle repository on [db]. Shares the [SpaceRepository] Spaces uses, so
+/// a created vehicle lands in the same Vehicle system space a test's other
+/// reads see.
+DriftVehicleRepository testVehicleRepository(
+  AppDatabase db, {
+  DateTime? now,
+  ReminderScheduler? scheduler,
+}) =>
+    DriftVehicleRepository(
+      db,
+      FixedClock(now ?? testNow),
+      scheduler ?? const NoopReminderScheduler(),
+      testSpaceRepository(db, now: now),
+    );
 
 /// Wraps [app] in a scope with a throwaway database, a fixed clock and no real
 /// notifications.

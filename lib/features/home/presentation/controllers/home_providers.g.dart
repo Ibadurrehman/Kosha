@@ -55,13 +55,13 @@ final class DashboardSectionsProvider
 String _$dashboardSectionsHash() => r'87e841f48f831e4a149019846df07f5b9584d699';
 
 /// Every feature's contribution to "Needs attention", merged. Tasks and Bills
-/// today; Documents adds its own [NeedsAttentionSource] in Phase 3.
+/// today, plus Documents since Phase 3.
 
 @ProviderFor(needsAttention)
 final needsAttentionProvider = NeedsAttentionProvider._();
 
 /// Every feature's contribution to "Needs attention", merged. Tasks and Bills
-/// today; Documents adds its own [NeedsAttentionSource] in Phase 3.
+/// today, plus Documents since Phase 3.
 
 final class NeedsAttentionProvider
     extends
@@ -74,7 +74,7 @@ final class NeedsAttentionProvider
         $FutureModifier<List<NeedsAttentionItem>>,
         $StreamProvider<List<NeedsAttentionItem>> {
   /// Every feature's contribution to "Needs attention", merged. Tasks and Bills
-  /// today; Documents adds its own [NeedsAttentionSource] in Phase 3.
+  /// today, plus Documents since Phase 3.
   NeedsAttentionProvider._()
     : super(
         from: null,
@@ -101,7 +101,7 @@ final class NeedsAttentionProvider
   }
 }
 
-String _$needsAttentionHash() => r'a6f68d790e9fc24b81f1e1e4928bc337e38878dd';
+String _$needsAttentionHash() => r'6f30ce409c46ae2ffe2e2ba15db78e8cec330eff';
 
 /// Every feature's contribution to "Upcoming", merged and sorted by date.
 
@@ -147,7 +147,7 @@ final class UpcomingProvider
   }
 }
 
-String _$upcomingHash() => r'63e3f49b6860fb5970e230df12a53309eb1e49c4';
+String _$upcomingHash() => r'f7c2dec9e89db358d4ff7479381a0baae73bd93e';
 
 /// The 10 most recently created/updated items across every source, newest
 /// first.
@@ -194,4 +194,4 @@ final class RecentItemsProvider
   }
 }
 
-String _$recentItemsHash() => r'45e3b3447282a85bd878c3243b0a534b80f13bef';
+String _$recentItemsHash() => r'46a53ca92741b630306cfab099b696768f8672bb';

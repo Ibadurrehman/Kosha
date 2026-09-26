@@ -21,6 +21,7 @@ IconData _iconFor(ReminderKind kind) => switch (kind) {
       ReminderKind.event => Symbols.event_rounded,
       ReminderKind.bill => Symbols.receipt_long_rounded,
       ReminderKind.document => Symbols.folder_shared_rounded,
+      ReminderKind.vehicleRenewal => Symbols.directions_car_rounded,
       ReminderKind.general => Symbols.notifications_rounded,
     };
 

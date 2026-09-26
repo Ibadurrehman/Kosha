@@ -2,12 +2,20 @@ import 'package:flutter/foundation.dart';
 
 /// What a reminder is about. Each kind gets its own Android channel so a user
 /// can mute one class of reminder without losing the rest.
+///
+/// Persisted by index (`notification_table.dart`'s `kind` column) — append
+/// only, new kinds go at the end.
 enum ReminderKind {
   task('kosha_tasks', 'Tasks', 'Task and reminder due times'),
   bill('kosha_bills', 'Bills', 'Bills and subscriptions falling due'),
   document('kosha_documents', 'Documents', 'Documents nearing expiry'),
   event('kosha_events', 'Events', 'Calendar events and appointments'),
-  general('kosha_general', 'General', 'Everything else Kosha reminds you of');
+  general('kosha_general', 'General', 'Everything else Kosha reminds you of'),
+  vehicleRenewal(
+    'kosha_vehicle',
+    'Vehicle',
+    'Insurance, PUC and other renewals coming due',
+  );
 
   const ReminderKind(this.channelId, this.channelName, this.channelDescription);
 
