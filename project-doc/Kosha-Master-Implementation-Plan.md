@@ -1099,9 +1099,16 @@ as unfinished.
 
 ### 12.5 Phase 3 · Records & Spaces — in progress
 
-**Status (22 Sep 2026): week 1, Spaces foundation, is complete.** Schema is at v12. The
-`Spaces` table, its repository, the grid, the generic Space detail aggregator and Space
-settings are in; 38 new tests (460 in the suite, was 422), `flutter analyze` clean.
+**Status (26 Sep 2026): weeks 1, 2 and 3 are complete; week 4 is all that remains.** Schema
+is at v15. Spaces, Documents, Vehicle and Home management are in; 574 tests pass with none
+skipped, `flutter analyze` is clean. Week 4 — custom records (the template builder and the
+record editor) and the Groups UI with local members — is the only Phase 3 scope still
+unbuilt.
+
+*On the test count:* the running totals in the week 2 and 3 commit messages (rising to "604
+total") were tallied by adding each commit's new tests to the previous figure rather than
+read off the reporter, and drifted apart from it. The reporter's own count at `e186235` is
+574 visible tests, 0 skipped. Quote that number, not the commit messages'.
 
 Why Spaces went first: Tasks, Bills, Events and Transactions have carried a nullable
 `space_id` since Phases 1 and 2 with nothing to point at, and every remaining Phase 3
@@ -1125,6 +1132,53 @@ What week 1 built:
 - **The New expense sheet now offers a space picker**, which is §6.5's acceptance
   criterion ("creating a space with Expenses enabled makes it selectable"). A sheet opened
   from somewhere that already knows the space does not ask again.
+
+What week 2 built — Documents (schema v13):
+- **`Documents` and `Attachments`.** `Attachments` is deliberately not scoped to documents:
+  its `ownerType`/`ownerId` pair — the shape `ActivityEntries` already established — is
+  what lets a vehicle service invoice or an appliance warranty reuse it later. Neither has
+  taken it up yet; today `documentOwnerType` is its only writer.
+- **`FileService` and `DocumentCapture`.** `FileService` owns the bytes and nothing else,
+  storing paths relative and resolving them on every read, because iOS rewrites an app's
+  container path on some restores — an absolute path saved today can name nothing tomorrow
+  while the file is still there. `DocumentCapture` is the seam over the scanner and file
+  picker, so no test touches a camera and `permission_handler` stays deferred (§9).
+- **All five screens** — the list (eight category chips over a tile grid), the add sheet,
+  detail, edit and the archive — plus `DocumentFormFields` shared by add and edit so the
+  two cannot drift apart. Only the name is required: a page just scanned and not yet
+  labelled is still worth keeping.
+- **Documents reach Home and the Calendar**, at the cost §12.1.3 predicted — three
+  adapters (`document_home_sources.dart`), one `HomeItemKind` value, one
+  `CalendarItemKind` value, one routing case, one entry in each merge list. No existing
+  source changed.
+
+What week 3 built — Vehicle (schema v14) and Home management (schema v15):
+- **`Vehicles`, `VehicleRenewals`, `ServiceRecords`, `FuelLogs`.** A vehicle's space is not
+  user-chosen: it always names the single Vehicle system space, found through
+  `SpaceRepository.findBySystemKey`. The model keeps room for more than one vehicle (D10),
+  but v1's repository only ever exposes the oldest live row through `watchPrimary`.
+- **Renewals are an upsert, not a log.** One row per kind per vehicle
+  (insurance/PUC/registration/permit) behind a unique index, so "renewing" writes in place
+  — the same reasoning `Bill.nextDue` gives for storing one date instead of a history.
+  `ServiceRecords` and `FuelLogs` are the opposite: append-only, shaped like `Payments`,
+  because a service or a fill-up is a fact about a moment.
+- **Vehicle's screens**: overview (header, three stat tiles, service-history preview, "Fuel
+  this month", and §6.9's four actions each pre-linked to the vehicle's own space), the
+  renewals editor, and quick-capture sheets for service and fuel that bump the vehicle's
+  odometer when the new reading reads higher.
+- **`HomeUtilities`, `MaintenanceJobs`, `Appliances`**, and the single Home management
+  screen over all three. None takes a user-picked `spaceId`: every row belongs to the one
+  Home system space, found the way the Vehicle repository finds its own.
+- **A maintenance job can be promoted to a task.** `TaskSource` gained `maintenanceJob`,
+  and the job stores the created task's id back on itself — the same one-way link Ideas
+  will use for "Make a task" in Phase 4.
+
+What week 4 still owes:
+- **Custom records** — the `RecordTemplate` and `CustomRecord` tables, the template builder
+  and the record editor. Neither table exists; the Spaces grid's Custom records card
+  (Appendix A) has been waiting on them since week 1.
+- **Groups UI with local members** — trip card, shared expense sheet, ledger, settle up.
+  Sync is Phase 5's; the exit criterion this phase owns is "ledger unit tests pass".
 
 ### 12.5.1 Notes carried out of week 1
 
@@ -1150,6 +1204,75 @@ What week 1 built:
   the `RecordTemplate`/`CustomRecord` tables in week 4, and Space detail's Upcoming
   section waits on documents and renewals having dates to contribute.
 
+### 12.5.2 Notes carried out of week 2
+
+- **"No expiry" is a status, not a missing one.** A document with no expiry date and a
+  valid one are both fine states, but only one of them can change, and the pill says
+  different things about them. `documentStatus` therefore returns four values
+  (valid/expiring/expired/none), and week 3's appliance warranty reused the shape exactly.
+- **The expiry window is per document, so "needs attention" is not one date-range query.**
+  A passport reminding 30 days out and a policy reminding 7 days out are expiring on
+  different days. That filter runs in Dart over the documents that have an expiry at all —
+  a handful of rows — rather than in hand-rolled SQL date arithmetic a later reader would
+  have to re-verify.
+- **Replace writes the new file first and swaps the row second**, leaving the old bytes for
+  the caller to delete, so a crash anywhere leaves a document with a readable file rather
+  than a path pointing at nothing.
+- **Category chip counts are unfiltered on purpose.** A chip reading "0" only because
+  another chip is selected would be lying about what is in the app; a filtered view that
+  finds nothing says so about that category instead.
+- **Real file I/O never completes inside the widget tester's fake-async zone**, so the
+  capture paths run through `runAsync`. Drift's in-memory database needs no such help,
+  which is why only those paths use it.
+- **Awaiting a drift stream's `.first` inside a widget test hangs outright** — the first
+  value arrives on a zero-duration timer that only fires on a pump. Recorded in
+  `flutter-test-gotchas-kosha`.
+- **`file_picker` 12 dropped `FilePicker.platform` for statics**, and `crypto` is now a
+  direct dependency rather than a transitive one, since `file_service.dart` imports it for
+  sha256 dedupe.
+- **Still to do in week 2's area:** documents are not in the FTS index — `tasks_fts` is
+  still tasks-only, the same gap Phase 2 left for transactions and bills — the preview
+  strip has no thumbnails (§8.4 wants them; no PDF renderer ships in the app), and the
+  scanner has never run on a real device.
+
+### 12.5.3 Notes carried out of week 3
+
+- **An enum persisted by index only grows at the end.** `ReminderKind` gained
+  `vehicleRenewal` and then `appliance`, both appended rather than sorted in, because the
+  notifications table stores the index: an insert in the middle would silently relabel
+  every already-stored General notification as a vehicle one on the next read. `TaskSource`
+  gained `maintenanceJob` under the same rule.
+- **`MaintenanceJob.status` is stored, not derived — the only status in this app that is.**
+  Appendix B settles it: "Kitchen tap leak (Active, plumber 6 Sep)" is Active despite its
+  date being days off, which only a user's own choice can express.
+  `maintenanceJobDisplayStatus` layers Overdue on top at read time for an Upcoming job
+  whose date has passed; Active and Done both override a passed date rather than reading as
+  overdue.
+- **The appliance warranty lead time is a fixed 30 days**, not a per-row column: the data
+  model gives `Appliance` no `reminder_offset_days` the way `Document` and `Bill` each
+  have, and the acceptance criterion only ever names one number.
+- **`HomeUtility` is a bill-to-icon link, not a copy of the bill.** Phase 2 dropped the
+  icon field the original data model gave `Bill`, so this table's `iconKey` is what lets
+  Electricity/Water/Gas/Internet read as distinct tiles. Its read excludes a utility whose
+  bill has been deleted — the same join-and-filter shape
+  `watchRenewalsNeedingAttention` uses to exclude a deleted vehicle's renewals.
+- **`null` cannot mean both "unchanged" and "clear".** `VehicleRepository.edit()` had no
+  way to actually clear `purchaseDate`, so the Edit screen's clear button would have
+  silently done nothing; it gained a `clearPurchaseDate` sentinel, the shape
+  `DocumentRepository.edit`'s `clearExpiry` already used. Worth checking on every future
+  `edit()` with a nullable field.
+- **Home's Quick access is now full.** Vehicle took the fifth content slot Appendix A's
+  "5 tiles + Customize" budgets for, which it needed — without a tile the screen has no
+  entry point to Vehicle at all. Documents and Home management are reachable by route
+  only. Growing that row again should wait for the plan's real target ("5 most-used
+  spaces") rather than another hand-added tile.
+- **Still to do in week 3's area:** vehicle renewals and appliance warranties schedule OS
+  reminders and appear in the notification inbox, but they do **not** reach Home's three
+  sections or the Calendar — no `vehicle_home_sources.dart` exists, and `HomeItemKind` and
+  `CalendarItemKind` still stop at documents. The next-service-by-km stat and the km/l
+  calculation were also left out deliberately, pending the acceptance criteria the Vehicle
+  screen has not been measured against yet. And the on-device live UI check has still not
+  run for any of week 2 or week 3 — the same gap §12.3.2 records for Phase 2.
 ---
 
 ## 13. Gaps in the prototype and proposed resolutions
@@ -1253,7 +1376,7 @@ Coverage goal: 80 % on `domain/` and `data/`, no target on `presentation/` beyon
 | D7 | Tablet support in v1 | Breakpoint rules only vs dedicated layouts | Breakpoint rules only | Phase 6 |
 | D8 | Bundling fonts vs runtime google_fonts | Bundle | **Decided: bundle**; runtime fetch in Phase 0, TTFs added in Phase 1 (ADR 0003) | Done |
 | D9 | Exact alarms on Android | Opt-in setting vs never | **Decided: opt-in setting**, off by default (ADR 0005) | Done |
-| D10 | Multiple vehicles / multiple profiles | Model supports; UI single in v1 | Keep model multi, UI single | Phase 3 |
+| D10 | Multiple vehicles / multiple profiles | Model supports; UI single in v1 | **Decided: model multi, UI single**, taken in Phase 3 week 3 — `Vehicles` holds any number of rows, `VehicleRepository.watchPrimary` exposes only the oldest live one (§12.5) | Done |
 
 ---
 
