@@ -447,6 +447,7 @@ Each module lists: screens it owns, behaviours (from the prototype plus resoluti
 - **Screens:** Travel space detail with Trip group card, Shared expense sheet, Split & settle up.
 - **Behaviour:** Members with initials avatars (fixed colour palette, white initials for contrast); Invite (Phase 5: share link; v1: add local member by name). Shared expense: amount keypad, label, paid-by chips, split mode Equally / Only me / Custom (toggling a person switches to Custom), per-head preview, Save disabled until valid; toast "₹X split n ways · ₹Y each" with Undo. Ledger: net per member = paid − share, minus settlements; greedy netting (largest debtor pays largest creditor) exactly as the prototype's `ledger()`; "Everyone's square" empty state; Pay records a Settlement, Remind sends (Phase 5) a push / (v1) a toast.
 - **Acceptance:** Port the prototype's `ledger()` as a pure Dart function with unit tests against its seed data (expected: 3 transfers).
+- **Note (Phase 3 week 4):** "greedy netting (largest debtor pays largest creditor)" above describes an algorithm the prototype does not use — its `ledger()` walks members in declaration order, which is what produces the transfers Appendix B lists. The port follows the prototype; see D11 and §12.5.4.
 
 ### 6.15 Search
 
@@ -821,7 +822,7 @@ Assumes one full-time Flutter developer from Phase 0 and a second part-time deve
 | **0 · Foundation** ✅ | 1.5 | Git, repo hygiene (section 10), dependency set, flavors, theme tokens + typography + `ThemeExtension`, shared component library (section 7.4) rendered in the States gallery, go_router shell with 5 empty tabs, Drift database with core tables + migrations framework, Riverpod wiring, CI running analyze/test/golden | App launches to an empty shell in light and dark; golden tests for every shared component pass; `flutter analyze` clean |
 | **1 · Core** ✅ | 4 | Onboarding, Home (all 5 sections), Tasks (CRUD, tabs, complete/undo, reschedule, delete, detail, edit, recurrence, links), Quick-add sheet, Calendar (3 views + Event entity), Notifications inbox + ReminderScheduler, Search (FTS), Settings/Appearance/Customize/Profile | All 12 prototype "wired flows" that involve tasks/search/dark mode work; reminders fire on both platforms; midnight rollover test passes |
 | **2 · Money** ✅ | 3 | Finance dashboard, Add expense keypad, transactions list/detail/edit, categories, income/budget setting, Bills & subscriptions (list, add/edit, detail, mark paid, payments, reminders), Home space utilities link | Add-expense flow matches prototype; overdue bill appears on Home/Calendar/Notifications and clears on payment |
-| **3 · Records & Spaces** ⏳ | 4 | Documents (list, add with upload/scan, detail, viewer, replace, archive, reminders), Vehicle (overview, service, fuel, renewals), Home management (jobs, appliances), Spaces (grid, new space, generic space detail aggregator, space settings), Custom records (template builder, record editor), Groups UI with local members (trip card, shared expense sheet, ledger, settle up) | Scan → PDF → expiry reminder works on a physical device; ledger unit tests pass; a user-created space shows linked items |
+| **3 · Records & Spaces** ⏳ *(built; device check outstanding — §12.5)* | 4 | Documents (list, add with upload/scan, detail, viewer, replace, archive, reminders), Vehicle (overview, service, fuel, renewals), Home management (jobs, appliances), Spaces (grid, new space, generic space detail aggregator, space settings), Custom records (template builder, record editor), Groups UI with local members (trip card, shared expense sheet, ledger, settle up) | Scan → PDF → expiry reminder works on a physical device; ledger unit tests pass; a user-created space shows linked items |
 | **4 · Capture & Goals** | 2 | Shopping lists (manage lists, reorder, quick add), Notes (editor, tabs, archive), Ideas (capture, promote), Goals (list, detail, log progress, edit), export/import archive, nightly local backup | Feature-complete v1.0 candidate; internal dogfooding starts |
 | **5 · Accounts & Sharing** | 4 | Supabase project, auth (email OTP/magic link), profile sync, sync queue + worker, shared groups (invite link, join, member sync, shared expenses, settlements, remind push), conflict handling, cloud backup/restore | Two devices share a trip and see each other's expenses within seconds; offline edits reconcile |
 | **6 · Hardening & release** | 2.5 | App lock + biometrics, SQLCipher + attachment encryption, performance pass (large fixtures), accessibility audit, localisation scaffold (arb), crash reporting opt-in, store assets, privacy policy, TestFlight/Play internal testing, release checklist | Store submission for v1.0 (local) or v1.1 (with sharing, if Phase 5 completed first — see section 17) |
@@ -1097,18 +1098,30 @@ midnight-rollover coverage. Still not covered anywhere: iOS (no Mac on this mach
 "reminders fire on both platforms" is half-verified), and the visual pass §12.3.2 records
 as unfinished.
 
-### 12.5 Phase 3 · Records & Spaces — in progress
+### 12.5 Phase 3 · Records & Spaces — built, not yet closed
 
-**Status (26 Sep 2026): weeks 1, 2 and 3 are complete; week 4 is all that remains.** Schema
-is at v15. Spaces, Documents, Vehicle and Home management are in; 574 tests pass with none
-skipped, `flutter analyze` is clean. Week 4 — custom records (the template builder and the
-record editor) and the Groups UI with local members — is the only Phase 3 scope still
-unbuilt.
+**Status (27 Sep 2026): all four weeks are built. The phase cannot be called done, because
+one of its three exit criteria has never been tested.** Schema is at v17. Spaces,
+Documents, Vehicle, Home management, custom records and Groups are all in; 710 tests pass
+with none skipped, `flutter analyze` is clean apart from the untracked scratch file
+`integration_test/zz_live_ui_check.dart`.
+
+Against the §12 table's own exit criteria for this phase:
+
+| Exit criterion | Where it stands |
+|---|---|
+| Ledger unit tests pass | **Met.** 20 tests against Appendix B's seed trip, including its exact three transfers. |
+| A user-created space shows linked items | **Met** since week 1. |
+| Scan → PDF → expiry reminder works on a physical device | **Never run.** No part of weeks 2–4 has been looked at on a real screen. |
+
+That last row is the whole of what is left, and it is not small: four weeks of UI are
+verified by widget tests alone. It is the same gap §12.3.2 records for Phase 2, now four
+weeks wider. **Phase 3 stays open until the device pass runs.**
 
 *On the test count:* the running totals in the week 2 and 3 commit messages (rising to "604
 total") were tallied by adding each commit's new tests to the previous figure rather than
-read off the reporter, and drifted apart from it. The reporter's own count at `e186235` is
-574 visible tests, 0 skipped. Quote that number, not the commit messages'.
+read off the reporter, and drifted apart from it. Quote the reporter, not the commit
+messages.
 
 Why Spaces went first: Tasks, Bills, Events and Transactions have carried a nullable
 `space_id` since Phases 1 and 2 with nothing to point at, and every remaining Phase 3
@@ -1173,12 +1186,21 @@ What week 3 built — Vehicle (schema v14) and Home management (schema v15):
   and the job stores the created task's id back on itself — the same one-way link Ideas
   will use for "Make a task" in Phase 4.
 
-What week 4 still owes:
-- **Custom records** — the `RecordTemplate` and `CustomRecord` tables, the template builder
-  and the record editor. Neither table exists; the Spaces grid's Custom records card
-  (Appendix A) has been waiting on them since week 1.
-- **Groups UI with local members** — trip card, shared expense sheet, ledger, settle up.
-  Sync is Phase 5's; the exit criterion this phase owns is "ledger unit tests pass".
+What week 4 built — custom records (schema v16) and Groups (schema v17):
+- **`RecordTemplates` and `CustomRecords`**, plus the template builder, the record editor,
+  the per-type Custom records screen and the Spaces grid's Custom records card — the card
+  Appendix A has wanted since week 1. Nothing is seeded: unlike Spaces there is no such
+  thing as a system record type.
+- **The record editor is generated from the template**, one input per field in the
+  template's own order, with the keyboard or picker its type asks for. A field added in
+  the builder appears in the editor on the next open with no code of its own.
+- **`Groups`, `GroupMembers`, `SharedExpenses`, `ExpenseShares`, `Settlements`** — five
+  tables, because a split is five facts: who is in the group, what was spent, who paid it,
+  what each person's share of it was, and who has since paid whom.
+- **The ledger**, §6.14's acceptance criterion, as a pure function over plain entities with
+  no repository in sight, tested against the prototype's own seed trip.
+- **The trip card on space detail**, the shared expense sheet, and Split & settle up with
+  the balance bars, the suggested transfers, Pay, and "Everyone's square".
 
 ### 12.5.1 Notes carried out of week 1
 
@@ -1273,6 +1295,61 @@ What week 4 still owes:
   calculation were also left out deliberately, pending the acceptance criteria the Vehicle
   screen has not been measured against yet. And the on-device live UI check has still not
   run for any of week 2 or week 3 — the same gap §12.3.2 records for Phase 2.
+### 12.5.4 Notes carried out of week 4
+
+- **The ledger's order is the prototype's, not §6.14's prose — see D11.** §6.14 says
+  "greedy netting (largest debtor pays largest creditor)", but the prototype's own
+  `ledger()` filters `ALL` in declaration order and never sorts, and Appendix B's expected
+  transfers are the ones that order produces (Meera→You ₹3,800, Rohan→You ₹4,600,
+  Rohan→Aarav ₹1,000). Sorting by size gives three different transfers that are equally
+  exact. Two signals against one, and the acceptance criterion says "port the prototype",
+  so member order won; `ledger.dart` carries the reasoning and D11 records the conflict for
+  an owner to confirm or overturn.
+- **Money is exact integers, so the prototype's ₹1 threshold is gone.** That threshold
+  existed only to stop floating-point dust reading as a settlement. Shares are materialised
+  rows, so every net is whole minor units and the group sums to zero — `splitEqually` hands
+  the remainder out one paisa at a time in member order, which is what makes that true.
+  1,000 paise across three people is 334/333/333, never three numbers that lose one.
+- **Three rules in `DriftGroupRepository` all say "money must add up":** an expense and its
+  shares are written in one transaction, a custom split that does not total the amount is
+  refused rather than stored, and a member who has paid for anything, owes a share of
+  anything, or is on either side of a settlement cannot be removed. Without the last,
+  removing somebody would silently unbalance the group, because `buildLedger` skips shares
+  belonging to nobody.
+- **A field's key is its identity; its label is only what the user reads.** Values are keyed
+  by key, so renaming "Provider" to "Insurer" keeps every record's data. Removing a field
+  prunes nothing until that record is next saved — ADR 0008's reasoning a third time.
+- **go_router runs the route-level redirect of *every* match in the stack, not just the
+  last.** Custom records were first written as children of a redirect-only `/records`,
+  which silently took `/records/<id>` and `/records/<id>/fields` with it, including the
+  path `record_reminder.dart` builds for a reminder tap. They are three sibling routes now.
+  No screen test could have caught this, which is why `test/core/router/record_routes_test.dart`
+  drives the real router; all four of its cases fail against the parent shape.
+- **`FilledButton` and `OutlinedButton` demand infinite width in this app.** The theme gives
+  both `minimumSize: Size.fromHeight(...)`, which is right for the full-width button a
+  sheet ends with and throws a layout assertion the moment either sits in a `Row` without
+  an `Expanded` around it. Every row with a button in it needs one.
+- **A tap that "does nothing" may be a tap below the fold.** The shared expense sheet is
+  taller than the test viewport, so its test has to `ensureVisible` the Save button first —
+  the same thing a user does on a phone. The symptom was a silent no-op, not an error.
+- **Rows in the template builder are counted by their remove button's tooltip**, because
+  the label field's hint renders in every row and `widgetWithText` therefore matches all of
+  them at once.
+- **Still to do in week 4's area:**
+  - `RecordTemplate.spaceId` is written by nothing. It is the hook G29 needs for a "Health"
+    space's Records section, and it is also the one column in Phase 3 that no surface uses
+    — either G29 lands in Phase 4 or the column should go.
+  - Custom-record renewals reach the notification inbox but not Home or the Calendar, the
+    same gap §12.5.3 records for vehicle renewals and appliance warranties.
+  - Nothing from Phase 3 is in the FTS index: documents, vehicles, home management, records
+    and groups are all invisible to Search, which still reads `tasks_fts` alone. §8.3 wants
+    all of them.
+  - Groups have no invite and no second device; §6.14 puts both in Phase 5.
+  - **Reminders are re-registered on launch for tasks, events and bills only.** Documents,
+    vehicle renewals, appliance warranties and custom records have no `resyncReminders()`,
+    so a reinstall or an OS upgrade that drops scheduled notifications loses them silently.
+    Four features now share this gap; it should be one pass, not four.
+
 ---
 
 ## 13. Gaps in the prototype and proposed resolutions
@@ -1377,6 +1454,7 @@ Coverage goal: 80 % on `domain/` and `data/`, no target on `presentation/` beyon
 | D8 | Bundling fonts vs runtime google_fonts | Bundle | **Decided: bundle**; runtime fetch in Phase 0, TTFs added in Phase 1 (ADR 0003) | Done |
 | D9 | Exact alarms on Android | Opt-in setting vs never | **Decided: opt-in setting**, off by default (ADR 0005) | Done |
 | D10 | Multiple vehicles / multiple profiles | Model supports; UI single in v1 | **Decided: model multi, UI single**, taken in Phase 3 week 3 — `Vehicles` holds any number of rows, `VehicleRepository.watchPrimary` exposes only the oldest live one (§12.5) | Done |
+| D11 | Ledger ordering: whose order the settle-up transfers follow | Member order (the prototype's `ledger()`, and the transfers Appendix B documents) vs largest-debtor-pays-largest-creditor (§6.14's own prose) | **Built as member order** — the acceptance criterion says to port the prototype, and Appendix B's numbers agree with it against one line of §6.14. Both give 3 exact transfers here; minimising transfers is NP-hard, so neither promises a true minimum. Confirm, or say the word and §6.14's prose becomes the spec and Appendix B's expected transfers change | Confirm before Phase 5 |
 
 ---
 
