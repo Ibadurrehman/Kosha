@@ -16,6 +16,7 @@ import '../../features/finance/presentation/finance_screen.dart';
 import '../../features/finance/presentation/transaction_detail_screen.dart';
 import '../../features/finance/presentation/transaction_edit_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/home_space/presentation/home_management_screen.dart';
 import '../../features/more/presentation/more_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/onboarding/data/profile_repository_impl.dart';
@@ -72,6 +73,10 @@ abstract final class Routes {
   static const vehicle = '/vehicle';
   static const vehicleEdit = '/vehicle/edit';
   static const vehicleRenewals = '/vehicle/renewals';
+  /// Home management sits in the Spaces branch for the same reason Documents
+  /// and Vehicle do. Its own screen already assumed this literal path — see
+  /// `appliance_reminder.dart`'s `route` field.
+  static const homeManagement = '/home-management';
   static const profile = '/more/profile';
   static const settings = '/more/settings';
 
@@ -291,6 +296,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     builder: (_, _) => const VehicleRenewalsScreen(),
                   ),
                 ],
+              ),
+              GoRoute(
+                path: Routes.homeManagement,
+                builder: (_, _) => const HomeManagementScreen(),
               ),
             ],
           ),
