@@ -28,6 +28,15 @@ class DriftTransactionRepository implements TransactionRepository {
   }
 
   @override
+  Stream<List<Transaction>> watchInSpace(String spaceId, {required int limit}) {
+    final query = _db.select(_db.transactions)
+      ..where((t) => t.deletedAt.isNull() & t.spaceId.equals(spaceId))
+      ..orderBy([(t) => OrderingTerm.desc(t.date)])
+      ..limit(limit);
+    return query.watch().map((rows) => rows.map(_toDomain).toList());
+  }
+
+  @override
   Stream<List<Transaction>> watchBetween(DateTime from, DateTime to) {
     final query = _db.select(_db.transactions)
       ..where(

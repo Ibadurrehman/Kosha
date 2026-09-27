@@ -205,7 +205,7 @@ final class CalendarItemsByDayProvider
 }
 
 String _$calendarItemsByDayHash() =>
-    r'5f8f02694a1e9438e4735bc7a759a4179dedcee4';
+    r'ba9e818e45984ceb83d967d597dcb74d31df1281';
 
 /// Every task with a due date, every event starting, and every bill falling
 /// due in `[from, to)`, merged, sorted, and pre-grouped by day — grouping happens here rather

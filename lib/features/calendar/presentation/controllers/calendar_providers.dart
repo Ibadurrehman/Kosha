@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/utils/clock.dart';
 import '../../../../core/utils/combine_streams.dart';
 import '../../../bills/data/bill_repository_impl.dart';
+import '../../../documents/data/document_repository_impl.dart';
 import '../../../tasks/data/task_repository_impl.dart';
 import '../../data/event_repository_impl.dart';
 import '../../domain/entities/calendar_item.dart';
@@ -64,7 +65,18 @@ Stream<Map<DateTime, List<CalendarItem>>> calendarItemsByDay(
       .watchDueBetween(from, to)
       .map((bills) => [for (final bill in bills) calendarItemFromBill(bill)]);
 
-  return combineLatestLists([taskItems, eventItems, billItems]).map((items) {
+  final documentItems = ref
+      .watch(documentRepositoryProvider)
+      .watchExpiringBetween(from, to)
+      .map((documents) =>
+          [for (final document in documents) calendarItemFromDocument(document)]);
+
+  return combineLatestLists([
+    taskItems,
+    eventItems,
+    billItems,
+    documentItems,
+  ]).map((items) {
     final byDay = <DateTime, List<CalendarItem>>{};
     for (final item in items) {
       (byDay[item.date] ??= []).add(item);

@@ -48,10 +48,10 @@
         <!-- flutter_local_notifications: deliver scheduled reminders and restore them after reboot/update. -->
         <receiver
             android:exported="false"
-            android:name="com.dexterous.flutterlocalnotifications.receivers.ScheduledNotificationReceiver"/>
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
         <receiver
             android:exported="false"
-            android:name="com.dexterous.flutterlocalnotifications.receivers.ScheduledNotificationBootReceiver">
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>

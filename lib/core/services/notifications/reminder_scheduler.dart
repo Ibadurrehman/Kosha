@@ -87,9 +87,12 @@ class LocalNotificationsReminderScheduler implements ReminderScheduler {
       final zone = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(zone.identifier));
     } on Object catch (error) {
-      // Falls back to the timezone database default; reminders still fire,
-      // just against UTC if the platform could not name its zone.
+      // Reminders still fire, just against UTC if the platform could not name
+      // its zone. `tz.local` has to be *set* for that to be true: reading it
+      // unset throws a LateInitializationError out of zonedSchedule below, so
+      // a scheduler that only logged here would silently schedule nothing.
       debugPrint('Kosha: could not resolve the local timezone ($error)');
+      tz.setLocalLocation(tz.UTC);
     }
     await _plugin.initialize(
       settings: const InitializationSettings(

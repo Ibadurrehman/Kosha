@@ -6,19 +6,33 @@ import 'package:path_provider/path_provider.dart';
 import '../../features/bills/data/bill_table.dart';
 import '../../features/bills/domain/entities/bill.dart';
 import '../../features/calendar/data/event_table.dart';
+import '../../features/documents/data/document_table.dart';
+import '../../features/documents/domain/entities/document.dart';
 import '../../features/finance/data/transaction_category_table.dart';
 import '../../features/finance/data/transaction_table.dart';
 // Enum columns: the generated part file resolves these through this library's
 // imports, so they must be imported here even though this file never names them.
 import '../../features/finance/domain/entities/transaction.dart';
 import '../../features/finance/domain/entities/transaction_category.dart';
+import '../../features/groups/data/group_table.dart';
+import '../../features/groups/domain/entities/group.dart';
+import '../../features/groups/domain/entities/group_member.dart';
+import '../../features/groups/domain/entities/settlement.dart';
+import '../../features/groups/domain/entities/shared_expense.dart';
 import '../../features/home/data/dashboard_section_table.dart';
+import '../../features/home_space/data/home_management_table.dart';
+import '../../features/home_space/domain/entities/maintenance_job.dart';
 import '../../features/notifications/data/notification_table.dart';
 import '../../features/onboarding/data/profile_table.dart';
+import '../../features/spaces/data/record_table.dart';
+import '../../features/spaces/data/space_table.dart';
+import '../../features/spaces/domain/entities/space.dart';
 import '../../features/tasks/data/activity_table.dart';
 import '../../features/tasks/data/task_table.dart';
 import '../../features/tasks/domain/entities/activity_entry.dart';
 import '../../features/tasks/domain/entities/task.dart';
+import '../../features/vehicle/data/vehicle_table.dart';
+import '../../features/vehicle/domain/entities/vehicle_renewal.dart';
 import '../models/priority.dart';
 import '../services/notifications/scheduled_reminder.dart';
 
@@ -51,6 +65,23 @@ class Settings extends Table {
     TransactionCategories,
     Bills,
     Payments,
+    Spaces,
+    Documents,
+    Attachments,
+    Vehicles,
+    VehicleRenewals,
+    ServiceRecords,
+    FuelLogs,
+    HomeUtilities,
+    MaintenanceJobs,
+    Appliances,
+    RecordTemplates,
+    CustomRecords,
+    Groups,
+    GroupMembers,
+    SharedExpenses,
+    ExpenseShares,
+    Settlements,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -60,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.executor);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -132,6 +163,90 @@ class AppDatabase extends _$AppDatabase {
             await m.createIndex(billsSpace);
             await m.createTable(payments);
             await m.createIndex(paymentsBill);
+          }
+          // v12 (Phase 3): spaces. Nothing is backfilled — the repository
+          // seeds the ten system spaces the first time it is read, using
+          // onboarding's stored "Pick areas" selection to decide which start
+          // archived, so an upgrading install picks them up on its next visit
+          // to the Spaces tab with the same `Clock` every other write uses.
+          // The `space_id` columns that Tasks, Bills, Events and Transactions
+          // have carried since Phases 1 and 2 are left alone: they are all
+          // null until something here is picked, so there is nothing to point
+          // at anything.
+          if (from < 12) {
+            await m.createTable(spaces);
+            await m.createIndex(spacesSort);
+            await m.createIndex(spacesSystemKey);
+          }
+          // v13 (Phase 3): documents and the files attached to them.
+          // Attachments is deliberately not scoped to documents — its
+          // ownerType/ownerId pair is what lets a vehicle service record and
+          // an appliance invoice reuse it, the shape ActivityEntries already
+          // uses.
+          if (from < 13) {
+            await m.createTable(documents);
+            await m.createIndex(documentsExpires);
+            await m.createIndex(documentsCategory);
+            await m.createIndex(documentsSpace);
+            await m.createTable(attachments);
+            await m.createIndex(attachmentsOwner);
+            await m.createIndex(attachmentsSha);
+          }
+          // v14 (Phase 3 week 3): vehicles, their renewals, service history
+          // and fuel log. Nothing is backfilled — v1's UI only ever shows one
+          // vehicle and none exist until the user adds it.
+          if (from < 14) {
+            await m.createTable(vehicles);
+            await m.createIndex(vehiclesSpace);
+            await m.createTable(vehicleRenewals);
+            await m.createIndex(vehicleRenewalsVehicleKind);
+            await m.createTable(serviceRecords);
+            await m.createIndex(serviceRecordsVehicle);
+            await m.createTable(fuelLogs);
+            await m.createIndex(fuelLogsVehicle);
+          }
+          // v15 (Phase 3 week 3): Home management -- utility links,
+          // maintenance jobs and appliances. Nothing is backfilled; none of
+          // these have existed under any other shape before now.
+          if (from < 15) {
+            await m.createTable(homeUtilities);
+            await m.createIndex(homeUtilitiesBill);
+            await m.createIndex(homeUtilitiesSpace);
+            await m.createTable(maintenanceJobs);
+            await m.createIndex(maintenanceJobsDue);
+            await m.createIndex(maintenanceJobsSpace);
+            await m.createTable(appliances);
+            await m.createIndex(appliancesWarranty);
+            await m.createIndex(appliancesSpace);
+          }
+          // v16 (Phase 3 week 4): user-defined record types and their rows.
+          // Nothing is backfilled and nothing is seeded -- unlike Spaces,
+          // there is no such thing as a system record type: every template
+          // here is one the user built.
+          if (from < 16) {
+            await m.createTable(recordTemplates);
+            await m.createIndex(recordTemplatesSpace);
+            await m.createTable(customRecords);
+            await m.createIndex(customRecordsTemplate);
+            await m.createIndex(customRecordsRenewal);
+          }
+          // v17 (Phase 3 week 4): shared-expense groups. Five tables because
+          // a split is five facts -- who is in the group, what was spent, who
+          // paid it, what each person's share of it was, and who has since
+          // paid whom. Shares are rows rather than a division done at read
+          // time, which is what lets the ledger balance to the paisa.
+          if (from < 17) {
+            await m.createTable(groups);
+            await m.createIndex(groupsSpace);
+            await m.createTable(groupMembers);
+            await m.createIndex(groupMembersGroup);
+            await m.createTable(sharedExpenses);
+            await m.createIndex(sharedExpensesGroup);
+            await m.createTable(expenseShares);
+            await m.createIndex(expenseSharesExpense);
+            await m.createIndex(expenseSharesMember);
+            await m.createTable(settlements);
+            await m.createIndex(settlementsGroup);
           }
         },
         beforeOpen: (details) async {

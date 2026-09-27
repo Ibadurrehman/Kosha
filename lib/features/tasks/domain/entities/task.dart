@@ -10,7 +10,7 @@ export '../../../../core/utils/dates.dart' show dateOnly;
 part 'task.freezed.dart';
 
 /// Where a task came from. Persisted by index — append only.
-enum TaskSource { manual, idea, document, bill }
+enum TaskSource { manual, idea, document, bill, maintenanceJob }
 
 /// The Tasks-screen tab a task falls into. Derived from the due date and
 /// completion; never stored (section 5.2 of the implementation plan).

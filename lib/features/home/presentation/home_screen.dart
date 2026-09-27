@@ -435,6 +435,14 @@ class _QuickAccessSection extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: _QuickAccessTile(
+                icon: Symbols.directions_car_rounded,
+                label: 'Vehicle',
+                onTap: () => context.go(Routes.vehicle),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _QuickAccessTile(
                 icon: Symbols.dashboard_customize_rounded,
                 label: 'Customize',
                 onTap: () => Navigator.of(context).push(

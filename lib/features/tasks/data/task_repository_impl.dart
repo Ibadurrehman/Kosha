@@ -87,6 +87,24 @@ class DriftTaskRepository implements TaskRepository {
   }
 
   @override
+  Stream<List<Task>> watchInSpace(String spaceId, {required int limit}) {
+    final query = _db.select(_db.tasks)
+      ..where((t) => t.deletedAt.isNull() &
+          t.done.equals(false) &
+          t.spaceId.equals(spaceId))
+      // Dateless tasks sort last: drift emits NULLs first on an ascending
+      // order, and an Inbox task is the least urgent thing in a space, not
+      // the most.
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.dueDate.isNull()),
+        (t) => OrderingTerm.asc(t.dueDate),
+        (t) => OrderingTerm.desc(t.priority),
+      ])
+      ..limit(limit);
+    return query.watch().map((rows) => rows.map(_toDomain).toList());
+  }
+
+  @override
   Stream<Task?> watchById(String id) {
     final query = _db.select(_db.tasks)
       ..where((t) => t.id.equals(id) & t.deletedAt.isNull());

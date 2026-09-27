@@ -6,12 +6,18 @@ import '../../features/bills/presentation/bill_detail_screen.dart';
 import '../../features/bills/presentation/bill_edit_screen.dart';
 import '../../features/bills/presentation/bills_screen.dart';
 import '../../features/calendar/presentation/calendar_screen.dart';
+import '../../features/documents/presentation/document_archive_screen.dart';
+import '../../features/documents/presentation/document_detail_screen.dart';
+import '../../features/documents/presentation/document_edit_screen.dart';
+import '../../features/documents/presentation/documents_screen.dart';
 import '../../features/finance/presentation/all_transactions_screen.dart';
 import '../../features/finance/presentation/category_manager_screen.dart';
 import '../../features/finance/presentation/finance_screen.dart';
 import '../../features/finance/presentation/transaction_detail_screen.dart';
 import '../../features/finance/presentation/transaction_edit_screen.dart';
+import '../../features/groups/presentation/split_settle_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/home_space/presentation/home_management_screen.dart';
 import '../../features/more/presentation/more_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/onboarding/data/profile_repository_impl.dart';
@@ -23,11 +29,17 @@ import '../../features/onboarding/presentation/onboarding_welcome_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/settings/presentation/profile_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/spaces/presentation/custom_records_screen.dart';
+import '../../features/spaces/presentation/record_template_builder_screen.dart';
+import '../../features/spaces/presentation/space_detail_screen.dart';
 import '../../features/spaces/presentation/spaces_screen.dart';
 import '../../features/states_gallery/presentation/states_gallery_screen.dart';
 import '../../features/tasks/presentation/task_detail_screen.dart';
 import '../../features/tasks/presentation/task_edit_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
+import '../../features/vehicle/presentation/vehicle_edit_screen.dart';
+import '../../features/vehicle/presentation/vehicle_renewals_screen.dart';
+import '../../features/vehicle/presentation/vehicle_screen.dart';
 import '../config/app_config.dart';
 import 'go_router_refresh_stream.dart';
 import 'kosha_shell.dart';
@@ -51,6 +63,32 @@ abstract final class Routes {
   static const transactions = '$finance/transactions';
   static const categories = '$finance/categories';
   static const bills = '$finance/bills';
+  /// Documents sit in the Spaces branch rather than under `/spaces/<id>`:
+  /// the grid's Documents tile is a space like any other, but a document's
+  /// own screens are not that space's detail, and a literal segment competing
+  /// with `/spaces/:id` would be matched by route order rather than by intent.
+  static const documents = '/documents';
+  static const documentsArchive = '/documents/archive';
+  /// Vehicle sits in the Spaces branch for the same reason Documents does —
+  /// see [documents]'s doc comment. v1 manages exactly one vehicle, so
+  /// nothing here carries an id (`VehicleScreen` and its two sub-screens all
+  /// read `primaryVehicleProvider` themselves).
+  static const vehicle = '/vehicle';
+  static const vehicleEdit = '/vehicle/edit';
+  static const vehicleRenewals = '/vehicle/renewals';
+  /// Home management sits in the Spaces branch for the same reason Documents
+  /// and Vehicle do. Its own screen already assumed this literal path — see
+  /// `appliance_reminder.dart`'s `route` field.
+  static const homeManagement = '/home-management';
+  /// Custom records sit in the Spaces branch for the same reason Documents,
+  /// Vehicle and Home management do. `record_reminder.dart` already assumed
+  /// this literal path -- see its `route` field.
+  static const records = '/records';
+  static const newRecordTemplate = '/records/new';
+  /// Groups sit in the Spaces branch: a group is reached from the space it
+  /// belongs to, and settling up is that group's own screen rather than the
+  /// space's.
+  static const groups = '/groups';
   static const profile = '/more/profile';
   static const settings = '/more/settings';
 
@@ -69,6 +107,21 @@ abstract final class Routes {
   static String billDetail(String id) => '$bills/$id';
 
   static String billEdit(String id) => '$bills/$id/edit';
+
+  /// Space detail lives under the Spaces tab, so the bottom bar keeps Spaces
+  /// lit however the space was reached.
+  static String spaceDetail(String id) => '$spaces/$id';
+
+  static String documentDetail(String id) => '$documents/$id';
+
+  static String documentEdit(String id) => '$documents/$id/edit';
+
+  static String customRecords(String templateId) => '$records/$templateId';
+
+  static String recordTemplateFields(String templateId) =>
+      '$records/$templateId/fields';
+
+  static String groupSettle(String groupId) => '$groups/$groupId';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -211,7 +264,95 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: Routes.spaces, builder: (_, _) => const SpacesScreen()),
+              GoRoute(
+                path: Routes.documents,
+                builder: (_, _) => const DocumentsScreen(),
+                routes: [
+                  // Before ':id', so the literal wins: go_router matches in
+                  // order, and "archive" is a screen, not a document.
+                  GoRoute(
+                    path: 'archive',
+                    builder: (_, _) => const DocumentArchiveScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) => DocumentDetailScreen(
+                      documentId: state.pathParameters['id']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (_, state) => DocumentEditScreen(
+                          documentId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: Routes.spaces,
+                builder: (_, _) => const SpacesScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, state) => SpaceDetailScreen(
+                      spaceId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: Routes.vehicle,
+                builder: (_, _) => const VehicleScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    builder: (_, _) => const VehicleEditScreen(),
+                  ),
+                  GoRoute(
+                    path: 'renewals',
+                    builder: (_, _) => const VehicleRenewalsScreen(),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: Routes.homeManagement,
+                builder: (_, _) => const HomeManagementScreen(),
+              ),
+              // Custom records are three sibling routes rather than children
+              // of a redirect-only `/records`: go_router walks *every* match
+              // in the stack looking for a route-level redirect, so a parent
+              // that redirected to the grid would take its own children with
+              // it. Nothing lives at `/records` itself -- the Spaces grid's
+              // card is the list of record types.
+              //
+              // "new" is declared before ":id" so the literal wins; go_router
+              // matches in order, and "new" is a screen, not a record type.
+              GoRoute(
+                path: Routes.newRecordTemplate,
+                builder: (_, _) => const RecordTemplateBuilderScreen(),
+              ),
+              GoRoute(
+                path: '${Routes.groups}/:id',
+                builder: (_, state) => SplitSettleScreen(
+                  groupId: state.pathParameters['id']!,
+                ),
+              ),
+              GoRoute(
+                path: '${Routes.records}/:id',
+                builder: (_, state) => CustomRecordsScreen(
+                  templateId: state.pathParameters['id']!,
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'fields',
+                    builder: (_, state) => RecordTemplateBuilderScreen(
+                      templateId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(

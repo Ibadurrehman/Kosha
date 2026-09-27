@@ -7,4 +7,5 @@ import '../domain/entities/home_item_kind.dart';
 String homeItemRoute(HomeItemKind kind, String id) => switch (kind) {
       HomeItemKind.task => Routes.taskDetail(id),
       HomeItemKind.bill => Routes.billDetail(id),
+      HomeItemKind.document => Routes.documentDetail(id),
     };

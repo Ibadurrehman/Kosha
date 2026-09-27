@@ -447,6 +447,7 @@ Each module lists: screens it owns, behaviours (from the prototype plus resoluti
 - **Screens:** Travel space detail with Trip group card, Shared expense sheet, Split & settle up.
 - **Behaviour:** Members with initials avatars (fixed colour palette, white initials for contrast); Invite (Phase 5: share link; v1: add local member by name). Shared expense: amount keypad, label, paid-by chips, split mode Equally / Only me / Custom (toggling a person switches to Custom), per-head preview, Save disabled until valid; toast "₹X split n ways · ₹Y each" with Undo. Ledger: net per member = paid − share, minus settlements; greedy netting (largest debtor pays largest creditor) exactly as the prototype's `ledger()`; "Everyone's square" empty state; Pay records a Settlement, Remind sends (Phase 5) a push / (v1) a toast.
 - **Acceptance:** Port the prototype's `ledger()` as a pure Dart function with unit tests against its seed data (expected: 3 transfers).
+- **Note (Phase 3 week 4):** "greedy netting (largest debtor pays largest creditor)" above describes an algorithm the prototype does not use — its `ledger()` walks members in declaration order, which is what produces the transfers Appendix B lists. The port follows the prototype; see D11 and §12.5.4.
 
 ### 6.15 Search
 
@@ -821,7 +822,7 @@ Assumes one full-time Flutter developer from Phase 0 and a second part-time deve
 | **0 · Foundation** ✅ | 1.5 | Git, repo hygiene (section 10), dependency set, flavors, theme tokens + typography + `ThemeExtension`, shared component library (section 7.4) rendered in the States gallery, go_router shell with 5 empty tabs, Drift database with core tables + migrations framework, Riverpod wiring, CI running analyze/test/golden | App launches to an empty shell in light and dark; golden tests for every shared component pass; `flutter analyze` clean |
 | **1 · Core** ✅ | 4 | Onboarding, Home (all 5 sections), Tasks (CRUD, tabs, complete/undo, reschedule, delete, detail, edit, recurrence, links), Quick-add sheet, Calendar (3 views + Event entity), Notifications inbox + ReminderScheduler, Search (FTS), Settings/Appearance/Customize/Profile | All 12 prototype "wired flows" that involve tasks/search/dark mode work; reminders fire on both platforms; midnight rollover test passes |
 | **2 · Money** ✅ | 3 | Finance dashboard, Add expense keypad, transactions list/detail/edit, categories, income/budget setting, Bills & subscriptions (list, add/edit, detail, mark paid, payments, reminders), Home space utilities link | Add-expense flow matches prototype; overdue bill appears on Home/Calendar/Notifications and clears on payment |
-| **3 · Records & Spaces** | 4 | Documents (list, add with upload/scan, detail, viewer, replace, archive, reminders), Vehicle (overview, service, fuel, renewals), Home management (jobs, appliances), Spaces (grid, new space, generic space detail aggregator, space settings), Custom records (template builder, record editor), Groups UI with local members (trip card, shared expense sheet, ledger, settle up) | Scan → PDF → expiry reminder works on a physical device; ledger unit tests pass; a user-created space shows linked items |
+| **3 · Records & Spaces** ✅ | 4 | Documents (list, add with upload/scan, detail, viewer, replace, archive, reminders), Vehicle (overview, service, fuel, renewals), Home management (jobs, appliances), Spaces (grid, new space, generic space detail aggregator, space settings), Custom records (template builder, record editor), Groups UI with local members (trip card, shared expense sheet, ledger, settle up) | Scan → PDF → expiry reminder works on a physical device; ledger unit tests pass; a user-created space shows linked items |
 | **4 · Capture & Goals** | 2 | Shopping lists (manage lists, reorder, quick add), Notes (editor, tabs, archive), Ideas (capture, promote), Goals (list, detail, log progress, edit), export/import archive, nightly local backup | Feature-complete v1.0 candidate; internal dogfooding starts |
 | **5 · Accounts & Sharing** | 4 | Supabase project, auth (email OTP/magic link), profile sync, sync queue + worker, shared groups (invite link, join, member sync, shared expenses, settlements, remind push), conflict handling, cloud backup/restore | Two devices share a trip and see each other's expenses within seconds; offline edits reconcile |
 | **6 · Hardening & release** | 2.5 | App lock + biometrics, SQLCipher + attachment encryption, performance pass (large fixtures), accessibility audit, localisation scaffold (arb), crash reporting opt-in, store assets, privacy policy, TestFlight/Play internal testing, release checklist | Store submission for v1.0 (local) or v1.1 (with sharing, if Phase 5 completed first — see section 17) |
@@ -1036,7 +1037,7 @@ and All transactions filtered before the emulator's Gradle builds started wedgin
 that takes ~90 s warm sat for 20+ minutes), so Bills, Bill detail, the payment sheet, the
 category manager and transaction detail have **not** had a screenshot-level look — they are
 covered by the on-device flow test above and by widget tests, but nobody has looked at their
-pixels. Worth finishing at the start of Phase 3, when the machine is fresh. What it did
+pixels. *(Finished 27 Sep 2026 as part of the Phase 3 pass — all five were screenshotted and nothing was wrong with any of them; §12.5.5.)* What it did
 reach found two things no widget test had:
 
 - **A `context.go` to a sibling route silently skips the screen you came from.** Transaction
@@ -1096,6 +1097,446 @@ three repositories, FTS query escaping, `ProgressBar` clamping, and Phase 1's
 midnight-rollover coverage. Still not covered anywhere: iOS (no Mac on this machine, so
 "reminders fire on both platforms" is half-verified), and the visual pass §12.3.2 records
 as unfinished.
+
+### 12.5 Phase 3 · Records & Spaces — complete
+
+**Status (27 Sep 2026): all four weeks are built, both halves of the device pass have run,
+and the phase is closed.** Schema is at v17. Spaces, Documents, Vehicle, Home management,
+custom records and Groups are all in; 715 tests pass with none skipped and
+`flutter analyze` is clean.
+
+Against the §12 table's own exit criteria for this phase:
+
+| Exit criterion | Where it stands |
+|---|---|
+| Ledger unit tests pass | **Met.** 20 tests against Appendix B's seed trip, including its exact three transfers. |
+| A user-created space shows linked items | **Met** since week 1. |
+| Scan → PDF → expiry reminder works on a physical device | **Met.** The screens were looked at on a real 411×914 phone surface on 27 Sep (§12.5.5), and the flow itself now runs on the device, in CI, as `integration_test/document_scan_expiry_reminder_test.dart` (§12.5.6). The shutter is the one leg still faked, at the `DocumentCapture` seam. |
+
+Both halves of that last row ran on 27 Sep. §12.5.5 is the screenshot pass — eight small
+defects and three false alarms. §12.5.6 is the flow itself, driven end to end, which found
+two more that were neither small nor local: the app had been crashing on every install and
+update since Phase 1, and no Android reminder it ever scheduled could have been delivered.
+
+The device pass was held to the end of the phase rather than run per slice, which is not
+what §15 asks for and is why it had four weeks of UI and two phases of reminder plumbing
+to cover at once. The reading for Phase 4 is that the check belongs at the end of each
+week.
+
+*On the test count:* the running totals in the week 2 and 3 commit messages (rising to "604
+total") were tallied by adding each commit's new tests to the previous figure rather than
+read off the reporter, and drifted apart from it. Quote the reporter, not the commit
+messages.
+
+Why Spaces went first: Tasks, Bills, Events and Transactions have carried a nullable
+`space_id` since Phases 1 and 2 with nothing to point at, and every remaining Phase 3
+feature (Documents, Vehicle, Home management, custom records, Groups) hangs off a space.
+
+What week 1 built:
+- **Ten system spaces, seeded on first read** — Finance, Home, Vehicle, Documents,
+  Shopping, Goals, Notes, Ideas, Health, Travel — following the lazy-seed pattern
+  Profiles, DashboardSections and categories set, so the injected `Clock` supplies the
+  timestamps. Seeding also has to await another repository, which a `MigrationStrategy`
+  callback cannot: onboarding's "Pick areas" selection decides which spaces start
+  visible, the reading §12.1.3 asked Phase 3 for.
+- **A skipped area seeds its space archived, not absent.** With the default selection
+  that is four of the ten (Home, Vehicle, Goals, Notes), so the Spaces screen carries a
+  "Not shown" footer offering them back — on first run it is a normal state, not a rare
+  one, and it is the only way a user learns Vehicle exists.
+- **Space detail**, header + three stats + one section per hold kind, pulling items whose
+  `space_id` matches. Only Tasks and Money are built: Documents, Notes and Lists have no
+  tables yet, and a section that could only ever render an empty state would be a promise
+  the app cannot keep.
+- **The New expense sheet now offers a space picker**, which is §6.5's acceptance
+  criterion ("creating a space with Expenses enabled makes it selectable"). A sheet opened
+  from somewhere that already knows the space does not ask again.
+
+What week 2 built — Documents (schema v13):
+- **`Documents` and `Attachments`.** `Attachments` is deliberately not scoped to documents:
+  its `ownerType`/`ownerId` pair — the shape `ActivityEntries` already established — is
+  what lets a vehicle service invoice or an appliance warranty reuse it later. Neither has
+  taken it up yet; today `documentOwnerType` is its only writer.
+- **`FileService` and `DocumentCapture`.** `FileService` owns the bytes and nothing else,
+  storing paths relative and resolving them on every read, because iOS rewrites an app's
+  container path on some restores — an absolute path saved today can name nothing tomorrow
+  while the file is still there. `DocumentCapture` is the seam over the scanner and file
+  picker, so no test touches a camera and `permission_handler` stays deferred (§9).
+- **All five screens** — the list (eight category chips over a tile grid), the add sheet,
+  detail, edit and the archive — plus `DocumentFormFields` shared by add and edit so the
+  two cannot drift apart. Only the name is required: a page just scanned and not yet
+  labelled is still worth keeping.
+- **Documents reach Home and the Calendar**, at the cost §12.1.3 predicted — three
+  adapters (`document_home_sources.dart`), one `HomeItemKind` value, one
+  `CalendarItemKind` value, one routing case, one entry in each merge list. No existing
+  source changed.
+
+What week 3 built — Vehicle (schema v14) and Home management (schema v15):
+- **`Vehicles`, `VehicleRenewals`, `ServiceRecords`, `FuelLogs`.** A vehicle's space is not
+  user-chosen: it always names the single Vehicle system space, found through
+  `SpaceRepository.findBySystemKey`. The model keeps room for more than one vehicle (D10),
+  but v1's repository only ever exposes the oldest live row through `watchPrimary`.
+- **Renewals are an upsert, not a log.** One row per kind per vehicle
+  (insurance/PUC/registration/permit) behind a unique index, so "renewing" writes in place
+  — the same reasoning `Bill.nextDue` gives for storing one date instead of a history.
+  `ServiceRecords` and `FuelLogs` are the opposite: append-only, shaped like `Payments`,
+  because a service or a fill-up is a fact about a moment.
+- **Vehicle's screens**: overview (header, three stat tiles, service-history preview, "Fuel
+  this month", and §6.9's four actions each pre-linked to the vehicle's own space), the
+  renewals editor, and quick-capture sheets for service and fuel that bump the vehicle's
+  odometer when the new reading reads higher.
+- **`HomeUtilities`, `MaintenanceJobs`, `Appliances`**, and the single Home management
+  screen over all three. None takes a user-picked `spaceId`: every row belongs to the one
+  Home system space, found the way the Vehicle repository finds its own.
+- **A maintenance job can be promoted to a task.** `TaskSource` gained `maintenanceJob`,
+  and the job stores the created task's id back on itself — the same one-way link Ideas
+  will use for "Make a task" in Phase 4.
+
+What week 4 built — custom records (schema v16) and Groups (schema v17):
+- **`RecordTemplates` and `CustomRecords`**, plus the template builder, the record editor,
+  the per-type Custom records screen and the Spaces grid's Custom records card — the card
+  Appendix A has wanted since week 1. Nothing is seeded: unlike Spaces there is no such
+  thing as a system record type.
+- **The record editor is generated from the template**, one input per field in the
+  template's own order, with the keyboard or picker its type asks for. A field added in
+  the builder appears in the editor on the next open with no code of its own.
+- **`Groups`, `GroupMembers`, `SharedExpenses`, `ExpenseShares`, `Settlements`** — five
+  tables, because a split is five facts: who is in the group, what was spent, who paid it,
+  what each person's share of it was, and who has since paid whom.
+- **The ledger**, §6.14's acceptance criterion, as a pure function over plain entities with
+  no repository in sight, tested against the prototype's own seed trip.
+- **The trip card on space detail**, the shared expense sheet, and Split & settle up with
+  the balance bars, the suggested transfers, Pay, and "Everyone's square".
+
+### 12.5.1 Notes carried out of week 1
+
+- **Archiving keeps every link (ADR 0008).** §6.5 asks that deleting a user space unlink
+  its items; doing that at read time rather than nulling `space_id` across four tables is
+  what makes undo a one-row restore. The observable behaviour is identical — no surface
+  reads an archived space — except when the user undoes. `Spaces` therefore has no
+  `deletedAt`, the only table in the database without one.
+- **Two identity columns are stored by name, not index.** `systemKey` is a `textEnum`
+  because the code matches on it (`systemKey == SystemSpace.vehicle` is how the Vehicle
+  screen will find its own space), and the holds set is comma-joined enum names written
+  in declaration order, so an identical selection always produces an identical string. A
+  unique index on `systemKey` is what actually prevents a second Finance space,
+  independent of the seeding guard.
+- **`combineLatestLists` took its third caller without changing.** The grid's sub-lines
+  are three `GROUP BY` queries merged through the same primitive Home and the Calendar
+  use, folded into one summary per space. Adding documents later is a fourth entry in the
+  list, as §12.1.3 predicted.
+- **The grid is taller than the 800×600 test surface** once six spaces are seeded, so its
+  widget tests scroll to the New space tile and the footer rather than inflating the test
+  window — inflating would hide exactly the overflow §7.6 asks these screens to survive.
+- **Still to do in week 1's area:** the grid's Custom records card (Appendix A) waits on
+  the `RecordTemplate`/`CustomRecord` tables in week 4, and Space detail's Upcoming
+  section waits on documents and renewals having dates to contribute.
+
+### 12.5.2 Notes carried out of week 2
+
+- **"No expiry" is a status, not a missing one.** A document with no expiry date and a
+  valid one are both fine states, but only one of them can change, and the pill says
+  different things about them. `documentStatus` therefore returns four values
+  (valid/expiring/expired/none), and week 3's appliance warranty reused the shape exactly.
+- **The expiry window is per document, so "needs attention" is not one date-range query.**
+  A passport reminding 30 days out and a policy reminding 7 days out are expiring on
+  different days. That filter runs in Dart over the documents that have an expiry at all —
+  a handful of rows — rather than in hand-rolled SQL date arithmetic a later reader would
+  have to re-verify.
+- **Replace writes the new file first and swaps the row second**, leaving the old bytes for
+  the caller to delete, so a crash anywhere leaves a document with a readable file rather
+  than a path pointing at nothing.
+- **Category chip counts are unfiltered on purpose.** A chip reading "0" only because
+  another chip is selected would be lying about what is in the app; a filtered view that
+  finds nothing says so about that category instead.
+- **Real file I/O never completes inside the widget tester's fake-async zone**, so the
+  capture paths run through `runAsync`. Drift's in-memory database needs no such help,
+  which is why only those paths use it.
+- **Awaiting a drift stream's `.first` inside a widget test hangs outright** — the first
+  value arrives on a zero-duration timer that only fires on a pump. Recorded in
+  `flutter-test-gotchas-kosha`.
+- **`file_picker` 12 dropped `FilePicker.platform` for statics**, and `crypto` is now a
+  direct dependency rather than a transitive one, since `file_service.dart` imports it for
+  sha256 dedupe.
+- **Still to do in week 2's area:** documents are not in the FTS index — `tasks_fts` is
+  still tasks-only, the same gap Phase 2 left for transactions and bills — the preview
+  strip has no thumbnails (§8.4 wants them; no PDF renderer ships in the app), and the
+  scanner has never run on a real device.
+
+### 12.5.3 Notes carried out of week 3
+
+- **An enum persisted by index only grows at the end.** `ReminderKind` gained
+  `vehicleRenewal` and then `appliance`, both appended rather than sorted in, because the
+  notifications table stores the index: an insert in the middle would silently relabel
+  every already-stored General notification as a vehicle one on the next read. `TaskSource`
+  gained `maintenanceJob` under the same rule.
+- **`MaintenanceJob.status` is stored, not derived — the only status in this app that is.**
+  Appendix B settles it: "Kitchen tap leak (Active, plumber 6 Sep)" is Active despite its
+  date being days off, which only a user's own choice can express.
+  `maintenanceJobDisplayStatus` layers Overdue on top at read time for an Upcoming job
+  whose date has passed; Active and Done both override a passed date rather than reading as
+  overdue.
+- **The appliance warranty lead time is a fixed 30 days**, not a per-row column: the data
+  model gives `Appliance` no `reminder_offset_days` the way `Document` and `Bill` each
+  have, and the acceptance criterion only ever names one number.
+- **`HomeUtility` is a bill-to-icon link, not a copy of the bill.** Phase 2 dropped the
+  icon field the original data model gave `Bill`, so this table's `iconKey` is what lets
+  Electricity/Water/Gas/Internet read as distinct tiles. Its read excludes a utility whose
+  bill has been deleted — the same join-and-filter shape
+  `watchRenewalsNeedingAttention` uses to exclude a deleted vehicle's renewals.
+- **`null` cannot mean both "unchanged" and "clear".** `VehicleRepository.edit()` had no
+  way to actually clear `purchaseDate`, so the Edit screen's clear button would have
+  silently done nothing; it gained a `clearPurchaseDate` sentinel, the shape
+  `DocumentRepository.edit`'s `clearExpiry` already used. Worth checking on every future
+  `edit()` with a nullable field.
+- **Home's Quick access is now full.** Vehicle took the fifth content slot Appendix A's
+  "5 tiles + Customize" budgets for, which it needed — without a tile the screen has no
+  entry point to Vehicle at all. Documents and Home management are reachable by route
+  only. Growing that row again should wait for the plan's real target ("5 most-used
+  spaces") rather than another hand-added tile.
+- **Still to do in week 3's area:** vehicle renewals and appliance warranties schedule OS
+  reminders and appear in the notification inbox, but they do **not** reach Home's three
+  sections or the Calendar — no `vehicle_home_sources.dart` exists, and `HomeItemKind` and
+  `CalendarItemKind` still stop at documents. The next-service-by-km stat and the km/l
+  calculation were also left out deliberately, pending the acceptance criteria the Vehicle
+  screen has not been measured against yet. And the on-device live UI check has still not
+  run for any of week 2 or week 3 — the same gap §12.3.2 records for Phase 2.
+### 12.5.4 Notes carried out of week 4
+
+- **The ledger's order is the prototype's, not §6.14's prose — see D11.** §6.14 says
+  "greedy netting (largest debtor pays largest creditor)", but the prototype's own
+  `ledger()` filters `ALL` in declaration order and never sorts, and Appendix B's expected
+  transfers are the ones that order produces (Meera→You ₹3,800, Rohan→You ₹4,600,
+  Rohan→Aarav ₹1,000). Sorting by size gives three different transfers that are equally
+  exact. Two signals against one, and the acceptance criterion says "port the prototype",
+  so member order won; `ledger.dart` carries the reasoning and D11 records the conflict for
+  an owner to confirm or overturn.
+- **Money is exact integers, so the prototype's ₹1 threshold is gone.** That threshold
+  existed only to stop floating-point dust reading as a settlement. Shares are materialised
+  rows, so every net is whole minor units and the group sums to zero — `splitEqually` hands
+  the remainder out one paisa at a time in member order, which is what makes that true.
+  1,000 paise across three people is 334/333/333, never three numbers that lose one.
+- **Three rules in `DriftGroupRepository` all say "money must add up":** an expense and its
+  shares are written in one transaction, a custom split that does not total the amount is
+  refused rather than stored, and a member who has paid for anything, owes a share of
+  anything, or is on either side of a settlement cannot be removed. Without the last,
+  removing somebody would silently unbalance the group, because `buildLedger` skips shares
+  belonging to nobody.
+- **A field's key is its identity; its label is only what the user reads.** Values are keyed
+  by key, so renaming "Provider" to "Insurer" keeps every record's data. Removing a field
+  prunes nothing until that record is next saved — ADR 0008's reasoning a third time.
+- **go_router runs the route-level redirect of *every* match in the stack, not just the
+  last.** Custom records were first written as children of a redirect-only `/records`,
+  which silently took `/records/<id>` and `/records/<id>/fields` with it, including the
+  path `record_reminder.dart` builds for a reminder tap. They are three sibling routes now.
+  No screen test could have caught this, which is why `test/core/router/record_routes_test.dart`
+  drives the real router; all four of its cases fail against the parent shape.
+- **`FilledButton` and `OutlinedButton` demand infinite width in this app.** The theme gives
+  both `minimumSize: Size.fromHeight(...)`, which is right for the full-width button a
+  sheet ends with and throws a layout assertion the moment either sits in a `Row` without
+  an `Expanded` around it. Every row with a button in it needs one.
+- **A tap that "does nothing" may be a tap below the fold.** The shared expense sheet is
+  taller than the test viewport, so its test has to `ensureVisible` the Save button first —
+  the same thing a user does on a phone. The symptom was a silent no-op, not an error.
+- **Rows in the template builder are counted by their remove button's tooltip**, because
+  the label field's hint renders in every row and `widgetWithText` therefore matches all of
+  them at once.
+- **Still to do in week 4's area:**
+  - `RecordTemplate.spaceId` is written by nothing. It is the hook G29 needs for a "Health"
+    space's Records section, and it is also the one column in Phase 3 that no surface uses
+    — either G29 lands in Phase 4 or the column should go.
+  - Custom-record renewals reach the notification inbox but not Home or the Calendar, the
+    same gap §12.5.3 records for vehicle renewals and appliance warranties.
+  - Nothing from Phase 3 is in the FTS index: documents, vehicles, home management, records
+    and groups are all invisible to Search, which still reads `tasks_fts` alone. §8.3 wants
+    all of them.
+  - Groups have no invite and no second device; §6.14 puts both in Phase 5.
+  - **Reminders are re-registered on launch for tasks, events and bills only.** Documents,
+    vehicle renewals, appliance warranties and custom records have no `resyncReminders()`,
+    so a reinstall or an OS upgrade that drops scheduled notifications loses them silently.
+    Four features now share this gap; it should be one pass, not four.
+
+### 12.5.5 Live UI verification (27 Sep 2026)
+
+**The screenshot pass that §12.3.2 left unfinished for Phase 2 has now run, and it
+covered Phase 3's weeks 2–4 as well.** 25 screens at a real 411×914 dp phone size on the
+API 36 emulator, via the throwaway `integration_test/zz_live_ui_check.dart` §15 asks for.
+Two of Phase 3's three exit criteria are confirmed on a real screen; the third still has
+not run (see the end of this section).
+
+**The ledger is right on a real screen.** Split & settle shows You +₹8,400, Aarav +₹1,000,
+Meera −₹3,800, Rohan −₹5,600, settling as Meera→You ₹3,800, Rohan→You ₹4,600,
+Rohan→Aarav ₹1,000 — Appendix B's figures exactly, in the member order D11 records.
+Vehicle overview and renewals, home management, documents, custom records, the template
+builder, the Spaces grid, the Goa trip card and the shared expense sheet all render with
+no overflow and no clipped text.
+
+**Three things looked like defects in a screenshot and were not.** Each is written down
+because the next person to run this pass will see them again:
+
+- **Bill detail's "Payment history" renders blank.** The data is fine — a direct test of
+  `watchPayments` after `markPaid(logExpense: false)` emits one receipt, and
+  `bill_detail_screen_test.dart` asserts the row in a widget test. On the integration
+  harness the provider is still in its `loading` branch when the shot is taken, and that
+  branch is a bare `SizedBox(height: 40)`. Adding a 500 ms `pump` before the screenshot
+  did not change it. Do not chase this as a bug.
+- **The `link_off` icon on a Home-management utility row** is an `IconButton` with
+  `tooltip: 'Remove'`, not a broken-link indicator.
+- **The Spaces grid appearing to hold only two spaces** was the page parked at its bottom
+  by `scrollUntilVisible`. Six spaces are active (Finance, Documents, Shopping, Ideas,
+  Health, Travel) and four archived, which is what §12.5.1 describes. The script now takes
+  a `spaces_grid_top` shot before scrolling so the first row is actually looked at.
+
+**What the pass found that widget tests had not:**
+
+- **The record editor's title is ungrammatical: "New my insurance record."** The template
+  name is lowercased mid-sentence. It should read "New My Insurance record", or drop the
+  name.
+- **A record has two renewal dates on screen, side by side.** The template carries a
+  `Renewal date` field (Appendix B specifies one for My Insurance) and `CustomRecord` has
+  its own `renewal_date` column for the reminder (§5.1), so the editor shows "Renewal date"
+  and "Renews on (optional)" stacked. Nothing tells the user which one drives the reminder.
+  This is a design decision, not a typo — see **D12**.
+- **The shared expense sheet has no pinned action bar.** On a 411×914 phone the sheet opens
+  with "Save and split" below the fold, so the primary action is invisible until the user
+  scrolls. Every other sheet in the app (pay bill, add service, add fuel, add record) pins
+  its action row to the bottom. This is the same fact §12.5.4 recorded as a *test* nuisance
+  ("its test has to `ensureVisible` the Save button first") without noticing it is a real
+  one for the user.
+- **Group spend is invisible to the space that holds it.** The Travel space's tile reads
+  "Nothing yet" and its Money section reads "Nothing spent against this space yet", while
+  the Goa trip card in the middle of that same screen reads "₹21,800 spent". Shared
+  expenses are not `Transaction`s unless linked, so both numbers are literally correct and
+  the screen still contradicts itself.
+- **Settle-up rows are visually unbalanced.** "Pay" renders as a large filled block against
+  a small "Remind" text link, because of the `minimumSize: Size.fromHeight(...)` the theme
+  gives `FilledButton` — the trait §12.5.4 already records.
+- **Stacked member avatars clip their own initials.** "AS" and "MJ" are partly covered by
+  the avatar overlapping them, which defeats the control.
+- **Two placeholders suggest existing data.** The add-member field hints "Aarav Sharma",
+  who is already in the group, and the record editor's title hints an existing record's
+  title — neither uses the "e.g." the vehicle sheets use.
+- **Document detail has no share action**, though Appendix A specifies "back, category,
+  share" for it.
+
+None of these are blocking; all are small and local. They belong in Phase 4's polish pass
+or Phase 6's accessibility/polish audit, except D12, which needs an owner first.
+
+**The third exit criterion still has not run.** "Scan → PDF → expiry reminder works on a
+physical device" needs `DocumentCapture`, and the check script screenshots documents
+without ever exercising the scanner. Only the `Realme_Phone` emulator is available on this
+machine, and `cunning_document_scanner` requesting camera permission against a virtual
+camera is exactly the leg an emulator tests least convincingly.
+
+*(Superseded the same day — see §12.5.6. The camera is the only part of that criterion
+that needs a handset, and faking it at the `DocumentCapture` seam leaves the PDF, the
+sandbox write and the OS alarm all real and all testable here. Running it that way is what
+turned up the two Phase 1 defects §12.5.6 records.)*
+
+**Harness notes for the next run,** on top of the two §12.3.2 already records:
+
+- **`flutter test integration_test/…` can fail before any test runs** with "Failed to start
+  Dart Development Service" when DDS instances from an earlier run still hold their ports.
+  It reports as `Some tests failed` with a named failing test, which looks like a test
+  failure and is not. Retry once the stale `dart.exe development-service` processes exit.
+- **The run always ends `did not complete` / exit 79**, because the deliberate
+  `Future.delayed` that holds the app open for `adb pull` outlives what the harness will
+  wait for. The screenshots are already written by then. Judge the run by the pulled files,
+  not the exit code — and note that a backgrounded `flutter test` whose exit code is echoed
+  to stdout reports the *echo's* status, not the test's.
+- **`scrollUntilVisible` does nothing when the target is already in the tree but off
+  screen**, which is the normal case for a non-lazy column. The tap then misses with a
+  `warnIfMissed` warning and the screenshot silently captures the wrong screen — this is
+  what made the first run's `shared_expense_sheet` a picture of the settle screen. Follow
+  every scroll with `tester.ensureVisible`, or drive the sheet from a control that sits
+  mid-screen.
+
+### 12.5.6 The exit criterion, driven on the device (27 Sep 2026)
+
+§12.5.5 looked at the screens. This is the other half: **scan → PDF → expiry reminder**,
+run end to end as `integration_test/document_scan_expiry_reminder_test.dart`, which now
+runs nightly in CI beside the Phase 1 and Phase 2 flows. It passes.
+
+**What is real in it, and what is not.** The test scans two pages, assembles them with the
+real `pdf` package on the device, writes the result into the app's own sandbox through the
+real `LocalFileService` (no temp-directory override), saves the document through the real
+repository, and then asks Android what it is holding: `pendingNotificationRequests` has
+the reminder, with the right id, title, body and deep link. The bytes on disk are compared
+against the assembled PDF, so the sandbox write is checked rather than assumed. The one
+leg still faked is the shutter — `CunningDocumentScanner.getPictures()` opens a native
+activity no test can drive, which is precisely why `DocumentCapture` is an interface — so
+page images are rendered in the test and handed to it there.
+
+§12.5.5 concluded this criterion needed a physical handset and could not run here. That is
+true of the camera and only of the camera. Everything the criterion is actually about —
+that multi-page scanning produces a real PDF, that the PDF survives in the sandbox, that
+an expiry becomes an alarm the operating system is holding — runs on the emulator, and
+running it found two defects that had been shipping since Phase 1. Pointing a phone at a
+piece of paper stays a manual check, and is now the only part that is.
+
+**The app crashed on launch, on every install and every update.** `AndroidManifest.xml`
+declared `flutter_local_notifications`' two receivers under
+`com.dexterous.flutterlocalnotifications.receivers.*` — a package that has never existed
+in the plugin, in v22 or in the v19 this project started on. The boot receiver listens for
+`MY_PACKAGE_REPLACED`, so Android tried to instantiate it the instant the APK landed and
+killed the process with `ClassNotFoundException`. That is what a fresh install does; it is
+also what shipping an update to a user does. The same wrong name on
+`ScheduledNotificationReceiver` is the class `AlarmManager` targets when a reminder comes
+due, so **no scheduled reminder on Android could ever have been delivered**. Phase 1's
+"reminders fire on both platforms" has been reported green since Phase 1 week 2 and was
+true on neither: iOS has no Mac to test on (§12.4), and Android was this. A class named by
+a string is checked by nothing until Android tries to load it, so
+`test/core/services/android_manifest_test.dart` now resolves every declared receiver
+against the plugin version `pub get` actually chose — an upgrade that moves the class
+fails there instead of on a phone.
+
+**Every reminder that survived that would have been scheduled against UTC, or lost.**
+`FlutterTimezone.getLocalTimezone()` returns whatever zone id the device is set to, and
+that is routinely a legacy alias: this emulator says `Asia/Calcutta`, not `Asia/Kolkata`.
+`bootstrap()` loaded `timezone/data/latest`, which carries canonical names only, so the
+lookup threw. The `catch` logged and carried on — leaving `tz.local` unset, so the next
+line threw a `LateInitializationError` out of `schedule()` and the reminder was lost
+entirely. `bootstrap()` loads `latest_all` now (about 190 KB more, and the aliases with
+it), and the `catch` sets UTC so the fallback its own comment promises is real rather than
+a second crash. `test/core/services/timezone_database_test.dart` pins the alias list. For
+an Indian user the difference between the two failure modes is a reminder that never
+arrives and one that arrives five and a half hours late; neither is the 9 am §8.1 asks
+for.
+
+Both of these are the same shape: a string handed to a platform, correct-looking, never
+executed by any test in the suite. Every reminder test in the repo asserts against
+`FakeReminderScheduler`, which is the right thing for testing repositories and says
+nothing about whether the real scheduler works.
+
+**Documents had no entry point anywhere in the app.** Five screens, built in week 2,
+reachable only by tapping a notification or through Vehicle's "Add document" action. The
+Spaces grid's Documents tile opens the space, and space detail — whose header lists
+"Documents" among what the space holds — showed Tasks and Money and stopped. The tell was
+`DocumentRepository.watchInSpace`, written in week 2 and called by nothing. Space detail
+now has the Documents section §6.5's order asks for, with "See all" onto the list. Week
+1's reasoning — "a section that could only ever render an empty state would be a promise
+the app cannot keep" — was right when it was written and stopped being right the moment
+the table landed in week 2; nothing went back for it. §12.5.5 did not catch this because
+the check script pumps `DocumentsScreen` directly, which is also how every widget test
+reaches it.
+
+**Fixed from §12.5.5's list while here:** the record editor's ungrammatical title — it uses
+the type name as the user wrote it now, "New My Insurance record". The clipped member
+initials have a fix of their own in the working tree from that pass (`MemberStack` stepping
+0.78 of a disc instead of 0.68), which the screenshots here confirm. The rest of the list
+still stands for Phase 4's polish pass, and D12 still needs an owner.
+
+**Two harness repairs.** `documents_screen_test.dart`'s `withRealIo` still waited a flat
+50 ms for a real file write — the flake §12.5.2 recorded and §12.5.4 worked around — and
+now polls a real condition instead; it was failing roughly three full-suite runs in five.
+And `wrapApp`'s comment claimed that a test passing neither `capture` nor `files` got
+doubles touching neither camera nor disk. It never did: both providers stay real when left
+out, which is exactly what lets the test above write into the actual sandbox, and the
+comment said the opposite.
+
+**Still open, carried into Phase 4 unchanged:** the four features whose reminders are never
+re-registered on launch (§12.5.4) — which matters more now that it is clear how quietly
+reminder plumbing fails; Phase 3's absence from the FTS index; vehicle and custom-record
+renewals not reaching Home or the Calendar; and iOS, which has still never been run.
 
 ---
 
@@ -1200,7 +1641,9 @@ Coverage goal: 80 % on `domain/` and `data/`, no target on `presentation/` beyon
 | D7 | Tablet support in v1 | Breakpoint rules only vs dedicated layouts | Breakpoint rules only | Phase 6 |
 | D8 | Bundling fonts vs runtime google_fonts | Bundle | **Decided: bundle**; runtime fetch in Phase 0, TTFs added in Phase 1 (ADR 0003) | Done |
 | D9 | Exact alarms on Android | Opt-in setting vs never | **Decided: opt-in setting**, off by default (ADR 0005) | Done |
-| D10 | Multiple vehicles / multiple profiles | Model supports; UI single in v1 | Keep model multi, UI single | Phase 3 |
+| D10 | Multiple vehicles / multiple profiles | Model supports; UI single in v1 | **Decided: model multi, UI single**, taken in Phase 3 week 3 — `Vehicles` holds any number of rows, `VehicleRepository.watchPrimary` exposes only the oldest live one (§12.5) | Done |
+| D11 | Ledger ordering: whose order the settle-up transfers follow | Member order (the prototype's `ledger()`, and the transfers Appendix B documents) vs largest-debtor-pays-largest-creditor (§6.14's own prose) | **Built as member order** — the acceptance criterion says to port the prototype, and Appendix B's numbers agree with it against one line of §6.14. Both give 3 exact transfers here; minimising transfers is NP-hard, so neither promises a true minimum. Confirm, or say the word and §6.14's prose becomes the spec and Appendix B's expected transfers change | Confirm before Phase 5 |
+| D12 | Which renewal date a custom record actually uses | The template's own `Renewal date` field vs `CustomRecord.renewal_date` (the column the reminder reads) | **Drop one.** Appendix B's My Insurance template lists "Renewal date" as a field, and §5.1 gives the entity its own `renewal_date`; the editor renders both, stacked, with nothing saying which one reminds. Recommend keeping the column and having a `date` field whose key is the renewal one *write* it, so a template can name the field whatever it likes | Phase 4 |
 
 ---
 

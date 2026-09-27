@@ -4,15 +4,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kosha/core/db/app_database.dart';
+import 'package:kosha/core/services/files/document_capture.dart';
+import 'package:kosha/core/services/files/file_service.dart';
 import 'package:kosha/core/services/notifications/reminder_scheduler.dart';
 import 'package:kosha/core/services/settings/settings_store.dart';
 import 'package:kosha/core/theme/kosha_theme.dart';
 import 'package:kosha/core/utils/clock.dart';
 import 'package:kosha/features/bills/data/bill_repository_impl.dart';
+import 'package:kosha/features/documents/data/document_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_category_repository_impl.dart';
 import 'package:kosha/features/finance/data/transaction_repository_impl.dart';
+import 'package:kosha/features/groups/data/group_repository_impl.dart';
+import 'package:kosha/features/home_space/data/home_management_repository_impl.dart';
 import 'package:kosha/features/onboarding/data/profile_repository_impl.dart';
+import 'package:kosha/features/spaces/data/record_repository_impl.dart';
+import 'package:kosha/features/spaces/data/space_repository_impl.dart';
 import 'package:kosha/features/tasks/data/task_repository_impl.dart';
+import 'package:kosha/features/vehicle/data/vehicle_repository_impl.dart';
 import 'package:kosha/shared/state/toast_controller.dart';
 import 'package:kosha/shared/widgets/toast_host.dart';
 
@@ -75,6 +83,86 @@ DriftBillRepository testBillRepository(
       testTransactionRepository(db, now: now),
     );
 
+DriftDocumentRepository testDocumentRepository(
+  AppDatabase db, {
+  DateTime? now,
+  ReminderScheduler? scheduler,
+}) =>
+    DriftDocumentRepository(
+      db,
+      FixedClock(now ?? testNow),
+      scheduler ?? const NoopReminderScheduler(),
+    );
+
+/// A space repository on [db]. It reads onboarding's "Pick areas" selection
+/// when it seeds, so it is handed a real profile repository over the same
+/// database rather than a stub — a test that wants a different selection calls
+/// `setVisibleAreas` on [testProfileRepository] before the first read.
+DriftSpaceRepository testSpaceRepository(AppDatabase db, {DateTime? now}) =>
+    DriftSpaceRepository(
+      db,
+      FixedClock(now ?? testNow),
+      testProfileRepository(db, now: now),
+    );
+
+DriftProfileRepository testProfileRepository(AppDatabase db, {DateTime? now}) {
+  final clock = FixedClock(now ?? testNow);
+  return DriftProfileRepository(db, clock, SettingsStore(db, clock));
+}
+
+/// A vehicle repository on [db]. Shares the [SpaceRepository] Spaces uses, so
+/// a created vehicle lands in the same Vehicle system space a test's other
+/// reads see.
+DriftVehicleRepository testVehicleRepository(
+  AppDatabase db, {
+  DateTime? now,
+  ReminderScheduler? scheduler,
+}) =>
+    DriftVehicleRepository(
+      db,
+      FixedClock(now ?? testNow),
+      scheduler ?? const NoopReminderScheduler(),
+      testSpaceRepository(db, now: now),
+    );
+
+/// A Home management repository on [db]. Shares the [SpaceRepository] Spaces
+/// uses, so a created utility/job/appliance lands in the same Home system
+/// space a test's other reads see.
+DriftHomeManagementRepository testHomeManagementRepository(
+  AppDatabase db, {
+  DateTime? now,
+  ReminderScheduler? scheduler,
+}) =>
+    DriftHomeManagementRepository(
+      db,
+      FixedClock(now ?? testNow),
+      scheduler ?? const NoopReminderScheduler(),
+      testSpaceRepository(db, now: now),
+    );
+
+/// A custom-records repository on [db]. Needs no space repository: a record
+/// template names a space only when the user puts it in one, and nothing in
+/// v1's screens does.
+DriftRecordRepository testRecordRepository(
+  AppDatabase db, {
+  DateTime? now,
+  ReminderScheduler? scheduler,
+}) =>
+    DriftRecordRepository(
+      db,
+      FixedClock(now ?? testNow),
+      scheduler ?? const NoopReminderScheduler(),
+    );
+
+/// A groups repository on [db]. Shares the profile repository, because
+/// creating a group puts the user in it as the organiser.
+DriftGroupRepository testGroupRepository(AppDatabase db, {DateTime? now}) =>
+    DriftGroupRepository(
+      db,
+      FixedClock(now ?? testNow),
+      testProfileRepository(db, now: now),
+    );
+
 /// Wraps [app] in a scope with a throwaway database, a fixed clock and no real
 /// notifications.
 ///
@@ -85,6 +173,8 @@ Widget wrapApp(
   required AppDatabase db,
   DateTime? now,
   ReminderScheduler? scheduler,
+  DocumentCapture? capture,
+  FileService? files,
 }) {
   return ProviderScope(
     overrides: [
@@ -94,6 +184,13 @@ Widget wrapApp(
       reminderSchedulerProvider.overrideWithValue(
         scheduler ?? const NoopReminderScheduler(),
       ),
+      // Documents reach the camera and the file system through these two.
+      // Left out, they stay the real thing — the platform scanner and a
+      // `LocalFileService` writing into the app's own sandbox. A widget test
+      // passes both; the on-device test of the scan flow deliberately passes
+      // only `capture`, so the file half runs for real.
+      if (capture != null) documentCaptureProvider.overrideWithValue(capture),
+      if (files != null) fileServiceProvider.overrideWithValue(files),
     ],
     child: app,
   );
@@ -106,6 +203,8 @@ Widget wrapScreen(
   required AppDatabase db,
   DateTime? now,
   ReminderScheduler? scheduler,
+  DocumentCapture? capture,
+  FileService? files,
 }) {
   return wrapApp(
     MaterialApp(
@@ -117,6 +216,8 @@ Widget wrapScreen(
     db: db,
     now: now,
     scheduler: scheduler,
+    capture: capture,
+    files: files,
   );
 }
 
@@ -128,6 +229,9 @@ Widget wrapPushedScreen(
   Widget screen, {
   required AppDatabase db,
   DateTime? now,
+  ReminderScheduler? scheduler,
+  DocumentCapture? capture,
+  FileService? files,
 }) {
   final router = GoRouter(
     initialLocation: '/screen',
@@ -150,6 +254,9 @@ Widget wrapPushedScreen(
     ),
     db: db,
     now: now,
+    scheduler: scheduler,
+    capture: capture,
+    files: files,
   );
 }
 

@@ -29,6 +29,10 @@ abstract interface class TransactionRepository {
   /// Transactions dated in `[from, to)` — end exclusive.
   Stream<List<Transaction>> watchBetween(DateTime from, DateTime to);
 
+  /// Transactions filed under one space, newest first — the money sections of
+  /// Space detail (section 6.5).
+  Stream<List<Transaction>> watchInSpace(String spaceId, {required int limit});
+
   /// Emits null once the transaction is deleted — the detail screen.
   Stream<Transaction?> watchById(String id);
 
