@@ -75,9 +75,12 @@ class MemberStack extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     final shown = members.take(max).toList();
     final overflow = members.length - shown.length;
-    // A third of each disc tucks under the one before it. Laid out in a Stack
-    // rather than with negative padding, which Padding asserts against.
-    final step = size * 0.68;
+    // Each disc tucks under the one before it, but only by the margin that
+    // leaves two-letter initials whole: at 0.68 the device check showed "MJ"
+    // rendering as "M." because the next disc covered the second character.
+    // Laid out in a Stack rather than with negative padding, which Padding
+    // asserts against.
+    final step = size * 0.78;
     final width = shown.isEmpty ? 0.0 : size + step * (shown.length - 1);
 
     return Row(
